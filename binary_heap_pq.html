@@ -638,21 +638,21 @@
         });
       }
 
-      snapshot(1, `Appel de <code>insert('${val}')</code> dans le tas max.`, null, null);
+      snapshot(1, `Call <code>insert('${val}')</code> into the max-heap.`, null, null);
 
       // pq[++n] = val
       n++;
       pq[n] = val;
-      snapshot(2, `Nouvelle clé '<strong>${val}</strong>' placée à la fin du tas à <code>pq[${n}]</code>. Appel de <code>swim(${n})</code> pour restaurer l'invariant de tas.`, n, null);
+      snapshot(2, `New key '<strong>${val}</strong>' placed at the end of the heap at <code>pq[${n}]</code>. Calling <code>swim(${n})</code> to restore the heap invariant.`, n, null);
 
       // swim(n)
       let k = n;
       while (k > 1) {
         const parent = Math.floor(k / 2);
-        snapshot(6, `Examen du parent de k=${k} : le parent est <code>k/2 = ${parent}</code> ('<strong>${pq[parent]}</strong>').`, k, parent);
+        snapshot(6, `Examining parent of k=${k}: parent is <code>k/2 = ${parent}</code> ('<strong>${pq[parent]}</strong>').`, k, parent);
 
         if (!compare(parent, k)) {
-          snapshot(6, `✅ Invariant respecté : le parent '<strong>${pq[parent]}</strong>' &ge; l'enfant '<strong>${pq[k]}</strong>'. <em>Aucun déplacement requis</em>, la remontée (swim) se termine.`, k, parent, false);
+          snapshot(6, `✅ Heap invariant satisfied: parent '<strong>${pq[parent]}</strong>' &ge; child '<strong>${pq[k]}</strong>'. <em>No swap needed</em>; swim completes.`, k, parent, false);
           break;
         }
 
@@ -661,12 +661,12 @@
         pq[parent] = pq[k];
         pq[k] = temp;
 
-        snapshot(7, `🔄 Échange effectué (swim) : l'enfant '<strong>${pq[parent]}</strong>' et le parent '<strong>${pq[k]}</strong>' échangent leurs places. Le nœud remonte !`, parent, k, true);
+        snapshot(7, `🔄 Swap performed (swim): child '<strong>${pq[parent]}</strong>' and parent '<strong>${pq[k]}</strong>' swap places. Node swims up!`, parent, k, true);
         k = parent;
-        snapshot(8, `Indice mis à jour : k = ${k}. Continuer la remontée si nécessaire.`, k, null);
+        snapshot(8, `Index updated: k = ${k}. Continue swimming up if needed.`, k, null);
       }
 
-      snapshot(4, `Insertion terminée ! Invariant de tas max pleinement restauré. Nouvelle taille n = ${n}.`, null, null);
+      snapshot(4, `Insertion complete! Max-heap invariant fully restored. New size n = ${n}.`, null, null);
 
       return { steps, newHeap: pq };
     }
@@ -696,14 +696,14 @@
       }
 
       if (n < 1) {
-        snapshot(11, "Le tas est vide ! Impossible d'effectuer delMax().", null, null);
+        snapshot(11, "The heap is empty! Cannot perform delMax().", null, null);
         return { steps, newHeap: pq };
       }
 
-      snapshot(11, `Appel de <code>delMax()</code>. L'élément maximal racine est <strong>'${pq[1]}'</strong>.`, 1, null);
+      snapshot(11, `Call <code>delMax()</code>. Root maximum element is <strong>'${pq[1]}'</strong>.`, 1, null);
 
       const max = pq[1];
-      snapshot(12, `Clé maximale extraite : <code>max = '<strong>${max}</strong>'</code>.`, 1, null);
+      snapshot(12, `Extracted maximum key: <code>max = '<strong>${max}</strong>'</code>.`, 1, null);
 
       // exch(1, n--)
       const last = pq[n];
@@ -711,25 +711,25 @@
       pq.pop();
       n--;
 
-      snapshot(13, `🔄 Échange effectué : racine remplacée par le dernier élément '<strong>${last}</strong>' (ancien index ${n + 1}). Taille réduite à n = ${n}. Prêt pour la descente.`, 1, n + 1, true);
+      snapshot(13, `🔄 Swap performed: root replaced by last element '<strong>${last}</strong>' (former index ${n + 1}). Size decreased to n = ${n}. Ready to sink.`, 1, n + 1, true);
 
       // sink(1)
       let k = 1;
       while (2 * k <= n) {
         let j = 2 * k;
-        snapshot(19, `Descente (sink) : le nœud k=${k} ('<strong>${pq[k]}</strong>') a pour enfant gauche j=${j} ('<strong>${pq[j]}</strong>').`, k, j);
+        snapshot(19, `Sink step: node k=${k} ('<strong>${pq[k]}</strong>') has left child at j=${j} ('<strong>${pq[j]}</strong>').`, k, j);
 
         if (j < n) {
-          snapshot(21, `Comparaison entre enfant gauche j=${j} ('${pq[j]}') et enfant droit j+1=${j+1} ('${pq[j+1]}').`, k, j);
+          snapshot(21, `Comparing left child j=${j} ('${pq[j]}') and right child j+1=${j+1} ('${pq[j+1]}').`, k, j);
           if (compare(j, j + 1)) {
             j++;
-            snapshot(21, `L'enfant droit '<strong>${pq[j]}</strong>' est plus grand. Enfant sélectionné : j = ${j}.`, k, j);
+            snapshot(21, `Right child '<strong>${pq[j]}</strong>' is larger. Selected child: j = ${j}.`, k, j);
           }
         }
 
-        snapshot(22, `Comparaison : parent '<strong>${pq[k]}</strong>' vs plus grand enfant '<strong>${pq[j]}</strong>'.`, k, j);
+        snapshot(22, `Comparison: parent '<strong>${pq[k]}</strong>' vs larger child '<strong>${pq[j]}</strong>'.`, k, j);
         if (!compare(k, j)) {
-          snapshot(22, `✅ Invariant respecté : parent '<strong>${pq[k]}</strong>' &ge; enfant '<strong>${pq[j]}</strong>'. <em>Aucun déplacement nécessaire !</em> La descente s'arrête.`, k, j, false);
+          snapshot(22, `✅ Heap invariant satisfied: parent '<strong>${pq[k]}</strong>' &ge; child '<strong>${pq[j]}</strong>'. <em>No swap needed!</em> Sink terminates.`, k, j, false);
           break;
         }
 
@@ -738,12 +738,12 @@
         pq[k] = pq[j];
         pq[j] = t;
 
-        snapshot(23, `🔄 Échange effectué (sink) : le parent '<strong>${pq[j]}</strong>' descend et l'enfant '<strong>${pq[k]}</strong>' monte.`, k, j, true);
+        snapshot(23, `🔄 Swap performed (sink): parent '<strong>${pq[j]}</strong>' descends and child '<strong>${pq[k]}</strong>' moves up.`, k, j, true);
         k = j;
-        snapshot(24, `Indice mis à jour : k = ${k}. Continuer la descente si nécessaire.`, k, null);
+        snapshot(24, `Index updated: k = ${k}. Continue sinking if needed.`, k, null);
       }
 
-      snapshot(16, `<code>delMax()</code> terminé avec succès ! Clé maximale extraite : <strong>'${max}'</strong>. Nouvelle taille n = ${n}.`, null, null);
+      snapshot(16, `<code>delMax()</code> finished successfully! Extracted maximum key: <strong>'${max}'</strong>. New size n = ${n}.`, null, null);
 
       return { steps, newHeap: pq };
     }

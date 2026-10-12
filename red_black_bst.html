@@ -659,10 +659,10 @@
           <span style="font-size:0.72rem; color:var(--accent-emerald);">Strict LLRB Invariant</span>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
-          <p><strong style="color:var(--accent-blue);">Invariant strict LLRB :</strong> Les liens rouges vont <strong>exclusivement vers la gauche</strong> (<em>left-leaning</em>). Aucun lien rouge ne pointe jamais vers la droite.</p>
-          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">3-Nœud [A | B] :</strong> Représenté en LLRB par un nœud noir <strong>B</strong> avec un <strong>lien rouge à gauche</strong> vers <strong>A</strong>.</p>
-          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-amber);">4-Nœud temporaire [A | B | C] :</strong> Représenté en LLRB par <strong>deux liens rouges consécutifs à gauche</strong> (C &rarr; B &rarr; A).</p>
-          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Éclatement du 4-nœud :</strong> <code>rotateRight</code> puis <code>flipColors</code> font remonter la médiane <strong>B</strong> avec un lien rouge à gauche vers son parent, tandis que <strong>A</strong> et <strong>C</strong> deviennent tous deux <strong>noirs</strong>.</p>
+          <p><strong style="color:var(--accent-blue);">Strict LLRB Invariant:</strong> Red links lean <strong>strictly to the left</strong> (<em>left-leaning</em>). No red link ever points to the right.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">3-Node [A | B]:</strong> Represented in LLRB by a black node <strong>B</strong> with a <strong>left red link</strong> to <strong>A</strong>.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-amber);">Temporary 4-Node [A | B | C]:</strong> Represented in LLRB by <strong>two consecutive left red links</strong> (C &rarr; B &rarr; A).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">4-Node Split:</strong> <code>rotateRight</code> followed by <code>flipColors</code> pushes the median <strong>B</strong> up with a red link to its parent, while <strong>A</strong> and <strong>C</strong> both become <strong>black</strong>.</p>
         </div>
       </div>
     </div>
@@ -682,7 +682,7 @@
         <div class="tree-box">
           <div class="tree-box-title">
             <span style="color:var(--accent-rose);">Left-Leaning Red-Black BST (LLRB)</span>
-            <span style="font-size:0.72rem; color:var(--accent-emerald); font-weight:700;">● Liens rouges strictement à gauche</span>
+            <span style="font-size:0.72rem; color:var(--accent-emerald); font-weight:700;">● Red links strictly lean left</span>
           </div>
           <svg class="tree-svg" id="svgLLRB" viewBox="0 0 540 440"></svg>
         </div>
@@ -691,19 +691,19 @@
       <div class="mapping-banner">
         <div class="mapping-rule-item">
           <span style="display:inline-block; width:12px; height:12px; background:#151f32; border:2px solid #38bdf8; border-radius:4px;"></span>
-          <span>2-Nœud &harr; Nœud Noir</span>
+          <span>2-Node &harr; Black Node</span>
         </div>
         <div class="mapping-rule-item">
           <span style="display:inline-block; width:18px; height:12px; background:#151f32; border:2px solid #38bdf8; border-radius:4px;"></span>
-          <span>3-Nœud [A|B] &harr; 1 Lien rouge à gauche</span>
+          <span>3-Node [A|B] &harr; 1 Left Red Link</span>
         </div>
         <div class="mapping-rule-item">
           <span style="display:inline-block; width:22px; height:12px; background:#451a03; border:2px solid #f59e0b; border-radius:4px;"></span>
-          <span>4-Nœud [A|B|C] &harr; 2 Liens rouges à gauche</span>
+          <span>4-Node [A|B|C] &harr; 2 Left Red Links</span>
         </div>
         <div class="mapping-rule-item">
           <span style="display:inline-block; width:18px; height:4px; background:#10b981; border-radius:2px;"></span>
-          <span>Éclatement &harr; flipColors()</span>
+          <span>Split 4-Node &harr; flipColors()</span>
         </div>
       </div>
     </div>
@@ -869,7 +869,7 @@
         });
       }
 
-      snapshot(1, "Initialisation : Arbre 2-3 et Arbre Rouge-Noir Gaucher (LLRB) vides.", null);
+      snapshot(1, "Initialization: 2-3 Tree and Left-Leaning Red-Black (LLRB) BST are empty.", null);
 
       function rotateLeft(h) {
         totalRotations++;
@@ -902,28 +902,28 @@
           const newNode = new LLRBNode(key, RED);
           if (!parent) {
             root = newNode;
-            snapshot(2, `Insertion de la clé '<strong>${key}</strong>' à la racine. Elle deviendra NOIRE à la fin de l'insertion.`, key, null, key, null);
+            snapshot(2, `Inserting key '<strong>${key}</strong>' at root. It will become BLACK at the end of the insertion.`, key, null, key, null);
           }
           return newNode;
         }
 
         const cmp = key.localeCompare(h.key);
         if (cmp < 0) {
-          snapshot(4, `Comparaison : Clé '<strong>${key}</strong>' < '<strong>${h.key}</strong>'. Descente dans le sous-arbre gauche.`, key, null, null, h.key);
+          snapshot(4, `Comparison: Key '<strong>${key}</strong>' < '<strong>${h.key}</strong>'. Descending into left subtree.`, key, null, null, h.key);
           h.left = insertHelper(h.left, key, h, 'left');
           if (dir === 'left' && parent) parent.left = h;
           else if (dir === 'right' && parent) parent.right = h;
         } else if (cmp > 0) {
-          snapshot(5, `Comparaison : Clé '<strong>${key}</strong>' > '<strong>${h.key}</strong>'. Descente dans le sous-arbre droit.`, key, null, null, h.key);
+          snapshot(5, `Comparison: Key '<strong>${key}</strong>' > '<strong>${h.key}</strong>'. Descending into right subtree.`, key, null, null, h.key);
           h.right = insertHelper(h.right, key, h, 'right');
           if (dir === 'left' && parent) parent.left = h;
           else if (dir === 'right' && parent) parent.right = h;
         } else {
-          snapshot(6, `La clé '<strong>${key}</strong>' est déjà présente dans l'arbre. Pas de modification.`, key, null, h.key, null);
+          snapshot(6, `Key '<strong>${key}</strong>' already exists in the tree. No modification.`, key, null, h.key, null);
         }
 
-        // Règle 1 : Lien rouge penchant à droite -> rotateLeft immédiate
-        // Invariant strict LLRB (LINFO1121) : les liens rouges ne peuvent aller qu'à GAUCHE !
+        // Rule 1: Right-leaning red link -> immediate rotateLeft
+        // Strict LLRB invariant (LINFO1121): red links can only lean LEFT!
         if (isRed(h.right) && !isRed(h.left)) {
           totalRotations++;
           const x = rotateLeft(h);
@@ -931,33 +931,33 @@
           else if (dir === 'left') parent.left = x;
           else parent.right = x;
           h = x;
-          snapshot(10, `<strong>Règle 1 (Rotation gauche) :</strong> Invariant strict LLRB : les liens rouges ne peuvent aller que vers la gauche. <code>rotateLeft('${h.left.key}')</code> appliquée : '<strong>${h.key}</strong>' devient la racine locale avec un lien rouge penchant à gauche vers '<strong>${h.left.key}</strong>'.`, key, "rotateLeft", h.key, null);
+          snapshot(10, `<strong>Rule 1 (Left Rotation):</strong> Strict LLRB invariant: red links must lean left. Applied <code>rotateLeft('${h.left.key}')</code>: '<strong>${h.key}</strong>' becomes local root with a left-leaning red link to '<strong>${h.left.key}</strong>'.`, key, "rotateLeft", h.key, null);
         }
 
-        // Règle 2 : Deux liens rouges consécutifs à gauche -> rotateRight
-        // Représente le 4-nœud temporaire dans l'arbre 2-3 où les deux liens rouges penchent à gauche !
+        // Rule 2: Two consecutive left red links -> rotateRight
+        // Represents temporary 4-node in 2-3 tree where both red links lean left!
         if (isRed(h.left) && isRed(h.left.left)) {
           totalRotations++;
-          snapshot(12, `<strong>Règle 2 (Rotation droite) :</strong> Deux liens rouges consécutifs à gauche sur '<strong>${h.key}</strong>' et '<strong>${h.left.key}</strong>' (forme le 4-nœud temporaire [${h.left.left.key}, ${h.left.key}, ${h.key}]). Appel de <code>rotateRight('${h.key}')</code>.`, key, "rotateRight", h.key, null);
+          snapshot(12, `<strong>Rule 2 (Right Rotation):</strong> Two consecutive left red links on '<strong>${h.key}</strong>' and '<strong>${h.left.key}</strong>' (forming temporary 4-node [${h.left.left.key}, ${h.left.key}, ${h.key}]). Calling <code>rotateRight('${h.key}')</code>.`, key, "rotateRight", h.key, null);
           const x = rotateRight(h);
           if (!parent) root = x;
           else if (dir === 'left') parent.left = x;
           else parent.right = x;
           h = x;
-          // Dès que rotateRight est fait, les deux enfants x.left et x.right sont rouges -> flipColors immédiat pour équilibrer sans afficher de lien droit rouge
+          // Once rotateRight is done, both children x.left and x.right are red -> flipColors immediately
           if (isRed(h.left) && isRed(h.right)) {
             flipColors(h);
             if (dir !== 'right') {
-              snapshot(16, `<strong>Règle 3 (Éclatement du 4-nœud) :</strong> Les enfants '<strong>${h.left.key}</strong>' et '<strong>${h.right.key}</strong>' deviennent NOIRS, et la médiane '<strong>${h.key}</strong>' est propagée vers le haut avec un lien ROUGE (qui penchera à gauche).`, key, "flipColors", h.key, null);
+              snapshot(16, `<strong>Rule 3 (Split 4-Node):</strong> Children '<strong>${h.left.key}</strong>' and '<strong>${h.right.key}</strong>' become BLACK, and median '<strong>${h.key}</strong>' is pushed up with a RED link.`, key, "flipColors", h.key, null);
             }
           }
         }
 
-        // Règle 3 : Les 2 enfants sont rouges (4-nœud temporaire) -> flipColors
+        // Rule 3: Both children are red (temporary 4-node) -> flipColors
         if (isRed(h.left) && isRed(h.right)) {
           flipColors(h);
           if (dir !== 'right') {
-            snapshot(16, `<strong>Règle 3 (Éclatement du 4-nœud) :</strong> Éclatement terminé : les deux enfants deviennent NOIRS et la clé médiane '<strong>${h.key}</strong>' est propagée vers le haut avec un lien ROUGE.`, key, "flipColors", h.key, null);
+            snapshot(16, `<strong>Rule 3 (Split 4-Node):</strong> Split complete: both children become BLACK and median key '<strong>${h.key}</strong>' is pushed up with a RED link.`, key, "flipColors", h.key, null);
           }
         }
 
@@ -966,13 +966,13 @@
 
       for (let i = 0; i < keys.length; i++) {
         const k = keys[i];
-        snapshot(1, `Début de l'insertion de la clé <strong>'${k}'</strong> (${i + 1} sur ${keys.length}).`, k, null, null, null);
+        snapshot(1, `Starting insertion of key <strong>'${k}'</strong> (${i + 1} of ${keys.length}).`, k, null, null, null);
         root = insertHelper(root, k, null, null);
         root.color = BLACK;
-        snapshot(18, `Clé <strong>'${k}'</strong> insérée et équilibrée avec succès ! La racine reste NOIRE.`, k, null, null, null);
+        snapshot(18, `Key <strong>'${k}'</strong> successfully inserted and balanced! Root remains BLACK.`, k, null, null, null);
       }
 
-      snapshot(1, `Toutes les clés ont été insérées ! L'arbre 2-3 et l'arbre Rouge-Noir LLRB sont parfaitement isomorphes et équilibrés (hauteur : ${getTreeHeight(root)}).`, null, null, null, null);
+      snapshot(1, `All keys inserted! 2-3 tree and LLRB BST are perfectly isomorphic and balanced (height: ${getTreeHeight(root)}).`, null, null, null, null);
 
       return steps;
     }
@@ -1215,7 +1215,7 @@
             line.setAttribute('x2', vPos.x);
             line.setAttribute('y2', vPos.y);
 
-            // Invariant strict LLRB (LINFO1121) : les liens rouges ne vont JAMAIS vers la droite !
+            // Strict LLRB invariant (LINFO1121): red links NEVER lean to the right!
             const cls = 'llrb-edge';
             line.setAttribute('class', cls);
             svg.appendChild(line);

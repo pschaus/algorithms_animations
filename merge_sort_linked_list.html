@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merge Sort on Singly Linked List — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+
+      --node-bg: #1e293b;
+      --node-border: #3b82f6;
+      --node-active: #d97706;
+      --node-merged: #059669;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #60a5fa;
+    }
+
+    /* Phase Stepper Bar */
+    .phase-bar {
+      background: #0d1527;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      background: #151f32;
+      border: 1px solid var(--border-color);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .phase-pill.active {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    .phase-pill.completed {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Main Grid Layout */
+    .app-main {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      max-width: 1720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Code Editor Box */
+    .code-editor-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.77rem;
+      line-height: 1.48;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.12rem 0.75rem;
+      transition: background 0.15s ease;
+    }
+
+    .code-row.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .code-line-num {
+      width: 24px;
+      color: #475569;
+      user-select: none;
+      text-align: right;
+      padding-right: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #cbd5e1;
+      white-space: pre;
+    }
+
+    .c-keyword { color: #f43f5e; font-weight: 600; }
+    .c-func { color: #38bdf8; font-weight: 600; }
+    .c-type { color: #fbbf24; }
+    .c-comment { color: #64748b; font-style: italic; }
+
+    /* Explanation Banner */
+    .explanation-banner {
+      background: var(--bg-card-inner);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    /* Variables Grid */
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .variable-cell .v-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-top: 0.15rem;
+      font-family: ui-monospace, monospace;
+    }
+
+    /* Visualization Areas */
+    .viz-canvas-card {
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-label .tag {
+      background: #1e293b;
+      color: var(--accent-blue);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    /* Linked List Container */
+    .list-row-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.2rem 1rem;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      overflow-x: auto;
+      gap: 0;
+      position: relative;
+    }
+
+    .list-row-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .list-row-container::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    /* Node Component */
+    .node-wrapper {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+
+    .node-box {
+      width: 58px;
+      height: 52px;
+      background: var(--node-bg);
+      border: 2px solid var(--node-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .node-box.highlight-slow {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.18);
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+
+    .node-box.highlight-fast {
+      border-color: var(--accent-purple);
+      background: rgba(192, 132, 252, 0.18);
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
+    }
+
+    .node-box.highlight-mid {
+      border-color: var(--accent-rose);
+      background: rgba(244, 63, 94, 0.2);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.5);
+    }
+
+    .node-box.highlight-comparing {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.15);
+      animation: pulseGlow 1.2s infinite alternate;
+    }
+
+    .node-box.highlight-chosen {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.25);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+    }
+
+    .node-box.node-merged-done {
+      border-color: var(--accent-emerald);
+      background: #064e3b;
+    }
+
+    .node-box.dummy {
+      border-style: dashed;
+      border-color: var(--text-dim);
+      background: #0f172a;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 8px rgba(245, 158, 11, 0.3); }
+      to { box-shadow: 0 0 18px rgba(245, 158, 11, 0.8); }
+    }
+
+    /* Pointer Badges on Nodes */
+    .pointer-badge {
+      position: absolute;
+      top: -24px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: bounceIn 0.2s ease-out;
+    }
+
+    .pointer-badge.badge-slow {
+      background: var(--accent-amber);
+      color: #000;
+    }
+
+    .pointer-badge.badge-fast {
+      background: var(--accent-purple);
+      color: #000;
+    }
+
+    .pointer-badge.badge-mid {
+      background: var(--accent-rose);
+      color: #fff;
+    }
+
+    .pointer-badge.badge-p1 {
+      background: var(--accent-blue);
+      color: #000;
+    }
+
+    .pointer-badge.badge-p2 {
+      background: var(--accent-amber);
+      color: #000;
+    }
+
+    .pointer-badge.badge-tail {
+      background: var(--accent-emerald);
+      color: #000;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: translateY(6px) scale(0.8); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* Arrow Connector */
+    .node-arrow {
+      width: 42px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .node-arrow svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .node-arrow.severed {
+      position: relative;
+    }
+
+    .node-arrow.severed::after {
+      content: "✂";
+      position: absolute;
+      color: var(--accent-rose);
+      font-size: 1rem;
+      font-weight: 800;
+      transform: translateY(-8px);
+    }
+
+    /* Null Terminator */
+    .null-terminator {
+      background: #1e293b;
+      border: 1px dashed var(--border-color);
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    /* Sublists Area for Merge Phase */
+    .merge-sublists-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 800px) {
+      .merge-sublists-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Recursion Call Stack Panel */
+    .stack-frames-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .stack-frame-item {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      font-family: monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+
+    .stack-frame-item.current {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Custom Input Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-box h3 {
+      color: #fff;
+      margin-bottom: 0.65rem;
+      font-size: 1.1rem;
+    }
+
+    .modal-box p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-box input {
+      width: 100%;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+
+    .modal-box input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Merge Sort (Singly Linked List)</h1>
+        <div class="header-subtitle">Stable $O(N \log N)$ sorting with $O(1)$ auxiliary heap space via pointer manipulation</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Selector -->
+      <div class="control-item">
+        <label for="presetSelect">Data:</label>
+        <select id="presetSelect">
+          <option value="default">Default Mixed (6 nodes)</option>
+          <option value="eight">Mixed 8 Nodes</option>
+          <option value="reversed">Reversed [8..1]</option>
+          <option value="sorted">Already Sorted [1..6]</option>
+          <option value="duplicates">With Duplicates (Stable)</option>
+        </select>
+      </div>
+
+      <button id="btnCustomModal" title="Enter Custom Linked List">✏️ Custom</button>
+
+      <div class="control-item">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="2000" step="100" value="800">
+        <span class="dynamic-val" id="speedVal">800ms</span>
+      </div>
+
+      <button id="btnSoundToggle" title="Toggle Sound">🔊</button>
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Phase Stepper -->
+  <div class="phase-bar">
+    <div class="phase-pill active" id="pillPhase1">
+      <span class="pill-dot"></span>
+      <span>1. Midpoint Search (Slow / Fast)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase2">
+      <span class="pill-dot"></span>
+      <span>2. Sever Link (mid.next = null)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase3">
+      <span class="pill-dot"></span>
+      <span>3. Divide &amp; Recurse</span>
+    </div>
+    <div class="phase-pill" id="pillPhase4">
+      <span class="pill-dot"></span>
+      <span>4. Two-Way Merge (Pointer Rewiring)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase5">
+      <span class="pill-dot"></span>
+      <span>5. Fully Sorted List</span>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <!-- Left Column: Java Code & State -->
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>MergeSortLinkedList.java</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick &amp; Wayne Reference</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">public</span> Node <span class="c-func">sort</span>(Node head) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-keyword">if</span> (head == <span class="c-keyword">null</span> || head.next == <span class="c-keyword">null</span>) <span class="c-keyword">return</span> head;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    Node mid = <span class="c-func">getMiddle</span>(head);</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    Node nextOfMid = mid.next;</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">    mid.next = <span class="c-keyword">null</span>; <span class="c-comment">// split into two lists</span></span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    Node left = <span class="c-func">sort</span>(head);</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">    Node right = <span class="c-func">sort</span>(nextOfMid);</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">    <span class="c-keyword">return</span> <span class="c-func">merge</span>(left, right);</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content"><span class="c-keyword">private</span> Node <span class="c-func">getMiddle</span>(Node head) {</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">    Node slow = head, fast = head.next;</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">    <span class="c-keyword">while</span> (fast != <span class="c-keyword">null</span> &amp;&amp; fast.next != <span class="c-keyword">null</span>) {</span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">        slow = slow.next; fast = fast.next.next;</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">    <span class="c-keyword">return</span> slow;</span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content"><span class="c-keyword">private</span> Node <span class="c-func">merge</span>(Node a, Node b) {</span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content">    Node dummy = <span class="c-keyword">new</span> Node(<span class="c-comment">0</span>), tail = dummy;</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">    <span class="c-keyword">while</span> (a != <span class="c-keyword">null</span> &amp;&amp; b != <span class="c-keyword">null</span>) {</span></div>
+          <div class="code-row" data-line="20"><span class="code-line-num">20</span><span class="code-line-content">        <span class="c-keyword">if</span> (a.val &lt;= b.val) { tail.next = a; a = a.next; }</span></div>
+          <div class="code-row" data-line="21"><span class="code-line-num">21</span><span class="code-line-content">        <span class="c-keyword">else</span> { tail.next = b; b = b.next; }</span></div>
+          <div class="code-row" data-line="22"><span class="code-line-num">22</span><span class="code-line-content">        tail = tail.next;</span></div>
+          <div class="code-row" data-line="23"><span class="code-line-num">23</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="24"><span class="code-line-num">24</span><span class="code-line-content">    tail.next = (a != <span class="c-keyword">null</span>) ? a : b;</span></div>
+          <div class="code-row" data-line="25"><span class="code-line-num">25</span><span class="code-line-content">    <span class="c-keyword">return</span> dummy.next;</span></div>
+          <div class="code-row" data-line="26"><span class="code-line-num">26</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <!-- Execution State Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step &amp; State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Ready to run Merge Sort on singly linked list. Press Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Operation</div>
+            <div class="v-val" id="valOp">Init</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Midpoint (slow)</div>
+            <div class="v-val" id="valMid">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Comparison</div>
+            <div class="v-val" id="valComparison">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Aux Extra Heap Space</div>
+            <div class="v-val" style="color:var(--accent-emerald);">O(1)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Educational Invariants Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Why Merge Sort for Linked Lists?</span>
+          <span style="font-size:0.75rem; color:var(--accent-emerald);">LINFO1121 Invariants</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-blue);">Sequential Access Only:</strong> Unlike arrays, singly linked lists lack $O(1)$ random indexing. Merge Sort operates strictly sequentially, making it asymptotically optimal ($\Theta(N \log N)$).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">$O(1)$ Auxiliary Heap Memory:</strong> In array merge sort, an auxiliary array <code>aux[N]</code> is required ($O(N)$ space). For linked lists, merging is done <strong>in-place by pointer rewiring</strong> (adjusting <code>.next</code> references) without allocating new nodes!</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-amber);">Stable Sorting:</strong> The condition <code>a.val &lt;= b.val</code> ensures that whenever keys are equal, the element from the left sublist is merged first, strictly preserving initial relative order.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Visualizer Canvas -->
+    <div class="right-column">
+      <div class="card viz-canvas-card">
+        <div class="card-header-line">
+          <span>Singly Linked List Interactive Visualizer</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;" id="activeSubproblemTitle">Full List</span>
+        </div>
+
+        <!-- 1. Split & Midpoint View (Shown during Divide/Split phases) -->
+        <div id="splitSection">
+          <div class="section-label">
+            <span>Active Sublist / Split View</span>
+            <span class="tag" id="splitTag">Finding Middle</span>
+          </div>
+          <div class="list-row-container" id="splitListContainer">
+            <!-- Dynamically rendered nodes -->
+          </div>
+        </div>
+
+        <!-- 2. Two-Way Merge View (Shown during Merging phases) -->
+        <div id="mergeSection" style="display:none; flex-direction:column; gap:1rem;">
+          <div class="merge-sublists-grid">
+            <div>
+              <div class="section-label">
+                <span>Left Sorted Sublist (a)</span>
+                <span class="tag" id="tagLeftHead">p1</span>
+              </div>
+              <div class="list-row-container" id="leftListContainer"></div>
+            </div>
+            <div>
+              <div class="section-label">
+                <span>Right Sorted Sublist (b)</span>
+                <span class="tag" id="tagRightHead">p2</span>
+              </div>
+              <div class="list-row-container" id="rightListContainer"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-label">
+              <span style="color:var(--accent-emerald);">Merged Accumulator List</span>
+              <span class="tag" style="color:var(--accent-emerald);">tail.next rewiring</span>
+            </div>
+            <div class="list-row-container" id="mergedListContainer" style="border-color: rgba(16, 185, 129, 0.4);"></div>
+          </div>
+        </div>
+
+        <!-- 3. Completed Sorted List View (Shown at the end) -->
+        <div id="doneSection" style="display:none;">
+          <div class="section-label">
+            <span style="color:var(--accent-emerald);">Final Sorted Singly Linked List</span>
+            <span class="tag" style="color:var(--accent-emerald);">Fully Sorted</span>
+          </div>
+          <div class="list-row-container" id="doneListContainer" style="border-color: var(--accent-emerald);"></div>
+        </div>
+
+        <!-- Recursion Call Stack Tracker -->
+        <div style="margin-top:auto; border-top:1px solid var(--border-color); padding-top:0.85rem;">
+          <div class="card-header-line" style="margin-bottom:0.5rem; font-size:0.82rem;">
+            <span>Recursion Call Stack ($O(\log N)$ Depth)</span>
+            <span style="font-size:0.75rem; color:var(--text-dim);" id="stackDepthLabel">Depth: 1</span>
+          </div>
+          <div class="stack-frames-list" id="stackFramesList"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Custom Input Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <h3>Enter Custom Linked List</h3>
+      <p>Enter 3 to 10 numbers or single letters separated by spaces or commas (e.g. <code>38, 27, 43, 3, 9, 82</code> or <code>M E R G E S O R T</code>):</p>
+      <input type="text" id="customInput" placeholder="38, 27, 43, 3, 9, 82" maxlength="50" autocomplete="off">
+      <div class="modal-actions">
+        <button id="btnCancelCustom">Cancel</button>
+        <button id="btnApplyCustom" class="btn-primary">Apply &amp; Sort</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Audio Sound Synthesis ---
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.08) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playComparisonSound() { playTone(360, 'triangle', 0.06); }
+    function playSplitSound() { playTone(520, 'square', 0.09); }
+    function playMergeSound() { playTone(440, 'sine', 0.08); }
+    function playVictoryChord() {
+      if (!soundEnabled) return;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        setTimeout(() => playTone(freq, 'sine', 0.25), i * 90);
+      });
+    }
+
+    // --- Presets ---
+    const PRESETS = {
+      default: [14, 3, 9, 7, 2, 8],
+      eight: [25, 10, 42, 3, 17, 8, 99, 1],
+      reversed: [8, 7, 6, 5, 4, 3, 2, 1],
+      sorted: [1, 2, 3, 4, 5, 6],
+      duplicates: [5, 2, 8, 2, 5, 1, 8]
+    };
+
+    // --- State & Stepper Engine ---
+    let rawInitialArray = [...PRESETS.default];
+    let simulationSteps = [];
+    let currentStepIdx = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let animationSpeed = 800;
+
+    // --- Simulation Step Generator ---
+    function buildSimulation(inputValues) {
+      const steps = [];
+
+      // Create initial node objects with unique IDs
+      const nodesMap = {};
+      inputValues.forEach((val, idx) => {
+        const id = `n_${idx}`;
+        nodesMap[id] = { id, val, originalIdx: idx };
+      });
+
+      // Call stack tracker
+      const callStack = [];
+
+      function snapshot(config) {
+        steps.push({
+          line: config.line,
+          phase: config.phase || 1,
+          descr: config.descr,
+          op: config.op || 'Step',
+          subproblemTitle: config.subproblemTitle || 'Active List',
+          // Split view
+          isSplitView: !!config.isSplitView,
+          splitList: config.splitList ? [...config.splitList] : [],
+          slowId: config.slowId || null,
+          fastId: config.fastId || null,
+          midId: config.midId || null,
+          isSevered: !!config.isSevered,
+          // Merge view
+          isMergeView: !!config.isMergeView,
+          leftList: config.leftList ? [...config.leftList] : [],
+          rightList: config.rightList ? [...config.rightList] : [],
+          mergedList: config.mergedList ? [...config.mergedList] : [],
+          p1Id: config.p1Id || null,
+          p2Id: config.p2Id || null,
+          tailId: config.tailId || null,
+          comparing: config.comparing || null,
+          chosenId: config.chosenId || null,
+          // Done view
+          isDoneView: !!config.isDoneView,
+          finalList: config.finalList ? [...config.finalList] : [],
+          // Stack
+          stack: callStack.map(f => ({ ...f }))
+        });
+      }
+
+      // Initial step
+      const initialIds = inputValues.map((_, i) => `n_${i}`);
+      snapshot({
+        line: 1,
+        phase: 1,
+        descr: `Initialization: Singly linked list with ${initialIds.length} nodes loaded. Ready to execute top-down merge sort.`,
+        op: "Start",
+        subproblemTitle: `sort([${inputValues.join(', ')}])`,
+        isSplitView: true,
+        splitList: initialIds
+      });
+
+      function compareNodes(idA, idB) {
+        const vA = nodesMap[idA].val;
+        const vB = nodesMap[idB].val;
+        if (typeof vA === 'string' && typeof vB === 'string') {
+          return vA.localeCompare(vB);
+        }
+        return Number(vA) - Number(vB);
+      }
+
+      function sortRecursive(listIds, depth = 0) {
+        const listStr = listIds.map(id => nodesMap[id].val).join(', ');
+        callStack.push({ name: `sort([${listStr}])`, depth });
+
+        snapshot({
+          line: 1,
+          phase: 1,
+          descr: `Call <code>sort(head)</code> on sublist <code>[${listStr}]</code> (size = ${listIds.length}).`,
+          op: "Call sort()",
+          subproblemTitle: `sort([${listStr}])`,
+          isSplitView: true,
+          splitList: listIds
+        });
+
+        // Base case: 0 or 1 element
+        if (listIds.length <= 1) {
+          snapshot({
+            line: 2,
+            phase: 3,
+            descr: `Base case reached: sublist <code>[${listStr}]</code> has &le; 1 node and is trivially sorted. Return head.`,
+            op: "Base case",
+            subproblemTitle: `sort([${listStr}])`,
+            isSplitView: true,
+            splitList: listIds
+          });
+          callStack.pop();
+          return listIds;
+        }
+
+        // Get Middle with slow and fast pointers
+        snapshot({
+          line: 3,
+          phase: 1,
+          descr: `Finding middle node of <code>[${listStr}]</code> using <strong>slow</strong> and <strong>fast</strong> pointers.`,
+          op: "Find Mid",
+          subproblemTitle: `sort([${listStr}])`,
+          isSplitView: true,
+          splitList: listIds,
+          slowId: listIds[0],
+          fastId: listIds[1] || null
+        });
+
+        let slowIdx = 0;
+        let fastIdx = 1;
+
+        while (fastIdx < listIds.length && fastIdx + 1 < listIds.length) {
+          slowIdx += 1;
+          fastIdx += 2;
+          snapshot({
+            line: 13,
+            phase: 1,
+            descr: `Advancing pointers: <code>slow</code> moves 1 node to <strong>${nodesMap[listIds[slowIdx]].val}</strong>; <code>fast</code> moves 2 nodes to <strong>${nodesMap[listIds[fastIdx]].val}</strong>.`,
+            op: "Pointers advance",
+            subproblemTitle: `sort([${listStr}])`,
+            isSplitView: true,
+            splitList: listIds,
+            slowId: listIds[slowIdx],
+            fastId: listIds[fastIdx]
+          });
+        }
+
+        const midId = listIds[slowIdx];
+        snapshot({
+          line: 15,
+          phase: 1,
+          descr: `<code>fast</code> reached end of sublist. Midpoint found at node <strong>${nodesMap[midId].val}</strong> (index ${slowIdx}).`,
+          op: "Mid found",
+          subproblemTitle: `sort([${listStr}])`,
+          isSplitView: true,
+          splitList: listIds,
+          midId: midId,
+          slowId: midId
+        });
+
+        // Split into Left and Right sublists: mid.next = null
+        const leftIds = listIds.slice(0, slowIdx + 1);
+        const rightIds = listIds.slice(slowIdx + 1);
+
+        snapshot({
+          line: 5,
+          phase: 2,
+          descr: `Severing link: <code>mid.next = null</code>. List is split into Left <code>[${leftIds.map(id => nodesMap[id].val).join(', ')}]</code> and Right <code>[${rightIds.map(id => nodesMap[id].val).join(', ')}]</code>.`,
+          op: "Sever Link",
+          subproblemTitle: `split([${listStr}])`,
+          isSplitView: true,
+          splitList: listIds,
+          midId: midId,
+          isSevered: true
+        });
+
+        // Recurse Left
+        snapshot({
+          line: 6,
+          phase: 3,
+          descr: `Recursively sorting left half <code>[${leftIds.map(id => nodesMap[id].val).join(', ')}]</code>.`,
+          op: "Recurse Left",
+          subproblemTitle: `sort(left)`,
+          isSplitView: true,
+          splitList: leftIds
+        });
+        const sortedLeft = sortRecursive(leftIds, depth + 1);
+
+        // Recurse Right
+        snapshot({
+          line: 7,
+          phase: 3,
+          descr: `Recursively sorting right half <code>[${rightIds.map(id => nodesMap[id].val).join(', ')}]</code>.`,
+          op: "Recurse Right",
+          subproblemTitle: `sort(right)`,
+          isSplitView: true,
+          splitList: rightIds
+        });
+        const sortedRight = sortRecursive(rightIds, depth + 1);
+
+        // Merge two sorted halves
+        snapshot({
+          line: 8,
+          phase: 4,
+          descr: `Both halves sorted: Left <code>[${sortedLeft.map(id => nodesMap[id].val).join(', ')}]</code> &amp; Right <code>[${sortedRight.map(id => nodesMap[id].val).join(', ')}]</code>. Ready to merge!`,
+          op: "Prepare Merge",
+          subproblemTitle: `merge()`,
+          isMergeView: true,
+          leftList: sortedLeft,
+          rightList: sortedRight,
+          mergedList: [],
+          p1Id: sortedLeft[0],
+          p2Id: sortedRight[0]
+        });
+
+        const merged = [];
+        let p1Idx = 0;
+        let p2Idx = 0;
+
+        snapshot({
+          line: 18,
+          phase: 4,
+          descr: `Create temporary <code>dummy</code> node. Pointer <code>tail = dummy</code> will track the end of merged list.`,
+          op: "dummy node",
+          subproblemTitle: `merge()`,
+          isMergeView: true,
+          leftList: sortedLeft,
+          rightList: sortedRight,
+          mergedList: [],
+          p1Id: sortedLeft[p1Idx],
+          p2Id: sortedRight[p2Idx]
+        });
+
+        while (p1Idx < sortedLeft.length && p2Idx < sortedRight.length) {
+          const idA = sortedLeft[p1Idx];
+          const idB = sortedRight[p2Idx];
+          const valA = nodesMap[idA].val;
+          const valB = nodesMap[idB].val;
+
+          snapshot({
+            line: 19,
+            phase: 4,
+            descr: `Comparing heads: <code>a.val = ${valA}</code> vs <code>b.val = ${valB}</code>.`,
+            op: "Compare",
+            subproblemTitle: `merge()`,
+            isMergeView: true,
+            leftList: sortedLeft.slice(p1Idx),
+            rightList: sortedRight.slice(p2Idx),
+            mergedList: [...merged],
+            p1Id: idA,
+            p2Id: idB,
+            comparing: [valA, valB]
+          });
+
+          if (compareNodes(idA, idB) <= 0) {
+            merged.push(idA);
+            p1Idx++;
+            snapshot({
+              line: 20,
+              phase: 4,
+              descr: `<code>${valA} &le; ${valB}</code>: Rewiring <code>tail.next = a</code> (node <strong>${valA}</strong>). Advance pointer <code>a = a.next</code>. Preserves stability!`,
+              op: "Append a",
+              subproblemTitle: `merge()`,
+              isMergeView: true,
+              leftList: sortedLeft.slice(p1Idx),
+              rightList: sortedRight.slice(p2Idx),
+              mergedList: [...merged],
+              chosenId: idA,
+              p1Id: sortedLeft[p1Idx] || null,
+              p2Id: idB,
+              tailId: idA
+            });
+          } else {
+            merged.push(idB);
+            p2Idx++;
+            snapshot({
+              line: 21,
+              phase: 4,
+              descr: `<code>${valB} &lt; ${valA}</code>: Rewiring <code>tail.next = b</code> (node <strong>${valB}</strong>). Advance pointer <code>b = b.next</code>.`,
+              op: "Append b",
+              subproblemTitle: `merge()`,
+              isMergeView: true,
+              leftList: sortedLeft.slice(p1Idx),
+              rightList: sortedRight.slice(p2Idx),
+              mergedList: [...merged],
+              chosenId: idB,
+              p1Id: idA,
+              p2Id: sortedRight[p2Idx] || null,
+              tailId: idB
+            });
+          }
+        }
+
+        // Splicing remainder
+        if (p1Idx < sortedLeft.length) {
+          const remaining = sortedLeft.slice(p1Idx);
+          remaining.forEach(id => merged.push(id));
+          snapshot({
+            line: 24,
+            phase: 4,
+            descr: `Right list exhausted. Splicing remaining nodes from Left list (<code>[${remaining.map(id => nodesMap[id].val).join(', ')}]</code>) in $O(1)$ pointer assignment <code>tail.next = a</code>!`,
+            op: "Splice Left",
+            subproblemTitle: `merge()`,
+            isMergeView: true,
+            leftList: [],
+            rightList: [],
+            mergedList: [...merged],
+            tailId: merged[merged.length - 1]
+          });
+        } else if (p2Idx < sortedRight.length) {
+          const remaining = sortedRight.slice(p2Idx);
+          remaining.forEach(id => merged.push(id));
+          snapshot({
+            line: 24,
+            phase: 4,
+            descr: `Left list exhausted. Splicing remaining nodes from Right list (<code>[${remaining.map(id => nodesMap[id].val).join(', ')}]</code>) in $O(1)$ pointer assignment <code>tail.next = b</code>!`,
+            op: "Splice Right",
+            subproblemTitle: `merge()`,
+            isMergeView: true,
+            leftList: [],
+            rightList: [],
+            mergedList: [...merged],
+            tailId: merged[merged.length - 1]
+          });
+        }
+
+        snapshot({
+          line: 25,
+          phase: 4,
+          descr: `Merge completed for this level! Result: <code>[${merged.map(id => nodesMap[id].val).join(', ')}]</code>. Returning <code>dummy.next</code>.`,
+          op: "Merge complete",
+          subproblemTitle: `return merged`,
+          isMergeView: true,
+          leftList: [],
+          rightList: [],
+          mergedList: [...merged]
+        });
+
+        callStack.pop();
+        return merged;
+      }
+
+      const finalSorted = sortRecursive(initialIds);
+
+      // Final celebration snapshot
+      snapshot({
+        line: 1,
+        phase: 5,
+        descr: `🎉 Merge Sort complete! The singly linked list is fully sorted in ascending order (<code>[${finalSorted.map(id => nodesMap[id].val).join(', ')}]</code>) using guaranteed $O(N \\log N)$ time and $O(1)$ extra heap memory.`,
+        op: "Done",
+        subproblemTitle: "Sorted List",
+        isDoneView: true,
+        finalList: finalSorted
+      });
+
+      return { steps, nodesMap };
+    }
+
+    // --- DOM Elements ---
+    const codeRows = document.querySelectorAll(".code-row");
+    const stepExplanationEl = document.getElementById("stepExplanation");
+    const valOpEl = document.getElementById("valOp");
+    const valMidEl = document.getElementById("valMid");
+    const valComparisonEl = document.getElementById("valComparison");
+    const activeSubproblemTitleEl = document.getElementById("activeSubproblemTitle");
+    const stackFramesListEl = document.getElementById("stackFramesList");
+    const stackDepthLabelEl = document.getElementById("stackDepthLabel");
+
+    const splitSection = document.getElementById("splitSection");
+    const splitListContainer = document.getElementById("splitListContainer");
+    const splitTag = document.getElementById("splitTag");
+
+    const mergeSection = document.getElementById("mergeSection");
+    const leftListContainer = document.getElementById("leftListContainer");
+    const rightListContainer = document.getElementById("rightListContainer");
+    const mergedListContainer = document.getElementById("mergedListContainer");
+
+    const doneSection = document.getElementById("doneSection");
+    const doneListContainer = document.getElementById("doneListContainer");
+
+    const pillPhase1 = document.getElementById("pillPhase1");
+    const pillPhase2 = document.getElementById("pillPhase2");
+    const pillPhase3 = document.getElementById("pillPhase3");
+    const pillPhase4 = document.getElementById("pillPhase4");
+    const pillPhase5 = document.getElementById("pillPhase5");
+
+    const btnPlay = document.getElementById("btnPlay");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+    const btnSoundToggle = document.getElementById("btnSoundToggle");
+    const speedSlider = document.getElementById("speedSlider");
+    const speedVal = document.getElementById("speedVal");
+    const presetSelect = document.getElementById("presetSelect");
+
+    const customModal = document.getElementById("customModal");
+    const btnCustomModal = document.getElementById("btnCustomModal");
+    const btnCancelCustom = document.getElementById("btnCancelCustom");
+    const btnApplyCustom = document.getElementById("btnApplyCustom");
+    const customInput = document.getElementById("customInput");
+
+    let currentNodesMap = {};
+
+    // --- Render Node Helper ---
+    function createNodeHtml(id, val, opts = {}) {
+      const badges = [];
+      if (opts.isSlow) badges.push(`<span class="pointer-badge badge-slow">slow</span>`);
+      if (opts.isFast) badges.push(`<span class="pointer-badge badge-fast">fast</span>`);
+      if (opts.isMid) badges.push(`<span class="pointer-badge badge-mid">mid</span>`);
+      if (opts.isP1) badges.push(`<span class="pointer-badge badge-p1">p1</span>`);
+      if (opts.isP2) badges.push(`<span class="pointer-badge badge-p2">p2</span>`);
+      if (opts.isTail) badges.push(`<span class="pointer-badge badge-tail">tail</span>`);
+
+      let classes = "node-box";
+      if (opts.isSlow) classes += " highlight-slow";
+      if (opts.isFast) classes += " highlight-fast";
+      if (opts.isMid) classes += " highlight-mid";
+      if (opts.isComparing) classes += " highlight-comparing";
+      if (opts.isChosen) classes += " highlight-chosen";
+      if (opts.isDone) classes += " node-merged-done";
+      if (opts.isDummy) classes += " dummy";
+
+      return `
+        <div class="node-wrapper" id="node-${id}">
+          ${badges.join('')}
+          <div class="${classes}">${val}</div>
+          <div class="node-arrow ${opts.isSevered ? 'severed' : ''}">
+            <svg viewBox="0 0 42 20">
+              <line x1="2" y1="10" x2="32" y2="10" stroke="${opts.isSevered ? '#f43f5e' : '#38bdf8'}" stroke-width="2" stroke-dasharray="${opts.isSevered ? '3,3' : 'none'}"/>
+              <polygon points="32,6 40,10 32,14" fill="${opts.isSevered ? '#f43f5e' : '#38bdf8'}"/>
+            </svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderListInto(container, listIds, highlightOpts = {}) {
+      if (!listIds || listIds.length === 0) {
+        container.innerHTML = `<span class="null-terminator">null</span>`;
+        return;
+      }
+
+      let html = "";
+      if (highlightOpts.includeDummy) {
+        html += createNodeHtml("dummy", "dummy", { isDummy: true });
+      }
+
+      listIds.forEach((id, idx) => {
+        const node = currentNodesMap[id];
+        const val = node ? node.val : id;
+        const isLast = idx === listIds.length - 1;
+        const isSevered = highlightOpts.severAfterId === id;
+
+        html += createNodeHtml(id, val, {
+          isSlow: highlightOpts.slowId === id,
+          isFast: highlightOpts.fastId === id,
+          isMid: highlightOpts.midId === id,
+          isP1: highlightOpts.p1Id === id,
+          isP2: highlightOpts.p2Id === id,
+          isTail: highlightOpts.tailId === id,
+          isComparing: highlightOpts.comparingIds && highlightOpts.comparingIds.includes(id),
+          isChosen: highlightOpts.chosenId === id,
+          isDone: highlightOpts.isDone,
+          isSevered: isSevered
+        });
+      });
+
+      html += `<span class="null-terminator">null</span>`;
+      container.innerHTML = html;
+    }
+
+    // --- Render Current Step ---
+    function renderStep() {
+      if (simulationSteps.length === 0) return;
+      const state = simulationSteps[currentStepIdx];
+
+      // Highlight active Java line
+      codeRows.forEach(row => {
+        const line = parseInt(row.dataset.line, 10);
+        row.classList.toggle("active", line === state.line);
+      });
+
+      // Update Phase Pills
+      [pillPhase1, pillPhase2, pillPhase3, pillPhase4, pillPhase5].forEach((pill, idx) => {
+        const pNum = idx + 1;
+        pill.classList.toggle("active", state.phase === pNum);
+        pill.classList.toggle("completed", state.phase > pNum);
+      });
+
+      // Update Explanation & Info
+      stepExplanationEl.innerHTML = state.descr;
+      valOpEl.textContent = state.op;
+      valMidEl.textContent = state.midId ? currentNodesMap[state.midId].val : "—";
+      valComparisonEl.textContent = state.comparing ? `${state.comparing[0]} vs ${state.comparing[1]}` : "—";
+      activeSubproblemTitleEl.textContent = state.subproblemTitle;
+
+      // Update Call Stack
+      stackDepthLabelEl.textContent = `Depth: ${state.stack.length}`;
+      if (state.stack.length === 0) {
+        stackFramesListEl.innerHTML = `<div class="stack-frame-item" style="color:var(--text-dim);">Main execution</div>`;
+      } else {
+        stackFramesListEl.innerHTML = state.stack.map((frame, idx) => `
+          <div class="stack-frame-item ${idx === state.stack.length - 1 ? 'current' : ''}">
+            <span>Level ${frame.depth}: ${frame.name}</span>
+            <span style="font-size:0.7rem; color:var(--accent-blue);">${idx === state.stack.length - 1 ? '● Active' : 'Waiting'}</span>
+          </div>
+        `).join('');
+      }
+
+      // View Switching: Split View vs Merge View vs Done View
+      if (state.isDoneView) {
+        splitSection.style.display = "none";
+        mergeSection.style.display = "none";
+        doneSection.style.display = "block";
+        renderListInto(doneListContainer, state.finalList, { isDone: true });
+        playVictoryChord();
+      } else if (state.isMergeView) {
+        splitSection.style.display = "none";
+        mergeSection.style.display = "flex";
+        doneSection.style.display = "none";
+
+        renderListInto(leftListContainer, state.leftList, {
+          p1Id: state.p1Id,
+          chosenId: state.chosenId
+        });
+
+        renderListInto(rightListContainer, state.rightList, {
+          p2Id: state.p2Id,
+          chosenId: state.chosenId
+        });
+
+        renderListInto(mergedListContainer, state.mergedList, {
+          includeDummy: true,
+          tailId: state.tailId,
+          chosenId: state.chosenId
+        });
+
+        if (state.comparing) playComparisonSound();
+        else if (state.chosenId) playMergeSound();
+
+      } else {
+        // Default Split / Divide View
+        splitSection.style.display = "block";
+        mergeSection.style.display = "none";
+        doneSection.style.display = "none";
+
+        splitTag.textContent = state.isSevered ? "Severed link (mid.next = null)" : (state.slowId ? "Slow & Fast Pointers" : "Active Sublist");
+
+        renderListInto(splitListContainer, state.splitList, {
+          slowId: state.slowId,
+          fastId: state.fastId,
+          midId: state.midId,
+          severAfterId: state.isSevered ? state.midId : null
+        });
+
+        if (state.isSevered) playSplitSound();
+        else if (state.slowId) playTone(320 + currentStepIdx * 10, 'sine', 0.05);
+      }
+    }
+
+    // --- Playback Controls ---
+    function nextStep() {
+      if (currentStepIdx < simulationSteps.length - 1) {
+        currentStepIdx++;
+        renderStep();
+      } else {
+        pause();
+      }
+    }
+
+    function prevStep() {
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        renderStep();
+      }
+    }
+
+    function play() {
+      if (currentStepIdx >= simulationSteps.length - 1) {
+        currentStepIdx = 0;
+      }
+      isPlaying = true;
+      btnPlay.textContent = "⏸ Pause";
+      btnPlay.classList.add("btn-danger");
+      btnPlay.classList.remove("btn-primary");
+
+      playTimer = setInterval(() => {
+        if (currentStepIdx < simulationSteps.length - 1) {
+          nextStep();
+        } else {
+          pause();
+        }
+      }, animationSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      btnPlay.textContent = "▶ Play";
+      btnPlay.classList.remove("btn-danger");
+      btnPlay.classList.add("btn-primary");
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      currentStepIdx = 0;
+      const sim = buildSimulation(rawInitialArray);
+      simulationSteps = sim.steps;
+      currentNodesMap = sim.nodesMap;
+      renderStep();
+    }
+
+    // --- Event Listeners ---
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause();
+      else play();
+    });
+
+    btnNext.addEventListener("click", () => {
+      pause();
+      nextStep();
+    });
+
+    btnPrev.addEventListener("click", () => {
+      pause();
+      prevStep();
+    });
+
+    btnReset.addEventListener("click", resetSimulation);
+
+    speedSlider.addEventListener("input", (e) => {
+      animationSpeed = parseInt(e.target.value, 10);
+      speedVal.textContent = `${animationSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    btnSoundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      btnSoundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+    });
+
+    presetSelect.addEventListener("change", (e) => {
+      const choice = e.target.value;
+      if (PRESETS[choice]) {
+        rawInitialArray = [...PRESETS[choice]];
+        resetSimulation();
+      }
+    });
+
+    // Custom Input Modal Handlers
+    btnCustomModal.addEventListener("click", () => {
+      customInput.value = rawInitialArray.join(', ');
+      customModal.classList.add("open");
+      customInput.focus();
+    });
+
+    btnCancelCustom.addEventListener("click", () => {
+      customModal.classList.remove("open");
+    });
+
+    btnApplyCustom.addEventListener("click", () => {
+      const val = customInput.value.trim();
+      if (!val) return;
+      const tokens = val.split(/[,\s]+/).filter(Boolean);
+      if (tokens.length < 2 || tokens.length > 12) {
+        alert("Please provide between 2 and 12 elements for optimal animation clarity.");
+        return;
+      }
+      const parsed = tokens.map(t => {
+        const num = Number(t);
+        return isNaN(num) ? t : num;
+      });
+      rawInitialArray = parsed;
+      customModal.classList.remove("open");
+      resetSimulation();
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (document.activeElement === customInput) return;
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (isPlaying) pause(); else play();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        pause();
+        nextStep();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        pause();
+        prevStep();
+      }
+    });
+
+    // Init
+    resetSimulation();
+  </script>
+</body>
+</html>

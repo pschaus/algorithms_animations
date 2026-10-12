@@ -14,7 +14,17 @@ Thumbs.db
 *.swo
 *~
 
+# Dependencies & Build
+node_modules/
+dist/
+build/
+
 # Temporary and log files
 *.log
 *.tmp
 /tmp/
+
+# Environment and local configs
+.env
+.env.local
+.gemini/

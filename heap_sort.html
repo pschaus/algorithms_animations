@@ -856,22 +856,22 @@
         });
       }
 
-      snapshot(1, 1, `Démarrage du Tri par Tas (Heap Sort) sur un tableau de taille ${totalN}. Indexation à base 1.`, null, null, totalN);
+      snapshot(1, 1, `Starting Heap Sort on an array of size ${totalN}. 1-based indexing.`, null, null, totalN);
 
       // Phase 1: Heapify
-      snapshot(4, 1, `Phase 1 : Construction du tas max (Heapify). Descente (sink) des nœuds de k = n/2 = ${Math.floor(totalN / 2)} jusqu'à 1.`, null, null, totalN);
+      snapshot(4, 1, `Phase 1: Bottom-up Heap Construction (Heapify). Sinking nodes from k = n/2 = ${Math.floor(totalN / 2)} down to 1.`, null, null, totalN);
 
       for (let k = Math.floor(totalN / 2); k >= 1; k--) {
-        snapshot(5, 1, `Heapify : appel de <code>sink(a, k=${k}, n=${totalN})</code>. Le sous-arbre à la racine ${k} va être ordonné en tas.`, k, null, totalN);
+        snapshot(5, 1, `Heapify: calling <code>sink(a, k=${k}, n=${totalN})</code>. Subtree rooted at ${k} is converted into a max-heap.`, k, null, totalN);
         sink(k, totalN, 1);
       }
 
-      snapshot(6, 2, `Phase 1 terminée ! Le tableau est un tas max valide. La racine a[1] = '<strong>${a[1]}</strong>' est la clé maximale.`, null, null, totalN);
+      snapshot(6, 2, `Phase 1 complete! The array is now a valid max-heap. Root a[1] = '<strong>${a[1]}</strong>' is the maximum key.`, null, null, totalN);
 
       // Phase 2: Sortdown
       let currentN = totalN;
       while (currentN > 1) {
-        snapshot(7, 2, `Phase 2 : Extraction de la racine maximale a[1] = '<strong>${a[1]}</strong>' pour la placer à sa position triée a[${currentN}].`, 1, currentN, currentN);
+        snapshot(7, 2, `Phase 2: Extracting maximum root a[1] = '<strong>${a[1]}</strong>' to put it in sorted position a[${currentN}].`, 1, currentN, currentN);
 
         // exch(a, 1, currentN--)
         const temp = a[1];
@@ -880,31 +880,31 @@
         swapsCount++;
         currentN--;
 
-        snapshot(8, 2, `🔄 Échange effectué : racine maximale permutée avec l'élément a[${currentN + 1}]. La taille du tas est réduite à n = ${currentN}. Nouvelle racine prête à descendre.`, 1, currentN + 1, currentN, true);
+        snapshot(8, 2, `🔄 Swap performed: maximum root swapped with element a[${currentN + 1}]. Heap size reduced to n = ${currentN}. New root ready to sink.`, 1, currentN + 1, currentN, true);
 
         sink(1, currentN, 2);
       }
 
       // Phase 3: Completed
-      snapshot(11, 3, `Tri par tas terminé avec succès ! Tous les éléments sont triés par ordre croissant en place (in-place).`, null, null, 0);
+      snapshot(11, 3, `Heap sort complete! All elements are sorted in ascending order in-place.`, null, null, 0);
 
       function sink(startK, heapSize, phase) {
         let currK = startK;
         while (2 * currK <= heapSize) {
           let j = 2 * currK;
-          snapshot(14, phase, `Examen des enfants de k=${currK} : l'enfant gauche est j=${j} ('<strong>${a[j]}</strong>').`, currK, j, heapSize);
+          snapshot(14, phase, `Examining children of k=${currK}: left child is j=${j} ('<strong>${a[j]}</strong>').`, currK, j, heapSize);
 
           if (j < heapSize) {
-            snapshot(16, phase, `Comparaison entre enfant gauche j=${j} ('${a[j]}') et enfant droit j+1=${j + 1} ('${a[j + 1]}').`, currK, j, heapSize);
+            snapshot(16, phase, `Comparing left child j=${j} ('${a[j]}') and right child j+1=${j + 1} ('${a[j + 1]}').`, currK, j, heapSize);
             if (compare(j, j + 1)) {
               j++;
-              snapshot(16, phase, `L'enfant droit a[${j}] ('<strong>${a[j]}</strong>') est plus grand. Enfant sélectionné : j = ${j}.`, currK, j, heapSize);
+              snapshot(16, phase, `Right child a[${j}] ('<strong>${a[j]}</strong>') is larger. Selected child: j = ${j}.`, currK, j, heapSize);
             }
           }
 
-          snapshot(17, phase, `Comparaison : parent a[${currK}] ('${a[currK]}') vs plus grand enfant a[${j}] ('${a[j]}').`, currK, j, heapSize);
+          snapshot(17, phase, `Comparing parent a[${currK}] ('${a[currK]}') vs larger child a[${j}] ('${a[j]}').`, currK, j, heapSize);
           if (!compare(currK, j)) {
-            snapshot(17, phase, `✅ Invariant de tas respecté : parent a[${currK}] ('<strong>${a[currK]}</strong>') &ge; enfant a[${j}] ('<strong>${a[j]}</strong>'). <em>Aucun déplacement nécessaire !</em> La descente s'arrête.`, currK, j, heapSize, false);
+            snapshot(17, phase, `✅ Heap invariant satisfied: parent a[${currK}] ('<strong>${a[currK]}</strong>') &ge; child a[${j}] ('<strong>${a[j]}</strong>'). <em>No swap needed!</em> Sink terminates.`, currK, j, heapSize, false);
             break;
           }
 
@@ -914,9 +914,9 @@
           a[j] = t;
           swapsCount++;
 
-          snapshot(18, phase, `🔄 Échange effectué (exch) : le parent a[${currK}] et l'enfant a[${j}] échangent leurs places. La clé '<strong>${a[currK]}</strong>' monte !`, currK, j, heapSize, true);
+          snapshot(18, phase, `🔄 Swap performed (exch): parent a[${currK}] and child a[${j}] swapped positions. Key '<strong>${a[currK]}</strong>' moves up!`, currK, j, heapSize, true);
           currK = j;
-          snapshot(19, phase, `Avancement de l'indice : k = ${currK} pour continuer la descente si nécessaire.`, currK, null, heapSize);
+          snapshot(19, phase, `Advancing index: k = ${currK} to continue sinking if needed.`, currK, null, heapSize);
         }
       }
 

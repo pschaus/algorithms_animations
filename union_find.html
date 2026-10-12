@@ -651,7 +651,7 @@
       <div class="card">
         <div class="card-header-line">
           <span>Disjoint Sets Forest View</span>
-          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Glissez-déposez les nœuds pour réorganiser la forêt</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Drag and drop nodes to rearrange the forest</span>
         </div>
         <div class="forest-canvas-container">
           <svg class="uf-svg" id="ufSvg" viewBox="0 0 760 380">
@@ -851,7 +851,7 @@
           if (pid === qid) {
             addStep({
               line: 6,
-              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà le même identifiant (<code>id = ${pid}</code>). Déjà connectés : <em>aucun élément n'est déplacé ni modifié !</em>`,
+              descr: `⚠️ <strong>Cycle detected!</strong> Nodes <strong>${p}</strong> and <strong>${q}</strong> already share the same identifier (<code>id = ${pid}</code>). Already connected: <em>no elements are modified!</em>`,
               p, q,
               activeInspect: [p, q],
               isCycle: true,
@@ -861,7 +861,7 @@
           } else {
             addStep({
               line: 7,
-              descr: `Recherche dans le tableau <code>id[]</code> pour réécrire tous les éléments d'identifiant ${pid} vers ${qid}.`,
+              descr: `Scanning array <code>id[]</code> to rewrite all elements with identifier ${pid} to ${qid}.`,
               p, q,
               activeInspect: [p, q],
               isConnected: false,
@@ -879,7 +879,7 @@
 
             addStep({
               line: 9,
-              descr: `✅ <strong>Fusion réussie !</strong> Tous les éléments d'identifiant ${pid} portent désormais ${qid}. Composantes restantes : <strong>${count}</strong>.`,
+              descr: `✅ <strong>Union successful!</strong> All elements with id ${pid} now carry ${qid}. Remaining components: <strong>${count}</strong>.`,
               p, q,
               activeInspect: [p, q],
               isMerge: true,
@@ -890,7 +890,7 @@
         } else if (activeMode === 'quickunion') {
           addStep({
             line: 5,
-            descr: `<strong>union(${p}, ${q})</strong>: Parcours des pointeurs parents pour trouver les racines de ${p} et ${q}.`,
+            descr: `<strong>union(${p}, ${q})</strong>: Traversing parent pointers to find roots of ${p} and ${q}.`,
             p, q,
             activeInspect: [p, q],
             opIndex: opIdx
@@ -901,7 +901,7 @@
 
           addStep({
             line: 6,
-            descr: `Racines trouvées : root(${p}) = <strong>${rootP}</strong>, root(${q}) = <strong>${rootQ}</strong>.`,
+            descr: `Roots found: root(${p}) = <strong>${rootP}</strong>, root(${q}) = <strong>${rootQ}</strong>.`,
             p, q, rootP, rootQ,
             activeInspect: [rootP, rootQ],
             opIndex: opIdx
@@ -910,7 +910,7 @@
           if (rootP === rootQ) {
             addStep({
               line: 7,
-              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà la même racine <strong>${rootP}</strong>. Déjà connectés : <em>aucun déplacement de sous-arbre n'est effectué !</em>`,
+              descr: `⚠️ <strong>Cycle detected!</strong> Nodes <strong>${p}</strong> and <strong>${q}</strong> already share the same root <strong>${rootP}</strong>. Already connected: <em>no tree modification needed!</em>`,
               p, q, rootP, rootQ,
               activeInspect: [p, q, rootP],
               isCycle: true,
@@ -924,7 +924,7 @@
 
             addStep({
               line: 8,
-              descr: `✅ <strong>Union réussie !</strong> La racine <strong>${rootP}</strong> est rattachée sous <strong>${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). L'arbre de ${rootP} est <strong>déplacé sous la racine ${rootQ}</strong>. Composantes restantes : ${count}.`,
+              descr: `✅ <strong>Union successful!</strong> Root <strong>${rootP}</strong> is attached under <strong>${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). Remaining components: ${count}.`,
               p, q, rootP, rootQ,
               activeInspect: [rootP, rootQ],
               activeEdge: [rootP, rootQ],
@@ -937,7 +937,7 @@
         } else if (activeMode === 'wqupc') {
           addStep({
             line: 8,
-            descr: `<strong>union(${p}, ${q})</strong>: Recherche des racines avec compression de chemin.`,
+            descr: `<strong>union(${p}, ${q})</strong>: Finding roots with path compression.`,
             p, q,
             activeInspect: [p, q],
             opIndex: opIdx
@@ -963,7 +963,7 @@
 
           addStep({
             line: 9,
-            descr: `Racines trouvées : root(${p}) = <strong>${rootP}</strong> (taille=${sz[rootP]}), root(${q}) = <strong>${rootQ}</strong> (taille=${sz[rootQ]}).`,
+            descr: `Roots found: root(${p}) = <strong>${rootP}</strong> (size=${sz[rootP]}), root(${q}) = <strong>${rootQ}</strong> (size=${sz[rootQ]}).`,
             p, q, rootP, rootQ,
             activeInspect: [rootP, rootQ],
             opIndex: opIdx
@@ -972,7 +972,7 @@
           if (rootP === rootQ) {
             addStep({
               line: 10,
-              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà la même racine <strong>${rootP}</strong>. Déjà connectés : <em>aucun déplacement d'arbre n'est nécessaire !</em>`,
+              descr: `⚠️ <strong>Cycle detected!</strong> Nodes <strong>${p}</strong> and <strong>${q}</strong> already share the same root <strong>${rootP}</strong>. Already connected: <em>no tree modification needed!</em>`,
               p, q, rootP, rootQ,
               activeInspect: [p, q, rootP],
               isCycle: true,
@@ -987,7 +987,7 @@
               count--;
               addStep({
                 line: 12,
-                descr: `✅ <strong>Union pondérée :</strong> L'arbre de ${rootP} est plus petit (${sz[rootP]} < ${sz[rootQ]}). La racine <strong>${rootP} est déplacée sous ${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). Nouvelle taille = ${sz[rootQ]}.`,
+                descr: `✅ <strong>Weighted Union:</strong> Root ${rootP}'s tree is smaller (${sz[rootP]} < ${sz[rootQ]}). Root <strong>${rootP} is linked under ${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). New size = ${sz[rootQ]}.`,
                 p, q, rootP, rootQ,
                 activeInspect: [rootP, rootQ],
                 activeEdge: [rootP, rootQ],
@@ -1001,7 +1001,7 @@
               count--;
               addStep({
                 line: 14,
-                descr: `✅ <strong>Union pondérée :</strong> L'arbre de ${rootQ} est plus petit ou égal (${sz[rootQ]} &le; ${sz[rootP]}). La racine <strong>${rootQ} est déplacée sous ${rootP}</strong> (<code>parent[${rootQ}] = ${rootP}</code>). Nouvelle taille = ${sz[rootP]}.`,
+                descr: `✅ <strong>Weighted Union:</strong> Root ${rootQ}'s tree is smaller or equal (${sz[rootQ]} &le; ${sz[rootP]}). Root <strong>${rootQ} is linked under ${rootP}</strong> (<code>parent[${rootQ}] = ${rootP}</code>). New size = ${sz[rootP]}.`,
                 p, q, rootP, rootQ,
                 activeInspect: [rootP, rootQ],
                 activeEdge: [rootQ, rootP],

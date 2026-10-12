@@ -538,13 +538,13 @@
 
       <div class="card">
         <div class="card-header-line">
-          <span>Invariants & Détection de Cycles</span>
+          <span>Invariants & Cycle Detection</span>
           <span style="font-size:0.72rem; color:var(--accent-emerald);">Union-Find Cycle Check</span>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
-          <p><strong style="color:var(--accent-emerald);">Propriété de la coupe :</strong> L'arête de poids minimum traversant une coupe séparant deux ensembles de sommets appartient obligatoirement à l'arbre couvrant (MST).</p>
-          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Détection de cycle :</strong> Si <code>find(u) == find(v)</code>, les sommets partagent déjà la même racine et sont <strong>déjà connectés</strong>. L'arête est <strong>rejetée</strong> (aucun déplacement n'a lieu afin d'éviter un cycle).</p>
-          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-blue);">Complexité $O(E \log E)$ :</strong> Le tri initial des $E$ arêtes domine le temps d'exécution. Les vérifications de cycles dans Union-Find (WQUPC) prennent un temps quasi-linéaire $O(E \alpha(V))$.</p>
+          <p><strong style="color:var(--accent-emerald);">Cut Property:</strong> The minimum-weight edge crossing any cut separating two sets of vertices must belong to the Minimum Spanning Tree (MST).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Cycle Detection:</strong> If <code>find(u) == find(v)</code>, the vertices already share the same root and are <strong>already connected</strong>. The edge is <strong>rejected</strong> to avoid forming a cycle.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-blue);">Complexity $O(E \log E)$:</strong> Initial sorting of the $E$ edges dominates the runtime. Cycle checks via Union-Find (WQUPC) take nearly linear time $O(E \alpha(V))$.</p>
         </div>
       </div>
     </div>
@@ -553,7 +553,7 @@
       <div class="card">
         <div class="card-header-line">
           <span>Edge-Weighted Graph Canvas</span>
-          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Glissez-déposez les sommets pour réorganiser le graphe</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Drag and drop vertices to rearrange the graph layout</span>
         </div>
         <div class="graph-canvas-container">
           <svg class="graph-svg" id="graphSvg" viewBox="0 0 760 420"></svg>
@@ -672,13 +672,13 @@
         });
       }
 
-      snapshot(1, `Initialisation : ${sortedEdges.length} arêtes triées par ordre croissant de poids dans la file de priorité. Arbre couvrant vide.`, null, null, -1);
+      snapshot(1, `Initialization: ${sortedEdges.length} edges sorted in ascending order of weight in the priority queue. Empty spanning tree.`, null, null, -1);
 
       for (let i = 0; i < sortedEdges.length; i++) {
         if (mstEdges.length === V - 1) break;
 
         const e = sortedEdges[i];
-        snapshot(4, `<code>pq.delMin()</code> : Examen de l'arête <strong>(${e.u}, ${e.v})</strong> de poids minimum <strong>${e.w.toFixed(2)}</strong>. Vérification de cycle via Union-Find...`, e, 'examining', i);
+        snapshot(4, `<code>pq.delMin()</code>: Examining minimum-weight edge <strong>(${e.u}, ${e.v})</strong> with weight <strong>${e.w.toFixed(2)}</strong>. Checking for cycle via Union-Find...`, e, 'examining', i);
 
         const rootU = find(e.u);
         const rootV = find(e.v);
@@ -688,14 +688,14 @@
           mstEdges.push(e);
           totalMstWeight += e.w;
 
-          snapshot(7, `✅ Racines distinctes (${rootU} &ne; ${rootV}) : l'arête <strong>(${e.u}, ${e.v})</strong> est <strong>ACCEPTÉE dans le MST</strong> ! Les composantes ${rootU} et ${rootV} sont connectées.`, e, 'accepted', i);
+          snapshot(7, `✅ Distinct roots (${rootU} &ne; ${rootV}): edge <strong>(${e.u}, ${e.v})</strong> is <strong>ACCEPTED into the MST</strong>! Connected components ${rootU} and ${rootV}.`, e, 'accepted', i);
         } else {
           rejectedEdges.push(e);
-          snapshot(6, `⚠️ <strong>Cycle détecté !</strong> Les sommets <strong>${e.u}</strong> et <strong>${e.v}</strong> partagent déjà la même racine (${rootU}) et sont déjà connectés. L'arête est <strong>REJETÉE</strong> : aucun changement ni déplacement de sommets nécessaire.`, e, 'rejected', i);
+          snapshot(6, `⚠️ <strong>Cycle detected!</strong> Vertices <strong>${e.u}</strong> and <strong>${e.v}</strong> already share the same root (${rootU}) and are already connected. The edge is <strong>REJECTED</strong> to prevent a cycle.`, e, 'rejected', i);
         }
       }
 
-      snapshot(10, `Algorithme de Kruskal terminé ! Arbre couvrant minimal trouvé avec ${mstEdges.length} arêtes et un poids total de <strong>${totalMstWeight.toFixed(2)}</strong>.`, null, null, sortedEdges.length);
+      snapshot(10, `Kruskal's algorithm completed! Minimum spanning tree found with ${mstEdges.length} edges and total weight <strong>${totalMstWeight.toFixed(2)}</strong>.`, null, null, sortedEdges.length);
 
       return steps;
     }

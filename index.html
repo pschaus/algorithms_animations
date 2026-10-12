@@ -912,7 +912,7 @@
         </div>
       </div>
 
-      <a href="https://perso.uclouvain.be/pierre.schaus/" target="_blank" rel="noopener" class="nav-link-btn" title="Course Instructor">
+      <a href="https://pschaus.github.io" target="_blank" rel="noopener" class="nav-link-btn" title="Course Instructor">
         <span>👨‍🏫 Prof. P. Schaus</span>
       </a>
       <a href="https://algs4.cs.princeton.edu/cheatsheet/" target="_blank" rel="noopener" class="nav-link-btn" title="Sedgewick & Wayne Online Cheatsheet">
@@ -933,12 +933,12 @@
       </p>
       <div class="hero-stats">
         <div class="stat-box">
-          <span class="stat-number" id="statAvailableCount">1</span>
-          <span class="stat-label">Live Visualizer</span>
+          <span class="stat-number" id="statAvailableCount">11</span>
+          <span class="stat-label">Live Visualizers</span>
         </div>
         <div class="stat-box">
-          <span class="stat-number" id="statTotalCount">15</span>
-          <span class="stat-label">Curriculum Topics</span>
+          <span class="stat-number" id="statTotalCount">11</span>
+          <span class="stat-label">Interactive Algorithms</span>
         </div>
         <div class="stat-box">
           <span class="stat-number">6</span>
@@ -961,12 +961,12 @@
 
         <div class="view-toggle-wrap">
           <button class="view-toggle-btn active" id="btnToggleAll" data-view="all">All Topics</button>
-          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">10</span>)</button>
+          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">11</span>)</button>
         </div>
 
         <div class="layout-toggle-wrap">
-          <button class="layout-btn active" id="btnLayoutList" title="Affichage en liste groupée">📋 Liste</button>
-          <button class="layout-btn" id="btnLayoutGrid" title="Affichage en cartes détaillées">🎴 Grille</button>
+          <button class="layout-btn active" id="btnLayoutList" title="Grouped list view">📋 List</button>
+          <button class="layout-btn" id="btnLayoutGrid" title="Detailed card view">🎴 Grid</button>
         </div>
       </div>
 
@@ -994,7 +994,7 @@
   <!-- Footer -->
   <footer>
     <p>
-      <strong>LINFO1121: Data Structures &amp; Algorithms</strong> — UCLouvain (Louvain-la-Neuve, Belgium).
+      <strong>LINFO1121: Data Structures &amp; Algorithms</strong> — UCLouvain (Louvain-la-Neuve, Belgium) • Taught by <a href="https://pschaus.github.io" target="_blank" rel="noopener" style="color: var(--accent-blue);">Prof. Pierre Schaus</a>.
       <br>
       Reference Textbook: <em>Algorithms 4th Edition</em> by Robert Sedgewick &amp; Kevin Wayne.
     </p>
@@ -1016,11 +1016,29 @@
      * Consult agents.md for the full procedure.
      */
     const ALGORITHMS = [
+      /* ================= PART 1: DATA STRUCTURES & UNION-FIND ================= */
+      {
+        id: "union-find",
+        title: "Union-Find (Disjoint Sets)",
+        category: "part1",
+        categoryName: "Part 1: Data Structures",
+        file: "union_find.html",
+        status: "available",
+        description: "Models dynamic connectivity between N elements. Compares Quick-Find O(n), Quick-Union, and Weighted Quick-Union with Path Compression O(α(n)).",
+        complexities: {
+          best: "O(1)",
+          avg: "O(α(n))",
+          worst: "O(α(n))",
+          space: "O(n)"
+        },
+        properties: ["Dynamic Connectivity", "Nearly Linear Time", "Path Compression"],
+        features: ["Forest tree graph", "Component coloring", "Access cost counter", "3 variants comparison"]
+      },
+
       /* ================= PART 2: SORTING ================= */
       {
         id: "counting-sort",
         title: "Counting Sort",
-        frenchTitle: "Tri par dénombrement (paires clé-valeur)",
         category: "part2",
         categoryName: "Part 2: Sorting",
         file: "counting_sort.html",
@@ -1036,81 +1054,25 @@
         features: ["Step-by-step", "Phase pill tracker", "Stability proof", "Custom input", "Sound effects"]
       },
       {
-        id: "selection-sort",
-        title: "Selection Sort",
-        frenchTitle: "Tri par sélection",
+        id: "merge-sort-linked-list",
+        title: "Merge Sort (Singly Linked List)",
         category: "part2",
         categoryName: "Part 2: Sorting",
-        file: "selection_sort.html",
-        status: "planned",
-        description: "Repeatedly finds the minimum remaining element and swaps it into place. Preserves simple O(1) extra space but always requires ~n²/2 comparisons.",
-        complexities: {
-          best: "O(n²)",
-          avg: "O(n²)",
-          worst: "O(n²)",
-          space: "O(1)"
-        },
-        properties: ["Not Stable", "Comparative", "In-place", "Insensitive to input"],
-        features: ["Min-pointer animation", "Swap count tracker", "Comparison counter"]
-      },
-      {
-        id: "insertion-sort",
-        title: "Insertion Sort",
-        frenchTitle: "Tri par insertion",
-        category: "part2",
-        categoryName: "Part 2: Sorting",
-        file: "insertion_sort.html",
-        status: "planned",
-        description: "Builds sorted array one element at a time by inserting each element into its proper position. Highly efficient for partially sorted arrays with linear runtime O(n+I).",
-        complexities: {
-          best: "O(n)",
-          avg: "O(n²)",
-          worst: "O(n²)",
-          space: "O(1)"
-        },
-        properties: ["Stable", "Comparative", "In-place", "Adaptive"],
-        features: ["Inversions counter", "Partially sorted preset", "Step-by-step shift"]
-      },
-      {
-        id: "merge-sort",
-        title: "Merge Sort",
-        frenchTitle: "Tri fusion (Top-Down & Bottom-Up)",
-        category: "part2",
-        categoryName: "Part 2: Sorting",
-        file: "merge_sort.html",
-        status: "planned",
-        description: "Divide-and-conquer algorithm dividing the array in half, sorting recursively, and merging sorted halves with guaranteed O(n log n) comparisons.",
+        file: "merge_sort_linked_list.html",
+        status: "available",
+        description: "Top-down divide-and-conquer sorting for singly linked lists. Uses slow and fast pointers to find the midpoint in O(n), splits the list without extra memory, sorts recursively, and merges sorted lists in-place with O(1) auxiliary heap space.",
         complexities: {
           best: "O(n log n)",
           avg: "O(n log n)",
           worst: "O(n log n)",
-          space: "O(n)"
-        },
-        properties: ["Stable", "Comparative", "Divide & Conquer", "Optimal comparisons"],
-        features: ["Recursion tree view", "Auxiliary array visualization", "Merge pointers"]
-      },
-      {
-        id: "quick-sort",
-        title: "Quick Sort & 3-Way Partitioning",
-        frenchTitle: "Tri rapide & partition à 3 voies (Dijkstra)",
-        category: "part2",
-        categoryName: "Part 2: Sorting",
-        file: "quick_sort.html",
-        status: "planned",
-        description: "Partitions around a pivot element. 3-way Dutch National Flag partitioning efficiently handles duplicate keys in linear time O(n).",
-        complexities: {
-          best: "O(n log n)",
-          avg: "O(n log n)",
-          worst: "O(n²)",
           space: "O(log n)"
         },
-        properties: ["Not Stable", "Comparative", "In-place", "Dutch National Flag"],
-        features: ["Pivot selection visualizer", "Duplicate keys demo", "Call stack view"]
+        properties: ["Stable", "Comparative", "Divide & Conquer", "In-place Pointers", "Optimal for Linked Lists"],
+        features: ["Slow & fast pointer search", "Midpoint split animation", "Recursion stack & call tree", "Pointer rewiring merge", "Custom list input"]
       },
       {
         id: "heap-sort",
         title: "Heap Sort",
-        frenchTitle: "Tri par tas",
         category: "part2",
         categoryName: "Part 2: Sorting",
         file: "heap_sort.html",
@@ -1128,7 +1090,6 @@
       {
         id: "radix-sort",
         title: "Radix Sort (LSD String Sort)",
-        frenchTitle: "Tri par base (LSD & comptage)",
         category: "part2",
         categoryName: "Part 2: Sorting",
         file: "radix_sort.html",
@@ -1144,49 +1105,10 @@
         features: ["Multi-pass digit stepper", "Key-indexed counting breakdown", "Stability visualization", "Auxiliary array distribution"]
       },
 
-      /* ================= PART 1: DATA STRUCTURES & UNION-FIND ================= */
-      {
-        id: "union-find",
-        title: "Union-Find (Disjoint Sets)",
-        frenchTitle: "Ensembles disjoints (Quick-Find, Quick-Union, WQUPC)",
-        category: "part1",
-        categoryName: "Part 1: Data Structures",
-        file: "union_find.html",
-        status: "available",
-        description: "Models dynamic connectivity between N elements. Compares Quick-Find O(n), Quick-Union, and Weighted Quick-Union with Path Compression O(α(n)).",
-        complexities: {
-          best: "O(1)",
-          avg: "O(α(n))",
-          worst: "O(α(n))",
-          space: "O(n)"
-        },
-        properties: ["Dynamic Connectivity", "Nearly Linear Time", "Path Compression"],
-        features: ["Forest tree graph", "Component coloring", "Access cost counter", "3 variants comparison"]
-      },
-
       /* ================= PART 3: SEARCH TREES ================= */
-      {
-        id: "bst",
-        title: "Binary Search Tree (BST)",
-        frenchTitle: "Arbre binaire de recherche",
-        category: "part3",
-        categoryName: "Part 3: Search Trees",
-        file: "bst.html",
-        status: "planned",
-        description: "Symbol table implementation using linked nodes where left keys < node < right keys. Explores insertion, search, and Hibbard deletion.",
-        complexities: {
-          best: "O(log n)",
-          avg: "O(log n)",
-          worst: "O(n)",
-          space: "O(n)"
-        },
-        properties: ["Ordered Symbol Table", "Unbalanced worst-case", "Recursive structure"],
-        features: ["Tree layout renderer", "In-order traversal", "Hibbard deletion step"]
-      },
       {
         id: "red-black-bst",
         title: "2-3 Search Trees & Left-Leaning Red-Black BST",
-        frenchTitle: "Arbres 2-3 & Arbre Rouge-Noir penché à gauche (LLRB)",
         category: "part3",
         categoryName: "Part 3: Search Trees",
         file: "red_black_bst.html",
@@ -1206,7 +1128,6 @@
       {
         id: "hash-tables",
         title: "Hash Tables (Chaining & Linear Probing)",
-        frenchTitle: "Tables de hachage (Chaînage & Adressage ouvert)",
         category: "part4",
         categoryName: "Part 4: Hash & Strings",
         file: "hash_tables.html",
@@ -1224,7 +1145,6 @@
       {
         id: "kmp-search",
         title: "Knuth-Morris-Pratt (KMP) Substring Search",
-        frenchTitle: "Recherche de sous-chaîne KMP (DFA)",
         category: "part4",
         categoryName: "Part 4: Hash & Strings",
         file: "kmp_search.html",
@@ -1244,7 +1164,6 @@
       {
         id: "binary-heap-pq",
         title: "Binary Heap Priority Queue",
-        frenchTitle: "File de priorité (Tas binaire)",
         category: "part5",
         categoryName: "Part 5: Priority Queues",
         file: "binary_heap_pq.html",
@@ -1262,27 +1181,8 @@
 
       /* ================= PART 6: GRAPHS ================= */
       {
-        id: "graph-traversals",
-        title: "Graph Search: DFS & BFS",
-        frenchTitle: "Parcours de graphes (Profondeur & Largeur)",
-        category: "part6",
-        categoryName: "Part 6: Graphs",
-        file: "graph_traversals.html",
-        status: "planned",
-        description: "Compares Depth-First Search (stack / recursion) and Breadth-First Search (queue / shortest hop path) on directed and undirected graphs.",
-        complexities: {
-          best: "O(V + E)",
-          avg: "O(V + E)",
-          worst: "O(V + E)",
-          space: "O(V)"
-        },
-        properties: ["Fundamental Graph Search", "Connected components", "Cycle detection"],
-        features: ["Interactive graph canvas", "Visited marked[] array", "Active stack/queue"]
-      },
-      {
         id: "dijkstra-shortest-path",
         title: "Dijkstra's Shortest Path",
-        frenchTitle: "Plus courts chemins (Algorithme de Dijkstra)",
         category: "part6",
         categoryName: "Part 6: Graphs",
         file: "dijkstra.html",
@@ -1300,7 +1200,6 @@
       {
         id: "kruskal-mst",
         title: "Kruskal's Minimum Spanning Tree (MST)",
-        frenchTitle: "Arbre couvrant minimal (Algorithme de Kruskal)",
         category: "part6",
         categoryName: "Part 6: Graphs",
         file: "kruskal.html",
@@ -1454,13 +1353,12 @@
         // Search text filter
         if (q.length > 0) {
           const matchTitle = algo.title.toLowerCase().includes(q);
-          const matchFrench = algo.frenchTitle && algo.frenchTitle.toLowerCase().includes(q);
           const matchDesc = algo.description.toLowerCase().includes(q);
           const matchCat = algo.categoryName.toLowerCase().includes(q);
           const matchProps = algo.properties.some(p => p.toLowerCase().includes(q));
           const matchComp = Object.values(algo.complexities).some(c => c.toLowerCase().includes(q));
           
-          if (!matchTitle && !matchFrench && !matchDesc && !matchCat && !matchProps && !matchComp) {
+          if (!matchTitle && !matchDesc && !matchCat && !matchProps && !matchComp) {
             return false;
           }
         }
@@ -1472,15 +1370,15 @@
     // Main Catalog Renderer (switches between List View and Grid View)
     function renderCatalog() {
       const list = getFilteredAlgorithms();
-      resultsCountEl.textContent = `Affichage de ${list.length} algorithme${list.length === 1 ? '' : 's'}`;
+      resultsCountEl.textContent = `Showing ${list.length} algorithm${list.length === 1 ? '' : 's'}`;
 
       if (list.length === 0) {
         catalogContentContainer.innerHTML = `
           <div class="no-results" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 3rem 1rem;">
             <p style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</p>
-            <p style="font-size: 1.1rem; color: #fff; font-weight: 700;">Aucun algorithme trouvé</p>
-            <p style="margin-top: 0.35rem; color: var(--text-dim);">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
-            <button class="btn-launch-row" style="margin-top: 1.2rem; display: inline-flex;" onclick="clearFilters()">Réinitialiser les filtres</button>
+            <p style="font-size: 1.1rem; color: #fff; font-weight: 700;">No algorithms found</p>
+            <p style="margin-top: 0.35rem; color: var(--text-dim);">Try a different keyword or reset filters.</p>
+            <button class="btn-launch-row" style="margin-top: 1.2rem; display: inline-flex;" onclick="clearFilters()">Reset Filters</button>
           </div>
         `;
         return;
@@ -1520,7 +1418,7 @@
             <div class="algo-list-row ${algo.status}" id="card-${algo.id}">
               <div>
                 <span class="card-badge-status ${algo.status}">
-                  ${isAvail ? '● Live' : '⏳ Bientôt'}
+                  ${isAvail ? '● Live' : '⏳ Soon'}
                 </span>
               </div>
 
@@ -1528,7 +1426,6 @@
                 ${isAvail 
                   ? `<a href="${algo.file}" class="row-title-link">${algo.title}</a>` 
                   : `<span class="row-title-link" style="color: var(--text-muted); cursor: default;">${algo.title}</span>`}
-                ${algo.frenchTitle ? `<span class="row-subtitle">${algo.frenchTitle}</span>` : ''}
               </div>
 
               <div class="row-desc">
@@ -1540,11 +1437,11 @@
 
               <div class="row-complexities">
                 <div class="row-comp-item">
-                  <span>Temps:</span>
+                  <span>Time:</span>
                   <span class="comp-val ${isAvail ? 'accent' : ''}">${algo.complexities.avg || algo.complexities.worst}</span>
                 </div>
                 <div class="row-comp-item">
-                  <span>Espace:</span>
+                  <span>Space:</span>
                   <span class="comp-val">${algo.complexities.space}</span>
                 </div>
               </div>
@@ -1552,11 +1449,11 @@
               <div>
                 ${isAvail ? `
                   <a href="${algo.file}" class="btn-launch-row">
-                    <span>Ouvrir</span>
+                    <span>Launch</span>
                     <span>➔</span>
                   </a>
                 ` : `
-                  <span class="badge-planned-row">Bientôt</span>
+                  <span class="badge-planned-row">Soon</span>
                 `}
               </div>
             </div>
@@ -1593,7 +1490,6 @@
                   <h3 class="card-title">
                     ${isAvail ? `<a href="${algo.file}">${algo.title}</a>` : algo.title}
                   </h3>
-                  ${algo.frenchTitle ? `<div class="card-french-title">${algo.frenchTitle}</div>` : ''}
 
                   <p class="card-desc">${algo.description}</p>
 

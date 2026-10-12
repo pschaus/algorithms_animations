@@ -4,8 +4,16 @@ This repository contains interactive step-by-step educational animations for the
 
 ---
 
-## 🚨 MANDATORY INSTRUCTION FOR ALL AI AGENTS
+## 🚨 MANDATORY INSTRUCTIONS FOR ALL AI AGENTS
 
+> **1. ENGLISH LANGUAGE ONLY:**
+> **All text, educational explanations, step-by-step descriptions, UI controls, labels, invariants, and code comments MUST be provided in English, never in French.**
+> Do not add French titles or French translations.
+>
+> **2. ONLY IMPLEMENTED VISUALIZERS IN CATALOG:**
+> **Only algorithms that have a working, standalone interactive visualizer (`.html`) must be listed in `index.html`.** Do not keep un-implemented or planned algorithms in the catalog.
+>
+> **3. TWO-WAY SYNCHRONIZATION WITH `index.html`:**
 > **Whenever you add, modify, or rename an algorithm visualizer in this repository, you MUST update `index.html` so that the index page, search index, category filters, and quick navigation menu reflect the change.**
 >
 > **Never consider a task complete without verifying that `index.html` is up to date and that two-way links work seamlessly.**
@@ -16,15 +24,17 @@ This repository contains interactive step-by-step educational animations for the
 
 ```text
 algorithms_animations/
-├── index.html            # Central portal: searchable catalog, filter pills, quick navigation menu
-├── counting_sort.html    # Standalone visualizer: Counting Sort
-├── <new_algorithm>.html  # Any future standalone algorithm visualizer
-└── agents.md             # This instruction file for AI agents & contributors
+├── index.html                  # Central portal: searchable catalog, filter pills, quick navigation menu
+├── counting_sort.html          # Standalone visualizer: Counting Sort
+├── merge_sort_linked_list.html # Standalone visualizer: Merge Sort on Singly Linked Lists
+├── <new_algorithm>.html        # Any future standalone algorithm visualizer
+└── agents.md                   # This instruction file for AI agents & contributors
 ```
 
 ### Core Architecture Principles
 1. **Self-Contained Visualizers:** Each algorithm visualizer is a standalone HTML file (`*.html`) containing its own CSS and JavaScript (vanilla, no npm build required). It must run cleanly when opened directly in a browser via `file://` or hosted statically on GitHub Pages.
 2. **Central Portal (`index.html`):** The single entry point for students and instructors. It catalogs all algorithms, displays time/space complexities, educational properties, search capabilities, and a quick dropdown navigation menu.
+3. **Strictly English Content:** All descriptions, tooltips, titles, variable labels, and step-by-step execution snapshots must be in English.
 
 ---
 
@@ -33,7 +43,7 @@ algorithms_animations/
 Follow these steps in order when tasked with adding a new algorithm animation:
 
 ### Step 1: Create the New Visualizer File
-- Name the file using lowercase snake_case: `<algorithm_name>.html` (e.g. `quick_sort.html`, `red_black_bst.html`, `dijkstra.html`).
+- Name the file using lowercase snake_case: `<algorithm_name>.html` (e.g. `merge_sort_linked_list.html`, `quick_sort.html`, `red_black_bst.html`, `dijkstra.html`).
 - **Include the Back Button in the Header:** The visualizer header **must** include a link back to `index.html`:
   ```html
   <header>
@@ -75,34 +85,25 @@ Follow these steps in order when tasked with adding a new algorithm animation:
   ```
 
 ### Step 2: Register the Algorithm in `index.html`
-Open `index.html` and locate the `ALGORITHMS` registry array in the `<script>` tag.
-
-1. **If the algorithm was already listed as `"status": "planned"`:**
-   - Update its `status` to `"available"`.
-   - Ensure `file` matches your exact filename (e.g. `"quick_sort.html"`).
-   - Review and refine `description`, `complexities`, `properties`, and `features`.
-
-2. **If adding an algorithm that was not in the initial array:**
-   - Add a new object to `ALGORITHMS` following the schema below.
+Open `index.html` and locate the `ALGORITHMS` registry array in the `<script>` tag. Add a new object following the schema below (English only):
 
 ```javascript
 {
-  id: "quick-sort",                          // Unique slug
-  title: "Quick Sort & 3-Way Partitioning",  // Standard English title
-  frenchTitle: "Tri rapide (Dijkstra)",      // French title used in UCLouvain lectures
+  id: "merge-sort-linked-list",              // Unique slug
+  title: "Merge Sort (Singly Linked List)",  // Standard English title
   category: "part2",                         // Course category ID (see Category Mapping below)
   categoryName: "Part 2: Sorting",           // Full category display name
-  file: "quick_sort.html",                   // Relative filename
-  status: "available",                       // "available" for working visualizers, "planned" otherwise
-  description: "Partitions around a pivot element. 3-way Dutch National Flag partitioning handles duplicate keys in linear time.",
+  file: "merge_sort_linked_list.html",       // Relative filename
+  status: "available",                       // "available" for working visualizers
+  description: "Top-down divide-and-conquer sorting for singly linked lists. Uses slow/fast pointers to find the midpoint in O(n), splits without extra memory, sorts recursively, and merges sorted lists in-place with O(1) auxiliary heap space.",
   complexities: {
     best: "O(n log n)",
     avg: "O(n log n)",
-    worst: "O(n²)",
+    worst: "O(n log n)",
     space: "O(log n)"
   },
-  properties: ["Not Stable", "Comparative", "In-place", "Dutch National Flag"],
-  features: ["Step-by-step", "Pivot selection", "Duplicate keys demo", "Call stack view"]
+  properties: ["Stable", "Comparative", "Divide & Conquer", "In-place Pointers", "Optimal for Linked Lists"],
+  features: ["Slow & fast pointer search", "Midpoint split animation", "Recursion stack & call tree", "Pointer rewiring merge", "Custom list input"]
 }
 ```
 
@@ -130,7 +131,7 @@ When assigning `category` and `categoryName`, use the following standard course 
 | Category ID | Display Name (`categoryName`) | Typical Algorithms & Data Structures |
 | :--- | :--- | :--- |
 | `part1` | `Part 1: Data Structures` | Dynamic Arrays, Stacks, Queues, Linked Lists, Union-Find (WQUPC) |
-| `part2` | `Part 2: Sorting` | Counting Sort, Selection, Insertion, Shellsort, Merge Sort, Quick Sort (3-Way), Heap Sort, Radix Sort (LSD/MSD) |
+| `part2` | `Part 2: Sorting` | Counting Sort, Merge Sort (Linked List), Selection, Insertion, Shellsort, Heap Sort, Radix Sort (LSD/MSD) |
 | `part3` | `Part 3: Search Trees` | Binary Search Trees (BST), 2-3 Trees, Left-Leaning Red-Black BST (LLRB), B-Trees |
 | `part4` | `Part 4: Hash & Strings` | Hash Tables (Separate Chaining, Linear Probing), Tries, TST, Substring Search (KMP, Boyer-Moore, Rabin-Karp) |
 | `part5` | `Part 5: Priority Queues` | Binary Heaps (Min/Max), Huffman Compression, LZW Compression |
@@ -171,6 +172,7 @@ Each visualizer should ideally provide:
 - **Data Generator:** Random instance button + preset configurations (including edge cases such as sorted, reverse-sorted, duplicate keys).
 - **Custom Input:** Modal or input field allowing students to test custom arrays/values.
 - **Pseudo-Code / Invariant Panel:** Visual box highlighting the active line of code or mathematical invariant being maintained.
+- **English-Only Content:** Every string, description, and explanation must be in English.
 
 ---
 
@@ -179,12 +181,14 @@ Each visualizer should ideally provide:
 Before reporting completion on any task that creates or modifies an algorithm visualizer, verify each item:
 
 - [ ] New HTML file is saved in the repository root directory.
+- [ ] All explanations, UI controls, step descriptions, and comments are in English (no French).
 - [ ] New HTML file contains the "← Index" back button in its header.
+- [ ] Only algorithms with implemented visualizers are listed in `index.html`.
 - [ ] `index.html` has been updated:
   - [ ] `ALGORITHMS` entry has `status: "available"`
-  - [ ] `file` path is correct and relative (e.g. `"my_algo.html"`)
+  - [ ] `file` path is correct and relative (e.g. `"merge_sort_linked_list.html"`)
   - [ ] Time and space complexities are accurately documented
-  - [ ] French title and English title are present
+  - [ ] English title, description, and properties are present
   - [ ] Category ID corresponds to the correct LINFO1121 course part
 - [ ] Opened and tested in browser:
   - [ ] Clicking "Launch Visualizer" from `index.html` opens the visualizer.
