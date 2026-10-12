@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2-3 Tree & Left-Leaning Red-Black BST Parallel Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+
+      --link-red: #ef4444;
+      --link-black: #64748b;
+      --node-23-bg: #1e293b;
+      --node-23-border: #38bdf8;
+      --node-4node-bg: #451a03;
+      --node-4node-border: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Stepper Bar */
+    .rule-pills-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .rule-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: #151f32;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .rule-pill.active {
+      background: #7f1d1d;
+      color: #fecaca;
+      border-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Main Container */
+    .app-main {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1850px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.73rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    .input-stream-chips {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .key-chip {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .key-chip.current {
+      background: #dc2626;
+      border-color: #f87171;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+      transform: scale(1.1);
+    }
+
+    .key-chip.done {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #34d399;
+    }
+
+    /* Parallel Trees Layout */
+    .parallel-canvases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 1400px) {
+      .parallel-canvases-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tree-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tree-box-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    svg.tree-svg {
+      width: 100%;
+      height: 440px;
+    }
+
+    /* 2-3 Tree SVG Elements */
+    .node-23-rect {
+      fill: #151f32;
+      stroke: #38bdf8;
+      stroke-width: 2;
+      rx: 8;
+      ry: 8;
+      transition: all 0.25s;
+    }
+
+    .node-23-rect.is-4node {
+      fill: #451a03;
+      stroke: #f59e0b;
+      stroke-width: 3;
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+    }
+
+    .node-23-rect.highlighted {
+      stroke: #fbbf24;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+
+    .node-23-rect.comparing {
+      stroke: #38bdf8;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+    }
+
+    .node-23-divider {
+      stroke: #334869;
+      stroke-width: 1.5;
+    }
+
+    .node-23-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 13px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .edge-23 {
+      stroke: #475569;
+      stroke-width: 2.5;
+    }
+
+    /* LLRB SVG Elements */
+    .llrb-edge {
+      stroke: #64748b;
+      stroke-width: 2.5;
+      transition: stroke 0.25s, stroke-width 0.25s;
+    }
+
+    .llrb-edge.red-link {
+      stroke: #ef4444;
+      stroke-width: 4.5;
+      filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7));
+    }
+
+    .llrb-circle {
+      fill: #151f32;
+      stroke: #94a3b8;
+      stroke-width: 2.5;
+      transition: all 0.25s;
+    }
+
+    .llrb-circle.highlighted {
+      stroke: #fbbf24;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+
+    .llrb-circle.comparing {
+      stroke: #38bdf8;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+    }
+
+    .llrb-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .mapping-banner {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(239, 68, 68, 0.1));
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .mapping-rule-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>2-3 Tree & Left-Leaning Red-Black BST</h1>
+        <div class="header-subtitle">Parallel synchronized insertion showing the exact 1-to-1 isometric mapping</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Keys:</label>
+        <select id="presetSelect">
+          <option value="sedgewick">Sedgewick Classic: S E A R C H X M P L</option>
+          <option value="ascending">Ascending: A B C D E F G (Left Rotations)</option>
+          <option value="descending">Descending: G F E D C B A (Right Rotations)</option>
+          <option value="custom">Simple 4-Node Split: A C E R</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <div class="rule-pills-bar">
+    <div class="rule-pill" id="pillRotateLeft">
+      <span>Rule 1:</span>
+      <code>rotateLeft(h)</code>
+      <span>(Right-leaning red link)</span>
+    </div>
+    <div class="rule-pill" id="pillRotateRight">
+      <span>Rule 2:</span>
+      <code>rotateRight(h)</code>
+      <span>(Two consecutive left red links)</span>
+    </div>
+    <div class="rule-pill" id="pillFlipColors">
+      <span>Rule 3:</span>
+      <code>flipColors(h)</code>
+      <span>(Split 4-node: both children red)</span>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>LLRB Recursive Insert (Java)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">private</span> Node <span class="c-func">put</span>(Node h, Key key, Value val) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-keyword">if</span> (h == <span class="c-keyword">null</span>) <span class="c-keyword">return new</span> Node(key, val, RED);</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-type">int</span> cmp = key.compareTo(h.key);</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">if</span>      (cmp &lt; 0) h.left  = put(h.left,  key, val);</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">    <span class="c-keyword">else if</span> (cmp &gt; 0) h.right = put(h.right, key, val);</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    <span class="c-keyword">else</span>              h.val   = val;</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content"></span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">    <span class="c-comment">// Fix-up 1: Right-leaning red link -> rotate left</span></span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">    <span class="c-keyword">if</span> (isRed(h.right) &amp;&amp; !isRed(h.left))</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">        h = <span class="c-func">rotateLeft</span>(h);</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">    <span class="c-comment">// Fix-up 2: Two consecutive left red links -> rotate right</span></span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">    <span class="c-keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.left.left))</span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">        h = <span class="c-func">rotateRight</span>(h);</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">    <span class="c-comment">// Fix-up 3: Both children red (temporary 4-node) -> flip colors</span></span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">    <span class="c-keyword">if</span> (isRed(h.left) &amp;&amp; isRed(h.right))</span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">        <span class="c-func">flipColors</span>(h);</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content"></span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content">    <span class="c-keyword">return</span> h;</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Click Play or Next to observe parallel insertion in 2-3 Tree and Left-Leaning Red-Black BST.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Inserting Key</div>
+            <div class="v-val" id="valKey">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Active Rule</div>
+            <div class="v-val" id="valRule" style="font-size:0.85rem;">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Tree Height</div>
+            <div class="v-val" id="valHeight">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Rotations</div>
+            <div class="v-val" id="valRotations">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Input Sequence</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="streamProgress">0 / 10</span>
+        </div>
+        <div class="input-stream-chips" id="streamChipsContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>1-to-1 Isometric Mapping</span>
+          <span style="font-size:0.72rem; color:var(--accent-emerald);">Strict LLRB Invariant</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-blue);">Invariant strict LLRB :</strong> Les liens rouges vont <strong>exclusivement vers la gauche</strong> (<em>left-leaning</em>). Aucun lien rouge ne pointe jamais vers la droite.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">3-Nœud [A | B] :</strong> Représenté en LLRB par un nœud noir <strong>B</strong> avec un <strong>lien rouge à gauche</strong> vers <strong>A</strong>.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-amber);">4-Nœud temporaire [A | B | C] :</strong> Représenté en LLRB par <strong>deux liens rouges consécutifs à gauche</strong> (C &rarr; B &rarr; A).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Éclatement du 4-nœud :</strong> <code>rotateRight</code> puis <code>flipColors</code> font remonter la médiane <strong>B</strong> avec un lien rouge à gauche vers son parent, tandis que <strong>A</strong> et <strong>C</strong> deviennent tous deux <strong>noirs</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="parallel-canvases-grid">
+        <!-- 2-3 Tree Canvas -->
+        <div class="tree-box">
+          <div class="tree-box-title">
+            <span style="color:var(--accent-blue);">2-3 Search Tree</span>
+            <span style="font-size:0.72rem; color:var(--text-muted);">2-nodes [A] & 3-nodes [A|B]</span>
+          </div>
+          <svg class="tree-svg" id="svg23" viewBox="0 0 540 440"></svg>
+        </div>
+
+        <!-- Left-Leaning Red-Black BST Canvas -->
+        <div class="tree-box">
+          <div class="tree-box-title">
+            <span style="color:var(--accent-rose);">Left-Leaning Red-Black BST (LLRB)</span>
+            <span style="font-size:0.72rem; color:var(--accent-emerald); font-weight:700;">● Liens rouges strictement à gauche</span>
+          </div>
+          <svg class="tree-svg" id="svgLLRB" viewBox="0 0 540 440"></svg>
+        </div>
+      </div>
+
+      <div class="mapping-banner">
+        <div class="mapping-rule-item">
+          <span style="display:inline-block; width:12px; height:12px; background:#151f32; border:2px solid #38bdf8; border-radius:4px;"></span>
+          <span>2-Nœud &harr; Nœud Noir</span>
+        </div>
+        <div class="mapping-rule-item">
+          <span style="display:inline-block; width:18px; height:12px; background:#151f32; border:2px solid #38bdf8; border-radius:4px;"></span>
+          <span>3-Nœud [A|B] &harr; 1 Lien rouge à gauche</span>
+        </div>
+        <div class="mapping-rule-item">
+          <span style="display:inline-block; width:22px; height:12px; background:#451a03; border:2px solid #f59e0b; border-radius:4px;"></span>
+          <span>4-Nœud [A|B|C] &harr; 2 Liens rouges à gauche</span>
+        </div>
+        <div class="mapping-rule-item">
+          <span style="display:inline-block; width:18px; height:4px; background:#10b981; border-radius:2px;"></span>
+          <span>Éclatement &harr; flipColors()</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const RED = true;
+    const BLACK = false;
+
+    // Presets
+    const PRESETS = {
+      sedgewick: ["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"],
+      ascending: ["A", "B", "C", "D", "E", "F", "G"],
+      descending: ["G", "F", "E", "D", "C", "B", "A"],
+      custom: ["A", "C", "E", "R"]
+    };
+
+    let currentKeys = [...PRESETS.sedgewick];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // --- LLRB Node Definition ---
+    class LLRBNode {
+      constructor(key, color = RED) {
+        this.key = key;
+        this.color = color;
+        this.left = null;
+        this.right = null;
+        this.id = Math.random().toString(36).substr(2, 9);
+      }
+    }
+
+    function isRed(x) {
+      if (!x) return false;
+      return x.color === RED;
+    }
+
+    function cloneTree(node) {
+      if (!node) return null;
+      const copy = new LLRBNode(node.key, node.color);
+      copy.id = node.id;
+      copy.left = cloneTree(node.left);
+      copy.right = cloneTree(node.right);
+      return copy;
+    }
+
+    function getTreeHeight(node) {
+      if (!node) return 0;
+      return 1 + Math.max(getTreeHeight(node.left), getTreeHeight(node.right));
+    }
+
+    // Convert LLRB tree to 2-3 Tree Node representation
+    // A black node with a red left child is a 3-node [A, B]
+    // Temporary 4-nodes in 2-3 tree map to 2 red links in LLRB
+    function convertLLRBTo23(node) {
+      if (!node) return null;
+
+      // 4-node case 1: both children red (symmetric 4-node)
+      if (isRed(node.left) && isRed(node.right)) {
+        return {
+          type: '4-node',
+          keys: [node.left.key, node.key, node.right.key],
+          children: [
+            convertLLRBTo23(node.left.left),
+            convertLLRBTo23(node.left.right),
+            convertLLRBTo23(node.right.left),
+            convertLLRBTo23(node.right.right)
+          ]
+        };
+      }
+
+      // 4-node case 2: two left red links in a row (before rotateRight)
+      if (isRed(node.left) && isRed(node.left.left)) {
+        return {
+          type: '4-node',
+          keys: [node.left.left.key, node.left.key, node.key],
+          children: [
+            convertLLRBTo23(node.left.left.left),
+            convertLLRBTo23(node.left.left.right),
+            convertLLRBTo23(node.left.right),
+            convertLLRBTo23(node.right)
+          ]
+        };
+      }
+
+      // 4-node case 3: left red and inner right red (before rotateLeft then rotateRight)
+      if (isRed(node.left) && isRed(node.left.right)) {
+        return {
+          type: '4-node',
+          keys: [node.left.key, node.left.right.key, node.key],
+          children: [
+            convertLLRBTo23(node.left.left),
+            convertLLRBTo23(node.left.right.left),
+            convertLLRBTo23(node.left.right.right),
+            convertLLRBTo23(node.right)
+          ]
+        };
+      }
+
+      // 3-node: left child is red
+      if (isRed(node.left)) {
+        return {
+          type: '3-node',
+          keys: [node.left.key, node.key],
+          children: [
+            convertLLRBTo23(node.left.left),
+            convertLLRBTo23(node.left.right),
+            convertLLRBTo23(node.right)
+          ]
+        };
+      }
+
+      // 3-node right transient (before rotateLeft)
+      if (isRed(node.right)) {
+        return {
+          type: '3-node-right-transient',
+          keys: [node.key, node.right.key],
+          children: [
+            convertLLRBTo23(node.left),
+            convertLLRBTo23(node.right.left),
+            convertLLRBTo23(node.right.right)
+          ]
+        };
+      }
+
+      // Standard 2-node
+      return {
+        type: '2-node',
+        keys: [node.key],
+        children: [
+          convertLLRBTo23(node.left),
+          convertLLRBTo23(node.right)
+        ]
+      };
+    }
+
+    // --- Simulation Step Generator ---
+    function buildSimulation(keys) {
+      const steps = [];
+      let root = null;
+      let totalRotations = 0;
+
+      function snapshot(line, descr, activeKey, activeRule = null, highlightKey = null, compareKey = null) {
+        // Root is always black in LLRB
+        const snapshotRoot = cloneTree(root);
+        if (snapshotRoot) snapshotRoot.color = BLACK;
+        const tree23 = convertLLRBTo23(snapshotRoot);
+
+        steps.push({
+          line,
+          descr,
+          activeKey,
+          activeRule,
+          highlightKey,
+          compareKey,
+          height: getTreeHeight(snapshotRoot),
+          rotations: totalRotations,
+          llrbRoot: snapshotRoot,
+          tree23: tree23
+        });
+      }
+
+      snapshot(1, "Initialisation : Arbre 2-3 et Arbre Rouge-Noir Gaucher (LLRB) vides.", null);
+
+      function rotateLeft(h) {
+        totalRotations++;
+        const x = h.right;
+        h.right = x.left;
+        x.left = h;
+        x.color = h.color;
+        h.color = RED;
+        return x;
+      }
+
+      function rotateRight(h) {
+        totalRotations++;
+        const x = h.left;
+        h.left = x.right;
+        x.right = h;
+        x.color = h.color;
+        h.color = RED;
+        return x;
+      }
+
+      function flipColors(h) {
+        h.color = RED;
+        h.left.color = BLACK;
+        h.right.color = BLACK;
+      }
+
+      function insertHelper(h, key, parent, dir) {
+        if (h === null) {
+          const newNode = new LLRBNode(key, RED);
+          if (!parent) {
+            root = newNode;
+            snapshot(2, `Insertion de la clé '<strong>${key}</strong>' à la racine. Elle deviendra NOIRE à la fin de l'insertion.`, key, null, key, null);
+          }
+          return newNode;
+        }
+
+        const cmp = key.localeCompare(h.key);
+        if (cmp < 0) {
+          snapshot(4, `Comparaison : Clé '<strong>${key}</strong>' < '<strong>${h.key}</strong>'. Descente dans le sous-arbre gauche.`, key, null, null, h.key);
+          h.left = insertHelper(h.left, key, h, 'left');
+          if (dir === 'left' && parent) parent.left = h;
+          else if (dir === 'right' && parent) parent.right = h;
+        } else if (cmp > 0) {
+          snapshot(5, `Comparaison : Clé '<strong>${key}</strong>' > '<strong>${h.key}</strong>'. Descente dans le sous-arbre droit.`, key, null, null, h.key);
+          h.right = insertHelper(h.right, key, h, 'right');
+          if (dir === 'left' && parent) parent.left = h;
+          else if (dir === 'right' && parent) parent.right = h;
+        } else {
+          snapshot(6, `La clé '<strong>${key}</strong>' est déjà présente dans l'arbre. Pas de modification.`, key, null, h.key, null);
+        }
+
+        // Règle 1 : Lien rouge penchant à droite -> rotateLeft immédiate
+        // Invariant strict LLRB (LINFO1121) : les liens rouges ne peuvent aller qu'à GAUCHE !
+        if (isRed(h.right) && !isRed(h.left)) {
+          totalRotations++;
+          const x = rotateLeft(h);
+          if (!parent) root = x;
+          else if (dir === 'left') parent.left = x;
+          else parent.right = x;
+          h = x;
+          snapshot(10, `<strong>Règle 1 (Rotation gauche) :</strong> Invariant strict LLRB : les liens rouges ne peuvent aller que vers la gauche. <code>rotateLeft('${h.left.key}')</code> appliquée : '<strong>${h.key}</strong>' devient la racine locale avec un lien rouge penchant à gauche vers '<strong>${h.left.key}</strong>'.`, key, "rotateLeft", h.key, null);
+        }
+
+        // Règle 2 : Deux liens rouges consécutifs à gauche -> rotateRight
+        // Représente le 4-nœud temporaire dans l'arbre 2-3 où les deux liens rouges penchent à gauche !
+        if (isRed(h.left) && isRed(h.left.left)) {
+          totalRotations++;
+          snapshot(12, `<strong>Règle 2 (Rotation droite) :</strong> Deux liens rouges consécutifs à gauche sur '<strong>${h.key}</strong>' et '<strong>${h.left.key}</strong>' (forme le 4-nœud temporaire [${h.left.left.key}, ${h.left.key}, ${h.key}]). Appel de <code>rotateRight('${h.key}')</code>.`, key, "rotateRight", h.key, null);
+          const x = rotateRight(h);
+          if (!parent) root = x;
+          else if (dir === 'left') parent.left = x;
+          else parent.right = x;
+          h = x;
+          // Dès que rotateRight est fait, les deux enfants x.left et x.right sont rouges -> flipColors immédiat pour équilibrer sans afficher de lien droit rouge
+          if (isRed(h.left) && isRed(h.right)) {
+            flipColors(h);
+            if (dir !== 'right') {
+              snapshot(16, `<strong>Règle 3 (Éclatement du 4-nœud) :</strong> Les enfants '<strong>${h.left.key}</strong>' et '<strong>${h.right.key}</strong>' deviennent NOIRS, et la médiane '<strong>${h.key}</strong>' est propagée vers le haut avec un lien ROUGE (qui penchera à gauche).`, key, "flipColors", h.key, null);
+            }
+          }
+        }
+
+        // Règle 3 : Les 2 enfants sont rouges (4-nœud temporaire) -> flipColors
+        if (isRed(h.left) && isRed(h.right)) {
+          flipColors(h);
+          if (dir !== 'right') {
+            snapshot(16, `<strong>Règle 3 (Éclatement du 4-nœud) :</strong> Éclatement terminé : les deux enfants deviennent NOIRS et la clé médiane '<strong>${h.key}</strong>' est propagée vers le haut avec un lien ROUGE.`, key, "flipColors", h.key, null);
+          }
+        }
+
+        return h;
+      }
+
+      for (let i = 0; i < keys.length; i++) {
+        const k = keys[i];
+        snapshot(1, `Début de l'insertion de la clé <strong>'${k}'</strong> (${i + 1} sur ${keys.length}).`, k, null, null, null);
+        root = insertHelper(root, k, null, null);
+        root.color = BLACK;
+        snapshot(18, `Clé <strong>'${k}'</strong> insérée et équilibrée avec succès ! La racine reste NOIRE.`, k, null, null, null);
+      }
+
+      snapshot(1, `Toutes les clés ont été insérées ! L'arbre 2-3 et l'arbre Rouge-Noir LLRB sont parfaitement isomorphes et équilibrés (hauteur : ${getTreeHeight(root)}).`, null, null, null, null);
+
+      return steps;
+    }
+
+    // --- Layout Calculators for SVG Trees ---
+
+    // 1. 2-3 Tree Layout
+    function layout23Tree(node, depth = 0, left = 20, right = 520, positions = []) {
+      if (!node) return;
+      const x = (left + right) / 2;
+      const y = 45 + depth * 85;
+
+      const nodeData = {
+        node,
+        x,
+        y,
+        depth,
+        childrenPos: []
+      };
+      positions.push(nodeData);
+
+      const numChildren = node.children ? node.children.filter(Boolean).length : 0;
+      if (numChildren > 0) {
+        const childWidth = (right - left) / numChildren;
+        let childIdx = 0;
+        node.children.forEach(child => {
+          if (child) {
+            const childLeft = left + childIdx * childWidth;
+            const childRight = childLeft + childWidth;
+            layout23Tree(child, depth + 1, childLeft, childRight, positions);
+            childIdx++;
+          }
+        });
+      }
+      return positions;
+    }
+
+    // 2. LLRB Tree Layout
+    function layoutLLRBTree(node, depth = 0, left = 20, right = 520, positions = []) {
+      if (!node) return;
+      const x = (left + right) / 2;
+      const y = 45 + depth * 75;
+
+      const nodeData = {
+        node,
+        x,
+        y,
+        depth
+      };
+      positions.push(nodeData);
+
+      if (node.left) {
+        layoutLLRBTree(node.left, depth + 1, left, x, positions);
+      }
+      if (node.right) {
+        layoutLLRBTree(node.right, depth + 1, x, right, positions);
+      }
+      return positions;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Highlight code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Update Rule Pills
+      const p1 = document.getElementById('pillRotateLeft');
+      const p2 = document.getElementById('pillRotateRight');
+      const p3 = document.getElementById('pillFlipColors');
+      p1.className = 'rule-pill' + (state.activeRule === 'rotateLeft' ? ' active' : '');
+      p2.className = 'rule-pill' + (state.activeRule === 'rotateRight' ? ' active' : '');
+      p3.className = 'rule-pill' + (state.activeRule === 'flipColors' ? ' active' : '');
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valKey').textContent = state.activeKey || '—';
+      document.getElementById('valRule').textContent = state.activeRule || '—';
+      document.getElementById('valHeight').textContent = state.height;
+      document.getElementById('valRotations').textContent = state.rotations;
+
+      // Stream chips
+      renderStreamChips(state.activeKey);
+
+      // Render SVGs
+      render23TreeSvg(state);
+      renderLLRBSvg(state);
+    }
+
+    function renderStreamChips(activeKey) {
+      const container = document.getElementById('streamChipsContainer');
+      container.innerHTML = '';
+      let activeFound = false;
+
+      currentKeys.forEach(k => {
+        const chip = document.createElement('div');
+        chip.className = 'key-chip';
+        if (k === activeKey) {
+          chip.classList.add('current');
+          activeFound = true;
+        } else if (!activeFound && activeKey !== null) {
+          chip.classList.add('done');
+        }
+        chip.textContent = k;
+        container.appendChild(chip);
+      });
+
+      const currentIdx = currentKeys.indexOf(activeKey);
+      document.getElementById('streamProgress').textContent =
+        currentIdx >= 0 ? `${currentIdx + 1} / ${currentKeys.length}` : `${currentKeys.length} / ${currentKeys.length}`;
+    }
+
+    // Render 2-3 Tree Canvas
+    function render23TreeSvg(state) {
+      const svg = document.getElementById('svg23');
+      svg.innerHTML = '';
+      if (!state.tree23) return;
+
+      const positions = [];
+      layout23Tree(state.tree23, 0, 15, 525, positions);
+
+      // Helper to find child positions
+      function findPos(targetNode) {
+        return positions.find(p => p.node === targetNode);
+      }
+
+      // Draw Edges
+      positions.forEach(item => {
+        if (item.node.children) {
+          item.node.children.filter(Boolean).forEach(child => {
+            const childPos = findPos(child);
+            if (childPos) {
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', item.x);
+              line.setAttribute('y1', item.y + 16);
+              line.setAttribute('x2', childPos.x);
+              line.setAttribute('y2', childPos.y - 16);
+              line.setAttribute('class', 'edge-23');
+              svg.appendChild(line);
+            }
+          });
+        }
+      });
+
+      // Draw Nodes
+      positions.forEach(item => {
+        const n = item.node;
+        const numKeys = n.keys.length;
+        const width = numKeys === 1 ? 44 : (numKeys === 2 ? 76 : 108);
+        const height = 32;
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', item.x - width / 2);
+        rect.setAttribute('y', item.y - height / 2);
+        rect.setAttribute('width', width);
+        rect.setAttribute('height', height);
+
+        let cls = 'node-23-rect';
+        if (numKeys === 3) cls += ' is-4node';
+        if (state.highlightKey && n.keys.includes(state.highlightKey)) cls += ' highlighted';
+        else if (state.compareKey && n.keys.includes(state.compareKey)) cls += ' comparing';
+        rect.setAttribute('class', cls);
+        g.appendChild(rect);
+
+        // Dividers
+        for (let d = 1; d < numKeys; d++) {
+          const divX = item.x - width / 2 + (width / numKeys) * d;
+          const divLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          divLine.setAttribute('x1', divX);
+          divLine.setAttribute('y1', item.y - height / 2);
+          divLine.setAttribute('x2', divX);
+          divLine.setAttribute('y2', item.y + height / 2);
+          divLine.setAttribute('class', 'node-23-divider');
+          g.appendChild(divLine);
+        }
+
+        // Keys Text
+        n.keys.forEach((k, idx) => {
+          const cellWidth = width / numKeys;
+          const textX = item.x - width / 2 + cellWidth * idx + cellWidth / 2;
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', textX);
+          text.setAttribute('y', item.y);
+          text.setAttribute('class', 'node-23-text');
+          text.textContent = k;
+          g.appendChild(text);
+        });
+
+        svg.appendChild(g);
+      });
+    }
+
+    // Render LLRB Tree Canvas
+    function renderLLRBSvg(state) {
+      const svg = document.getElementById('svgLLRB');
+      svg.innerHTML = '';
+      if (!state.llrbRoot) return;
+
+      const positions = [];
+      layoutLLRBTree(state.llrbRoot, 0, 15, 525, positions);
+
+      function findPos(key) {
+        return positions.find(p => p.node.key === key);
+      }
+
+      // Draw Edges
+      positions.forEach(item => {
+        const u = item.node;
+        if (u.left) {
+          const vPos = findPos(u.left.key);
+          if (vPos) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', item.x);
+            line.setAttribute('y1', item.y);
+            line.setAttribute('x2', vPos.x);
+            line.setAttribute('y2', vPos.y);
+
+            let cls = 'llrb-edge';
+            if (isRed(u.left)) cls += ' red-link';
+            line.setAttribute('class', cls);
+            svg.appendChild(line);
+          }
+        }
+        if (u.right) {
+          const vPos = findPos(u.right.key);
+          if (vPos) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', item.x);
+            line.setAttribute('y1', item.y);
+            line.setAttribute('x2', vPos.x);
+            line.setAttribute('y2', vPos.y);
+
+            // Invariant strict LLRB (LINFO1121) : les liens rouges ne vont JAMAIS vers la droite !
+            const cls = 'llrb-edge';
+            line.setAttribute('class', cls);
+            svg.appendChild(line);
+          }
+        }
+      });
+
+      // Draw Nodes
+      positions.forEach(item => {
+        const u = item.node;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', item.x);
+        circle.setAttribute('cy', item.y);
+        circle.setAttribute('r', 17);
+
+        let cls = 'llrb-circle';
+        if (state.highlightKey === u.key) cls += ' highlighted';
+        else if (state.compareKey === u.key) cls += ' comparing';
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', item.x);
+        text.setAttribute('y', item.y);
+        text.setAttribute('class', 'llrb-text');
+        text.textContent = u.key;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        svg.appendChild(g);
+      });
+    }
+
+    // --- Playback Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentKeys);
+      renderState(0);
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      currentKeys = [...PRESETS[e.target.value]];
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dijkstra's Shortest Path Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1150px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* IndexMinPQ Chips */
+    .pq-chips-container {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .pq-chip {
+      background: #1e293b;
+      border: 1.5px solid #334869;
+      border-radius: 6px;
+      padding: 0.25rem 0.55rem;
+      font-family: monospace;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .pq-chip.min-chip {
+      border-color: #fbbf24;
+      background: #b45309;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    }
+
+    /* Graph Canvas */
+    .graph-canvas-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      position: relative;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg.graph-svg {
+      width: 100%;
+      height: 420px;
+    }
+
+    .edge-line {
+      stroke: #334869;
+      stroke-width: 2;
+      marker-end: url(#arrow-normal);
+      transition: stroke 0.25s, stroke-width 0.25s;
+    }
+
+    .edge-line.relaxing {
+      stroke: #fbbf24;
+      stroke-width: 4;
+      marker-end: url(#arrow-relax);
+    }
+
+    .edge-line.spt-edge {
+      stroke: #10b981;
+      stroke-width: 4;
+      marker-end: url(#arrow-spt);
+      filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+    }
+
+    .edge-weight-badge {
+      fill: #cbd5e1;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .vertex-circle {
+      fill: #151f32;
+      stroke: #475569;
+      stroke-width: 2.5;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .vertex-circle.source-node {
+      stroke: var(--accent-blue);
+      stroke-width: 3.5;
+    }
+
+    .vertex-circle.active-v {
+      fill: #b45309;
+      stroke: #fbbf24;
+      stroke-width: 4;
+      filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));
+    }
+
+    .vertex-circle.spt-settled {
+      fill: #064e3b;
+      stroke: #10b981;
+    }
+
+    .vertex-circle.in-pq {
+      stroke: #38bdf8;
+    }
+
+    .vertex-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .vertex-dist-label {
+      fill: #38bdf8;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    /* distTo & edgeTo Table */
+    .table-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(8, 1fr);
+      gap: 0.35rem;
+      background: var(--bg-card-inner);
+      padding: 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      align-items: center;
+    }
+
+    .tbl-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    .tbl-cell {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: 1.5px solid var(--border-color);
+      background: #1e293b;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .tbl-cell.header-cell {
+      background: transparent;
+      border-color: transparent;
+      color: #64748b;
+      font-size: 0.72rem;
+      height: 22px;
+    }
+
+    .tbl-cell.highlight-update {
+      border-color: var(--accent-emerald) !important;
+      background: #064e3b;
+      color: #a7f3d0;
+      animation: pulseCell 0.5s ease;
+    }
+
+    @keyframes pulseCell {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Dijkstra's Shortest Path Algorithm</h1>
+        <div class="header-subtitle">Single-source shortest paths on non-negative weighted digraphs</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Source s:</label>
+        <select id="sourceSelect">
+          <option value="0">Vertex 0</option>
+          <option value="1">Vertex 1</option>
+          <option value="2">Vertex 2</option>
+          <option value="4">Vertex 4</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Graph:</label>
+        <select id="graphSelect">
+          <option value="tinyEWD">Sedgewick tinyEWD (8 vertices, 15 edges)</option>
+          <option value="simple">Diamond Graph (4 vertices)</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>DijkstraSP.java (Edge Relaxation)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">while</span> (!pq.isEmpty()) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-type">int</span> v = pq.<span class="c-func">delMin</span>();</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-keyword">for</span> (DirectedEdge e : G.<span class="c-func">adj</span>(v))</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">        <span class="c-func">relax</span>(e);</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content"><span class="c-keyword">private void</span> <span class="c-func">relax</span>(DirectedEdge e) {</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">    <span class="c-type">int</span> v = e.<span class="c-func">from</span>(), w = e.<span class="c-func">to</span>();</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">    <span class="c-keyword">if</span> (distTo[w] &gt; distTo[v] + e.<span class="c-func">weight</span>()) {</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">        distTo[w] = distTo[v] + e.<span class="c-func">weight</span>();</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">        edgeTo[w] = e;</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">        <span class="c-keyword">if</span> (pq.<span class="c-func">contains</span>(w)) pq.<span class="c-func">decreaseKey</span>(w, distTo[w]);</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">        <span class="c-keyword">else</span>                pq.<span class="c-func">insert</span>(w, distTo[w]);</span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & Variables</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Select source vertex and press Play or Next to trace Dijkstra's algorithm.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Active v</div>
+            <div class="v-val" id="valV">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Target w</div>
+            <div class="v-val" id="valW">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">distTo[w]</div>
+            <div class="v-val" id="valDistW">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Relaxed?</div>
+            <div class="v-val" id="valRelaxed" style="font-size:0.85rem;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>IndexMinPQ State (Priority Queue)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="pqCount">0 vertices</span>
+        </div>
+        <div class="pq-chips-container" id="pqContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Theoretical Guarantees</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-emerald);">Time Complexity:</strong> $O(E \log V)$ using an Index Min-PQ. Each vertex is deleted from PQ once, and each directed edge is relaxed at most once.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Non-Negative Weights:</strong> Requires $w \ge 0$. If negative edge weights exist, Bellman-Ford algorithm must be used.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Directed Graph & Shortest Path Tree (SPT)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Green lines = SPT edges</span>
+        </div>
+        <div class="graph-canvas-container">
+          <svg class="graph-svg" id="graphSvg" viewBox="0 0 760 420">
+            <defs>
+              <marker id="arrow-normal" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#475569" />
+              </marker>
+              <marker id="arrow-relax" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#fbbf24" />
+              </marker>
+              <marker id="arrow-spt" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#10b981" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>distTo[] and edgeTo[] Live Tables</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Shortest path tree status</span>
+        </div>
+        <div class="table-grid" id="tablesContainer"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Sedgewick tinyEWD graph
+    const GRAPHS = {
+      tinyEWD: {
+        V: 8,
+        edges: [
+          { u: 4, v: 5, w: 0.35 },
+          { u: 5, v: 4, w: 0.35 },
+          { u: 4, v: 7, w: 0.37 },
+          { u: 5, v: 7, w: 0.28 },
+          { u: 7, v: 5, w: 0.28 },
+          { u: 5, v: 1, w: 0.32 },
+          { u: 0, v: 4, w: 0.38 },
+          { u: 0, v: 2, w: 0.26 },
+          { u: 7, v: 3, w: 0.39 },
+          { u: 1, v: 3, w: 0.29 },
+          { u: 2, v: 7, w: 0.34 },
+          { u: 6, v: 2, w: 0.40 },
+          { u: 3, v: 6, w: 0.52 },
+          { u: 6, v: 0, w: 0.58 },
+          { u: 6, v: 4, w: 0.93 }
+        ],
+        positions: [
+          { x: 90,  y: 200 }, // 0
+          { x: 670, y: 120 }, // 1
+          { x: 260, y: 340 }, // 2
+          { x: 650, y: 320 }, // 3
+          { x: 250, y: 90  }, // 4
+          { x: 470, y: 90  }, // 5
+          { x: 460, y: 350 }, // 6
+          { x: 400, y: 220 }  // 7
+        ]
+      },
+      simple: {
+        V: 4,
+        edges: [
+          { u: 0, v: 1, w: 1.0 },
+          { u: 0, v: 2, w: 4.0 },
+          { u: 1, v: 2, w: 2.0 },
+          { u: 1, v: 3, w: 6.0 },
+          { u: 2, v: 3, w: 1.0 }
+        ],
+        positions: [
+          { x: 120, y: 210 }, // 0
+          { x: 380, y: 100 }, // 1
+          { x: 380, y: 320 }, // 2
+          { x: 640, y: 210 }  // 3
+        ]
+      }
+    };
+
+    let currentGraph = GRAPHS.tinyEWD;
+    let sourceVertex = 0;
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // Simulation Builder
+    function buildSimulation(graph, source) {
+      const steps = [];
+      const V = graph.V;
+      const distTo = new Array(V).fill(Infinity);
+      const edgeTo = new Array(V).fill(null);
+      const sptSettled = new Array(V).fill(false);
+
+      // Adjacency list
+      const adj = Array.from({ length: V }, () => []);
+      graph.edges.forEach(e => {
+        adj[e.u].push(e);
+      });
+
+      // Priority queue [ { v, dist } ]
+      let pq = [];
+
+      function addStep({ line, descr, activeV = null, activeW = null, relaxingEdge = null, relaxed = null, updatedW = null }) {
+        steps.push({
+          line,
+          descr,
+          activeV,
+          activeW,
+          relaxingEdge,
+          relaxed,
+          updatedW,
+          distTo: [...distTo],
+          edgeTo: [...edgeTo],
+          sptSettled: [...sptSettled],
+          pq: pq.map(item => ({ ...item }))
+        });
+      }
+
+      // Init
+      distTo[source] = 0.0;
+      pq.push({ v: source, dist: 0.0 });
+
+      addStep({
+        line: 1,
+        descr: `Initialized Dijkstra from source vertex <strong>s = ${source}</strong>. <code>distTo[${source}] = 0</code>, all others &infin;.`,
+        activeV: source
+      });
+
+      while (pq.length > 0) {
+        // delMin
+        pq.sort((a, b) => a.dist - b.dist);
+        const minEntry = pq.shift();
+        const v = minEntry.v;
+        sptSettled[v] = true;
+
+        addStep({
+          line: 2,
+          descr: `<code>delMin()</code> extracted vertex <strong>v = ${v}</strong> with minimum distTo = <strong>${minEntry.dist.toFixed(2)}</strong>. Adding ${v} to SPT.`,
+          activeV: v
+        });
+
+        // Relax adjacent edges
+        for (const e of adj[v]) {
+          const w = e.v;
+          const wt = e.w;
+
+          addStep({
+            line: 7,
+            descr: `Examining edge <strong>${v} &rarr; ${w}</strong> (weight = ${wt.toFixed(2)}). Current distTo[${w}] = ${distTo[w] === Infinity ? '&infin;' : distTo[w].toFixed(2)}.`,
+            activeV: v, activeW: w, relaxingEdge: e
+          });
+
+          if (distTo[w] > distTo[v] + wt) {
+            const newDist = parseFloat((distTo[v] + wt).toFixed(2));
+            distTo[w] = newDist;
+            edgeTo[w] = e;
+
+            // update PQ
+            const existing = pq.find(item => item.v === w);
+            if (existing) {
+              existing.dist = newDist;
+            } else {
+              pq.push({ v: w, dist: newDist });
+            }
+
+            addStep({
+              line: 9,
+              descr: `<strong>Relaxed edge ${v} &rarr; ${w}!</strong> Shorter path found: <code>distTo[${w}] = ${distTo[v].toFixed(2)} + ${wt.toFixed(2)} = ${newDist.toFixed(2)}</code>.`,
+              activeV: v, activeW: w, relaxingEdge: e, relaxed: true, updatedW: w
+            });
+          } else {
+            addStep({
+              line: 8,
+              descr: `Edge ${v} &rarr; ${w} not relaxed. Current path (${distTo[w].toFixed(2)}) &le; ${distTo[v].toFixed(2)} + ${wt.toFixed(2)}.`,
+              activeV: v, activeW: w, relaxingEdge: e, relaxed: false
+            });
+          }
+        }
+      }
+
+      addStep({
+        line: 5,
+        descr: `Dijkstra complete! Shortest paths from source vertex ${source} to all reachable vertices determined.`,
+        activeV: null
+      });
+
+      return steps;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valV').textContent = state.activeV !== null ? state.activeV : '—';
+      document.getElementById('valW').textContent = state.activeW !== null ? state.activeW : '—';
+      document.getElementById('valDistW').textContent =
+        state.activeW !== null
+          ? (state.distTo[state.activeW] === Infinity ? '∞' : state.distTo[state.activeW].toFixed(2))
+          : '—';
+      document.getElementById('valRelaxed').textContent =
+        state.relaxed === null ? '—' : (state.relaxed ? 'YES (Updated)' : 'NO');
+      document.getElementById('valRelaxed').style.color =
+        state.relaxed === true ? 'var(--accent-emerald)' : (state.relaxed === false ? 'var(--accent-muted)' : 'var(--accent-blue)');
+
+      // Render PQ Chips
+      renderPQChips(state.pq);
+
+      // Render Graph Canvas
+      renderGraphSvg(state);
+
+      // Render Tables
+      renderTables(state);
+    }
+
+    function renderPQChips(pq) {
+      const container = document.getElementById('pqContainer');
+      container.innerHTML = '';
+
+      if (pq.length === 0) {
+        container.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim); font-style:italic;">Empty</span>';
+      } else {
+        pq.forEach((item, idx) => {
+          const chip = document.createElement('div');
+          chip.className = 'pq-chip';
+          if (idx === 0) chip.classList.add('min-chip');
+          chip.innerHTML = `<span>v=${item.v}</span><span style="opacity:0.8;">(${item.dist.toFixed(2)})</span>`;
+          container.appendChild(chip);
+        });
+      }
+
+      document.getElementById('pqCount').textContent = `${pq.length} in PQ`;
+    }
+
+    function renderGraphSvg(state) {
+      const svg = document.getElementById('graphSvg');
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      svg.appendChild(defs);
+
+      const pos = currentGraph.positions;
+
+      // Draw Edges
+      currentGraph.edges.forEach(e => {
+        const uPos = pos[e.u];
+        const vPos = pos[e.v];
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', uPos.x);
+        line.setAttribute('y1', uPos.y);
+        line.setAttribute('x2', vPos.x);
+        line.setAttribute('y2', vPos.y);
+
+        let cls = 'edge-line';
+        const isSpt = state.edgeTo[e.v] && state.edgeTo[e.v].u === e.u && state.edgeTo[e.v].v === e.v;
+        const isRelaxing = state.relaxingEdge && state.relaxingEdge.u === e.u && state.relaxingEdge.v === e.v;
+
+        if (isRelaxing) cls += ' relaxing';
+        else if (isSpt) cls += ' spt-edge';
+
+        line.setAttribute('class', cls);
+        svg.appendChild(line);
+
+        // Edge weight badge
+        const midX = (uPos.x + vPos.x) / 2;
+        const midY = (uPos.y + vPos.y) / 2;
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', midX);
+        text.setAttribute('y', midY - 6);
+        text.setAttribute('class', 'edge-weight-badge');
+        text.textContent = e.w.toFixed(2);
+        svg.appendChild(text);
+      });
+
+      // Draw Vertices
+      for (let i = 0; i < currentGraph.V; i++) {
+        const p = pos[i];
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', 19);
+
+        let cls = 'vertex-circle';
+        if (i === sourceVertex) cls += ' source-node';
+        if (i === state.activeV) cls += ' active-v';
+        else if (state.sptSettled[i]) cls += ' spt-settled';
+        else if (state.pq.some(item => item.v === i)) cls += ' in-pq';
+
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', p.x);
+        text.setAttribute('y', p.y);
+        text.setAttribute('class', 'vertex-text');
+        text.textContent = i;
+
+        const distText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        distText.setAttribute('x', p.x);
+        distText.setAttribute('y', p.y + 32);
+        distText.setAttribute('class', 'vertex-dist-label');
+        distText.textContent = state.distTo[i] === Infinity ? '∞' : state.distTo[i].toFixed(2);
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        g.appendChild(distText);
+        svg.appendChild(g);
+      }
+    }
+
+    function renderTables(state) {
+      const container = document.getElementById('tablesContainer');
+      container.innerHTML = '';
+      const V = currentGraph.V;
+
+      // Row 1: Vertex Index
+      const hV = document.createElement('div');
+      hV.className = 'tbl-label';
+      hV.textContent = 'v';
+      container.appendChild(hV);
+
+      for (let i = 0; i < V; i++) {
+        const c = document.createElement('div');
+        c.className = 'tbl-cell header-cell';
+        c.textContent = i;
+        container.appendChild(c);
+      }
+
+      // Row 2: distTo[]
+      const hDist = document.createElement('div');
+      hDist.className = 'tbl-label';
+      hDist.textContent = 'distTo[v]';
+      container.appendChild(hDist);
+
+      for (let i = 0; i < V; i++) {
+        const c = document.createElement('div');
+        c.className = 'tbl-cell';
+        const d = state.distTo[i];
+        c.textContent = d === Infinity ? '∞' : d.toFixed(2);
+        if (state.updatedW === i) c.classList.add('highlight-update');
+        container.appendChild(c);
+      }
+
+      // Row 3: edgeTo[]
+      const hEdge = document.createElement('div');
+      hEdge.className = 'tbl-label';
+      hEdge.textContent = 'edgeTo[v]';
+      container.appendChild(hEdge);
+
+      for (let i = 0; i < V; i++) {
+        const c = document.createElement('div');
+        c.className = 'tbl-cell';
+        const e = state.edgeTo[i];
+        c.textContent = e ? `${e.u}→${e.v}` : '—';
+        if (state.updatedW === i) c.classList.add('highlight-update');
+        container.appendChild(c);
+      }
+    }
+
+    // --- Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentGraph, sourceVertex);
+      renderState(0);
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('sourceSelect').addEventListener('change', (e) => {
+      sourceVertex = parseInt(e.target.value);
+      resetSimulation();
+    });
+
+    document.getElementById('graphSelect').addEventListener('change', (e) => {
+      currentGraph = GRAPHS[e.target.value];
+      sourceVertex = 0;
+      document.getElementById('sourceSelect').value = "0";
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

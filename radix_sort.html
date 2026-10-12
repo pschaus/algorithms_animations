@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radix Sort (LSD) Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Digit Position Stepper */
+    .digit-stepper-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .digit-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #151f32;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .digit-pill.active {
+      background: #1e3a8a;
+      color: #bfdbfe;
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .digit-pill.done {
+      color: #94a3b8;
+      border-color: #10b981;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1150px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Strings Array Canvas */
+    .strings-container {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.85rem 0.5rem;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      align-items: flex-end;
+    }
+
+    .string-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      flex: 1;
+      min-width: 58px;
+      max-width: 82px;
+    }
+
+    .string-idx {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .string-box {
+      width: 100%;
+      height: 52px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .string-box.active-string {
+      background: #b45309;
+      border-color: #fbbf24;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+    }
+
+    .string-box.target-string {
+      background: #064e3b;
+      border-color: #10b981;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    }
+
+    .char-span.active-digit {
+      color: #fbbf24;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 3px;
+    }
+
+    /* Count Array Container */
+    .count-grid {
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.75rem 0.5rem;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .count-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      min-width: 44px;
+    }
+
+    .count-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: var(--accent-blue);
+    }
+
+    .count-val-box {
+      width: 100%;
+      height: 38px;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1.5px solid #334869;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .count-val-box.highlight-count {
+      background: #b45309;
+      border-color: #fbbf24;
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Radix Sort (LSD String Sort)</h1>
+        <div class="header-subtitle">Least-Significant-Digit first: multiple passes of stable key-indexed counting</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Preset:</label>
+        <select id="presetSelect">
+          <option value="words">3-Letter Words: [CAB, BAR, CAT, BAD, BED, CAN, BIN, BOX]</option>
+          <option value="numbers">3-Digit Numbers: [170, 045, 075, 090, 802, 024, 002, 066]</option>
+          <option value="dna">DNA Codons (Radix 4: A, C, G, T): [TAC, GAT, CGA, TAG, GCA]</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <div class="digit-stepper-bar" id="stepperBar"></div>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>LSD.java (Key-Indexed Counting Loop)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">public static void</span> <span class="c-func">sort</span>(String[] a, <span class="c-type">int</span> W) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-type">int</span> N = a.length, R = <span class="c-comment">256</span>;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    String[] aux = <span class="c-keyword">new</span> String[N];</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">for</span> (<span class="c-type">int</span> d = W-<span class="c-comment">1</span>; d &gt;= <span class="c-comment">0</span>; d--) {</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">        <span class="c-type">int</span>[] count = <span class="c-keyword">new</span> <span class="c-type">int</span>[R+<span class="c-comment">1</span>];</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">        <span class="c-comment">// 1. Compute frequency counts</span></span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">        <span class="c-keyword">for</span> (<span class="c-type">int</span> i = <span class="c-comment">0</span>; i &lt; N; i++)</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">            count[a[i].charAt(d) + <span class="c-comment">1</span>]++;</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">        <span class="c-comment">// 2. Transform counts to indices</span></span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">        <span class="c-keyword">for</span> (<span class="c-type">int</span> r = <span class="c-comment">0</span>; r &lt; R; r++)</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">            count[r+<span class="c-comment">1</span>] += count[r];</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">        <span class="c-comment">// 3. Distribute into auxiliary</span></span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">        <span class="c-keyword">for</span> (<span class="c-type">int</span> i = <span class="c-comment">0</span>; i &lt; N; i++)</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">            aux[count[a[i].charAt(d)]++] = a[i];</span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">        <span class="c-comment">// 4. Copy back</span></span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">        <span class="c-keyword">for</span> (<span class="c-type">int</span> i = <span class="c-comment">0</span>; i &lt; N; i++)</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content">            a[i] = aux[i];</span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Welcome to Radix Sort. Click Play or Next to step through digit passes.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Digit d</div>
+            <div class="v-val" id="valD">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Index i</div>
+            <div class="v-val" id="valI">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Char c</div>
+            <div class="v-val" id="valC">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Target Slot</div>
+            <div class="v-val" id="valTarget">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Radix Sort Invariants</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-emerald);">Stability is Essential:</strong> Key-indexed counting must be stable so that when sorting on digit $d$, keys with identical $d$-th character remain sorted by digit $d+1 \dots W-1$.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-blue);">Linear Time:</strong> Runtime is $O(W(N + R))$, requiring $W$ passes. Linear in the size of input for small radices.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Primary Array: a[0..N-1]</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="currentPassLabel">Active digit column highlighted</span>
+        </div>
+        <div class="strings-container" id="primaryArrayContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Frequency &amp; Index Accumulator: count[]</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Radix count array</span>
+        </div>
+        <div class="count-grid" id="countGridContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Auxiliary Array: aux[0..N-1]</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Stable distribution target</span>
+        </div>
+        <div class="strings-container" id="auxArrayContainer"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const PRESETS = {
+      words: ["CAB", "BAR", "CAT", "BAD", "BED", "CAN", "BIN", "BOX"],
+      numbers: ["170", "045", "075", "090", "802", "024", "002", "066"],
+      dna: ["TAC", "GAT", "CGA", "TAG", "GCA"]
+    };
+
+    let currentStrings = [...PRESETS.words];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // Build Simulation Steps
+    function buildSimulation(origArr) {
+      const steps = [];
+      const N = origArr.length;
+      const W = origArr[0].length;
+      let a = [...origArr];
+      let aux = new Array(N).fill(null);
+
+      // Determine distinct alphabet / digits present
+      const allChars = new Set();
+      origArr.forEach(s => {
+        for (let ch of s) allChars.add(ch);
+      });
+      const alphabet = Array.from(allChars).sort();
+
+      function snapshot({ line, descr, d, i = null, c = null, target = null, countArr = [], activeSource = null, activeTarget = null }) {
+        steps.push({
+          line,
+          descr,
+          d,
+          i,
+          c,
+          target,
+          activeSource,
+          activeTarget,
+          a: [...a],
+          aux: [...aux],
+          count: [...countArr],
+          alphabet
+        });
+      }
+
+      snapshot({
+        line: 1,
+        descr: `Initialized LSD Radix Sort with <strong>${N}</strong> items of length <strong>W = ${W}</strong>.`,
+        d: W - 1
+      });
+
+      // Loop from d = W - 1 down to 0
+      for (let d = W - 1; d >= 0; d--) {
+        snapshot({
+          line: 4,
+          descr: `Starting pass for digit position <strong>d = ${d}</strong> (from right to left).`,
+          d
+        });
+
+        // 1. Frequency counts
+        const countMap = {};
+        alphabet.forEach(ch => countMap[ch] = 0);
+
+        snapshot({
+          line: 5,
+          descr: `Reset count array for pass d = ${d}.`,
+          d,
+          countArr: alphabet.map(ch => ({ char: ch, count: 0 }))
+        });
+
+        for (let i = 0; i < N; i++) {
+          const ch = a[i].charAt(d);
+          countMap[ch] = (countMap[ch] || 0) + 1;
+
+          snapshot({
+            line: 8,
+            descr: `Inspecting <code>a[${i}] = "${a[i]}"</code>. Character at digit ${d} is '<strong>${ch}</strong>'. Incrementing count['${ch}'].`,
+            d, i, c: ch,
+            activeSource: i,
+            countArr: alphabet.map(k => ({ char: k, count: countMap[k] || 0 }))
+          });
+        }
+
+        // 2. Cumulative indices
+        // In Sedgewick: count[r+1] += count[r]
+        const cumMap = {};
+        let cum = 0;
+        alphabet.forEach(ch => {
+          cumMap[ch] = cum;
+          cum += countMap[ch] || 0;
+        });
+
+        snapshot({
+          line: 11,
+          descr: `Transformed counts into boundary indices. Each character now maps to its starting offset in <code>aux[]</code>.`,
+          d,
+          countArr: alphabet.map(k => ({ char: k, count: cumMap[k] }))
+        });
+
+        // 3. Distribute to aux[]
+        aux = new Array(N).fill(null);
+        const runningCum = { ...cumMap };
+
+        for (let i = 0; i < N; i++) {
+          const ch = a[i].charAt(d);
+          const targetSlot = runningCum[ch];
+          aux[targetSlot] = a[i];
+          runningCum[ch]++;
+
+          snapshot({
+            line: 14,
+            descr: `Distributing <code>a[${i}] = "${a[i]}"</code> to <code>aux[${targetSlot}]</code> based on digit '${ch}'.`,
+            d, i, c: ch, target: targetSlot,
+            activeSource: i, activeTarget: targetSlot,
+            countArr: alphabet.map(k => ({ char: k, count: runningCum[k] }))
+          });
+        }
+
+        // 4. Copy back to a[]
+        for (let i = 0; i < N; i++) {
+          a[i] = aux[i];
+          snapshot({
+            line: 17,
+            descr: `Copied <code>aux[${i}] = "${aux[i]}"</code> back into <code>a[${i}]</code>.`,
+            d, i, activeTarget: i,
+            countArr: alphabet.map(k => ({ char: k, count: runningCum[k] }))
+          });
+        }
+
+        snapshot({
+          line: 4,
+          descr: `Completed pass for digit <strong>d = ${d}</strong>! Array is now stably sorted through digits [${d}..${W - 1}].`,
+          d,
+          countArr: alphabet.map(k => ({ char: k, count: runningCum[k] }))
+        });
+      }
+
+      snapshot({
+        line: 19,
+        descr: `Radix sort completed! All strings sorted lexicographically.`,
+        d: 0
+      });
+
+      return steps;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valD').textContent = state.d !== undefined ? state.d : '—';
+      document.getElementById('valI').textContent = state.i !== null ? state.i : '—';
+      document.getElementById('valC').textContent = state.c ? `'${state.c}'` : '—';
+      document.getElementById('valTarget').textContent = state.target !== null ? state.target : '—';
+
+      // Stepper Bar
+      renderStepperBar(state.d, currentStrings[0].length);
+
+      // Primary Array
+      renderStringsArray('primaryArrayContainer', state.a, state.d, state.activeSource);
+
+      // Count Array
+      renderCountGrid(state.count);
+
+      // Aux Array
+      renderStringsArray('auxArrayContainer', state.aux, state.d, state.activeTarget);
+    }
+
+    function renderStepperBar(activeD, W) {
+      const container = document.getElementById('stepperBar');
+      container.innerHTML = '';
+
+      for (let d = W - 1; d >= 0; d--) {
+        const pill = document.createElement('div');
+        pill.className = 'digit-pill';
+        if (d === activeD) pill.classList.add('active');
+        else if (d > activeD) pill.classList.add('done');
+        pill.textContent = `Digit d = ${d} ${d === W - 1 ? '(LSD)' : (d === 0 ? '(MSD)' : '')}`;
+        container.appendChild(pill);
+      }
+    }
+
+    function renderStringsArray(containerId, arr, activeD, highlightIdx) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      arr.forEach((str, idx) => {
+        const col = document.createElement('div');
+        col.className = 'string-col';
+
+        const label = document.createElement('div');
+        label.className = 'string-idx';
+        label.textContent = `[${idx}]`;
+
+        const box = document.createElement('div');
+        box.className = 'string-box';
+
+        if (str === null) {
+          box.style.borderStyle = 'dashed';
+          box.style.color = '#475569';
+          box.textContent = '—';
+        } else {
+          if (idx === highlightIdx) {
+            box.classList.add(containerId === 'primaryArrayContainer' ? 'active-string' : 'target-string');
+          }
+
+          // Wrap characters
+          for (let cIdx = 0; cIdx < str.length; cIdx++) {
+            const span = document.createElement('span');
+            span.className = 'char-span';
+            if (cIdx === activeD) span.classList.add('active-digit');
+            span.textContent = str.charAt(cIdx);
+            box.appendChild(span);
+          }
+        }
+
+        col.appendChild(label);
+        col.appendChild(box);
+        container.appendChild(col);
+      });
+    }
+
+    function renderCountGrid(countArr) {
+      const container = document.getElementById('countGridContainer');
+      container.innerHTML = '';
+
+      if (!countArr || countArr.length === 0) {
+        container.innerHTML = '<span style="font-size:0.75rem; color:var(--text-dim); padding:0.5rem;">Empty count array</span>';
+        return;
+      }
+
+      countArr.forEach(item => {
+        const unit = document.createElement('div');
+        unit.className = 'count-unit';
+
+        const lbl = document.createElement('div');
+        lbl.className = 'count-label';
+        lbl.textContent = item.char;
+
+        const valBox = document.createElement('div');
+        valBox.className = 'count-val-box';
+        valBox.textContent = item.count;
+
+        unit.appendChild(lbl);
+        unit.appendChild(valBox);
+        container.appendChild(unit);
+      });
+    }
+
+    // --- Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentStrings);
+      renderState(0);
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      currentStrings = [...PRESETS[e.target.value]];
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

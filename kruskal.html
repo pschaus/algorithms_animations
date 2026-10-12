@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kruskal's Minimum Spanning Tree Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1150px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Sorted Edges Priority Stream */
+    .edges-stream-container {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .edge-chip {
+      background: #1e293b;
+      border: 1.5px solid #334869;
+      border-radius: 6px;
+      padding: 0.25rem 0.55rem;
+      font-family: monospace;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .edge-chip.current {
+      background: #b45309;
+      border-color: #fbbf24;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+      transform: scale(1.06);
+    }
+
+    .edge-chip.accepted {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #a7f3d0;
+    }
+
+    .edge-chip.rejected {
+      background: #4c0519;
+      border-color: #f43f5e;
+      color: #fecdd3;
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+
+    /* Graph Canvas */
+    .graph-canvas-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      position: relative;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg.graph-svg {
+      width: 100%;
+      height: 420px;
+    }
+
+    .graph-edge {
+      stroke: #334869;
+      stroke-width: 2.5;
+      transition: stroke 0.25s, stroke-width 0.25s;
+    }
+
+    .graph-edge.examining {
+      stroke: #fbbf24;
+      stroke-width: 4.5;
+    }
+
+    .graph-edge.mst-edge {
+      stroke: #10b981;
+      stroke-width: 5;
+      filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.7));
+    }
+
+    .graph-edge.cycle-rejected {
+      stroke: #f43f5e;
+      stroke-width: 3.5;
+      stroke-dasharray: 4;
+      opacity: 0.5;
+    }
+
+    .edge-weight-label {
+      fill: #cbd5e1;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .vertex-circle {
+      stroke-width: 3;
+      transition: transform 0.2s, stroke 0.25s, filter 0.25s;
+      cursor: grab;
+    }
+
+    .vertex-circle:active {
+      cursor: grabbing;
+    }
+
+    .vertex-circle.active-candidate {
+      stroke: #fbbf24 !important;
+      stroke-width: 4.5;
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7));
+    }
+
+    .vertex-circle.accepted-node {
+      stroke: #10b981 !important;
+      stroke-width: 4.5;
+      transform: scale(1.14);
+      filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.85));
+    }
+
+    .vertex-circle.cycle-rejected-node {
+      stroke: #f43f5e !important;
+      stroke-width: 4.5;
+      stroke-dasharray: 4;
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.85));
+    }
+
+    .vertex-label {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Kruskal's Minimum Spanning Tree (MST)</h1>
+        <div class="header-subtitle">Greedy algorithm using edge sorting and Union-Find cycle detection</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Graph:</label>
+        <select id="graphSelect">
+          <option value="tinyEWG">Sedgewick tinyEWG (8 vertices, 16 edges)</option>
+          <option value="simple">Simple Pentagon (5 vertices, 7 edges)</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>KruskalMST.java (Cut Property & Union-Find)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-type">MinPQ</span>&lt;Edge&gt; pq = <span class="c-keyword">new</span> <span class="c-type">MinPQ</span>&lt;&gt;(G.<span class="c-func">edges</span>());</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content"><span class="c-type">UF</span> uf = <span class="c-keyword">new</span> <span class="c-type">UF</span>(G.<span class="c-func">V</span>());</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content"><span class="c-keyword">while</span> (!pq.<span class="c-func">isEmpty</span>() &amp;&amp; mst.<span class="c-func">size</span>() &lt; G.<span class="c-func">V</span>()-<span class="c-comment">1</span>) {</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-type">Edge</span> e = pq.<span class="c-func">delMin</span>();</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">    <span class="c-type">int</span> v = e.<span class="c-func">either</span>(), w = e.<span class="c-func">other</span>(v);</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    <span class="c-keyword">if</span> (!uf.<span class="c-func">connected</span>(v, w)) { <span class="c-comment">// No cycle!</span></span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">        uf.<span class="c-func">union</span>(v, w);       <span class="c-comment">// Merge components</span></span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">        mst.<span class="c-func">enqueue</span>(e);       <span class="c-comment">// Add to MST</span></span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Welcome to Kruskal's MST visualizer. Press Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Current Edge</div>
+            <div class="v-val" id="valEdge">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Weight</div>
+            <div class="v-val" id="valWeight">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">MST Edges</div>
+            <div class="v-val" id="valMstCount">0 / 7</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Total Weight</div>
+            <div class="v-val" id="valTotalWeight">0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Sorted Edges MinPQ</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="edgeProgress">Queue Progress</span>
+        </div>
+        <div class="edges-stream-container" id="edgesStreamContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Invariants & Détection de Cycles</span>
+          <span style="font-size:0.72rem; color:var(--accent-emerald);">Union-Find Cycle Check</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-emerald);">Propriété de la coupe :</strong> L'arête de poids minimum traversant une coupe séparant deux ensembles de sommets appartient obligatoirement à l'arbre couvrant (MST).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Détection de cycle :</strong> Si <code>find(u) == find(v)</code>, les sommets partagent déjà la même racine et sont <strong>déjà connectés</strong>. L'arête est <strong>rejetée</strong> (aucun déplacement n'a lieu afin d'éviter un cycle).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-blue);">Complexité $O(E \log E)$ :</strong> Le tri initial des $E$ arêtes domine le temps d'exécution. Les vérifications de cycles dans Union-Find (WQUPC) prennent un temps quasi-linéaire $O(E \alpha(V))$.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Edge-Weighted Graph Canvas</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Glissez-déposez les sommets pour réorganiser le graphe</span>
+        </div>
+        <div class="graph-canvas-container">
+          <svg class="graph-svg" id="graphSvg" viewBox="0 0 760 420"></svg>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const COMP_COLORS = [
+      "#38bdf8", "#f59e0b", "#10b981", "#ec4899", "#8b5cf6",
+      "#14b8a6", "#f97316", "#06b6d4", "#84cc16", "#e11d48"
+    ];
+
+    const GRAPHS = {
+      tinyEWG: {
+        V: 8,
+        edges: [
+          { u: 4, v: 5, w: 0.35 },
+          { u: 4, v: 7, w: 0.37 },
+          { u: 5, v: 7, w: 0.28 },
+          { u: 0, v: 7, w: 0.16 },
+          { u: 1, v: 5, w: 0.32 },
+          { u: 0, v: 4, w: 0.38 },
+          { u: 2, v: 3, w: 0.17 },
+          { u: 1, v: 7, w: 0.19 },
+          { u: 0, v: 2, w: 0.26 },
+          { u: 1, v: 2, w: 0.36 },
+          { u: 1, v: 3, w: 0.29 },
+          { u: 2, v: 7, w: 0.34 },
+          { u: 6, v: 2, w: 0.40 },
+          { u: 3, v: 6, w: 0.52 },
+          { u: 6, v: 0, w: 0.58 },
+          { u: 6, v: 4, w: 0.93 }
+        ],
+        positions: [
+          { x: 90,  y: 200 }, // 0
+          { x: 670, y: 120 }, // 1
+          { x: 260, y: 340 }, // 2
+          { x: 650, y: 320 }, // 3
+          { x: 250, y: 90  }, // 4
+          { x: 470, y: 90  }, // 5
+          { x: 460, y: 350 }, // 6
+          { x: 400, y: 220 }  // 7
+        ]
+      },
+      simple: {
+        V: 5,
+        edges: [
+          { u: 0, v: 1, w: 1.0 },
+          { u: 1, v: 2, w: 2.0 },
+          { u: 2, v: 3, w: 3.0 },
+          { u: 3, v: 4, w: 4.0 },
+          { u: 4, v: 0, w: 5.0 },
+          { u: 0, v: 2, w: 2.5 },
+          { u: 1, v: 3, w: 3.5 }
+        ],
+        positions: [
+          { x: 380, y: 70  }, // 0
+          { x: 620, y: 200 }, // 1
+          { x: 530, y: 360 }, // 2
+          { x: 230, y: 360 }, // 3
+          { x: 140, y: 200 }  // 4
+        ]
+      }
+    };
+
+    let currentGraph = GRAPHS.tinyEWG;
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // Simulation Builder
+    function buildSimulation(graph) {
+      const steps = [];
+      const V = graph.V;
+      // Sort edges ascending
+      const sortedEdges = [...graph.edges].sort((a, b) => a.w - b.w);
+
+      // Union-Find
+      const parent = Array.from({ length: V }, (_, i) => i);
+      function find(i) {
+        let curr = i;
+        while (curr !== parent[curr]) curr = parent[curr];
+        return curr;
+      }
+      function union(p, q) {
+        const rootP = find(p);
+        const rootQ = find(q);
+        if (rootP !== rootQ) {
+          parent[rootP] = rootQ;
+          return true;
+        }
+        return false;
+      }
+
+      const mstEdges = [];
+      const rejectedEdges = [];
+      let totalMstWeight = 0;
+
+      function snapshot(line, descr, activeEdge = null, edgeStatus = null, edgeIdx = -1) {
+        steps.push({
+          line,
+          descr,
+          activeEdge,
+          edgeStatus, // 'examining', 'accepted', 'rejected'
+          edgeIdx,
+          mstCount: mstEdges.length,
+          totalWeight: totalMstWeight.toFixed(2),
+          mstEdges: [...mstEdges],
+          rejectedEdges: [...rejectedEdges],
+          sortedEdges: sortedEdges.map(e => ({ ...e })),
+          components: Array.from({ length: V }, (_, i) => find(i))
+        });
+      }
+
+      snapshot(1, `Initialisation : ${sortedEdges.length} arêtes triées par ordre croissant de poids dans la file de priorité. Arbre couvrant vide.`, null, null, -1);
+
+      for (let i = 0; i < sortedEdges.length; i++) {
+        if (mstEdges.length === V - 1) break;
+
+        const e = sortedEdges[i];
+        snapshot(4, `<code>pq.delMin()</code> : Examen de l'arête <strong>(${e.u}, ${e.v})</strong> de poids minimum <strong>${e.w.toFixed(2)}</strong>. Vérification de cycle via Union-Find...`, e, 'examining', i);
+
+        const rootU = find(e.u);
+        const rootV = find(e.v);
+
+        if (rootU !== rootV) {
+          union(e.u, e.v);
+          mstEdges.push(e);
+          totalMstWeight += e.w;
+
+          snapshot(7, `✅ Racines distinctes (${rootU} &ne; ${rootV}) : l'arête <strong>(${e.u}, ${e.v})</strong> est <strong>ACCEPTÉE dans le MST</strong> ! Les composantes ${rootU} et ${rootV} sont connectées.`, e, 'accepted', i);
+        } else {
+          rejectedEdges.push(e);
+          snapshot(6, `⚠️ <strong>Cycle détecté !</strong> Les sommets <strong>${e.u}</strong> et <strong>${e.v}</strong> partagent déjà la même racine (${rootU}) et sont déjà connectés. L'arête est <strong>REJETÉE</strong> : aucun changement ni déplacement de sommets nécessaire.`, e, 'rejected', i);
+        }
+      }
+
+      snapshot(10, `Algorithme de Kruskal terminé ! Arbre couvrant minimal trouvé avec ${mstEdges.length} arêtes et un poids total de <strong>${totalMstWeight.toFixed(2)}</strong>.`, null, null, sortedEdges.length);
+
+      return steps;
+    }
+
+    // Drag and Drop State for Graph Vertices
+    let draggedVertex = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    function getSvgCoordinates(evt, svg) {
+      const rect = svg.getBoundingClientRect();
+      const scaleX = 760 / rect.width;
+      const scaleY = 420 / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valEdge').textContent = state.activeEdge ? `${state.activeEdge.u}-${state.activeEdge.v}` : '—';
+      document.getElementById('valWeight').textContent = state.activeEdge ? state.activeEdge.w.toFixed(2) : '—';
+      document.getElementById('valMstCount').textContent = `${state.mstCount} / ${currentGraph.V - 1}`;
+      document.getElementById('valTotalWeight').textContent = state.totalWeight;
+
+      // Render Edge Stream
+      renderEdgeStream(state);
+
+      // Render Graph SVG
+      renderGraphSvg(state);
+    }
+
+    function renderEdgeStream(state) {
+      const container = document.getElementById('edgesStreamContainer');
+      container.innerHTML = '';
+
+      state.sortedEdges.forEach((e, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'edge-chip';
+
+        const isAccepted = state.mstEdges.some(m => (m.u === e.u && m.v === e.v) || (m.u === e.v && m.v === e.u));
+        const isRejected = state.rejectedEdges.some(r => (r.u === e.u && r.v === e.v) || (r.u === e.v && r.v === e.u));
+
+        if (idx === state.edgeIdx) chip.classList.add('current');
+        if (isAccepted) chip.classList.add('accepted');
+        else if (isRejected) chip.classList.add('rejected');
+
+        chip.innerHTML = `<span>${e.u}-${e.v}</span><span style="opacity:0.8;">(${e.w.toFixed(2)})</span>`;
+        container.appendChild(chip);
+      });
+
+      document.getElementById('edgeProgress').textContent = `Edge ${Math.min(state.edgeIdx + 1, state.sortedEdges.length)} of ${state.sortedEdges.length}`;
+    }
+
+    function renderGraphSvg(state) {
+      const svg = document.getElementById('graphSvg');
+      svg.innerHTML = '';
+      const pos = currentGraph.positions;
+
+      // Draw Edges
+      currentGraph.edges.forEach(e => {
+        const uPos = pos[e.u];
+        const vPos = pos[e.v];
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', uPos.x);
+        line.setAttribute('y1', uPos.y);
+        line.setAttribute('x2', vPos.x);
+        line.setAttribute('y2', vPos.y);
+
+        let cls = 'graph-edge';
+        const isMst = state.mstEdges.some(m => (m.u === e.u && m.v === e.v) || (m.u === e.v && m.v === e.u));
+        const isRejected = state.rejectedEdges.some(r => (r.u === e.u && r.v === e.v) || (r.u === e.v && r.v === e.u));
+        const isExamining = state.activeEdge && ((state.activeEdge.u === e.u && state.activeEdge.v === e.v) || (state.activeEdge.u === e.v && state.activeEdge.v === e.u));
+
+        if (isExamining) cls += ' examining';
+        else if (isMst) cls += ' mst-edge';
+        else if (isRejected) cls += ' cycle-rejected';
+
+        line.setAttribute('class', cls);
+        svg.appendChild(line);
+
+        // Edge Weight
+        const midX = (uPos.x + vPos.x) / 2;
+        const midY = (uPos.y + vPos.y) / 2;
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', midX);
+        text.setAttribute('y', midY - 6);
+        text.setAttribute('class', 'edge-weight-label');
+        text.textContent = e.w.toFixed(2);
+        svg.appendChild(text);
+      });
+
+      // Draw Vertices
+      for (let i = 0; i < currentGraph.V; i++) {
+        const p = pos[i];
+        const comp = state.components[i];
+        const compColor = COMP_COLORS[comp % COMP_COLORS.length];
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', 19);
+        circle.setAttribute('fill', '#151f32');
+        circle.setAttribute('stroke', compColor);
+
+        let cls = 'vertex-circle';
+        if (state.activeEdge && (state.activeEdge.u === i || state.activeEdge.v === i)) {
+          if (state.edgeStatus === 'accepted') {
+            cls += ' accepted-node';
+          } else if (state.edgeStatus === 'rejected') {
+            cls += ' cycle-rejected-node';
+          } else {
+            cls += ' active-candidate';
+          }
+        }
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', p.x);
+        text.setAttribute('y', p.y);
+        text.setAttribute('class', 'vertex-label');
+        text.textContent = i;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+
+        // Interactive Drag and Drop on Vertices
+        g.style.cursor = 'grab';
+        g.addEventListener('mousedown', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          draggedVertex = i;
+          const pt = getSvgCoordinates(evt, svg);
+          dragOffset.x = p.x - pt.x;
+          dragOffset.y = p.y - pt.y;
+          g.style.cursor = 'grabbing';
+        });
+
+        svg.appendChild(g);
+      }
+    }
+
+    // Attach canvas drag listeners
+    const graphSvgEl = document.getElementById('graphSvg');
+    graphSvgEl.addEventListener('mousemove', (evt) => {
+      if (draggedVertex !== null) {
+        const pt = getSvgCoordinates(evt, graphSvgEl);
+        const newX = Math.max(30, Math.min(730, Math.round(pt.x + dragOffset.x)));
+        const newY = Math.max(30, Math.min(390, Math.round(pt.y + dragOffset.y)));
+        currentGraph.positions[draggedVertex].x = newX;
+        currentGraph.positions[draggedVertex].y = newY;
+        renderGraphSvg(simulationSteps[currentStepIndex]);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (draggedVertex !== null) {
+        draggedVertex = null;
+        renderGraphSvg(simulationSteps[currentStepIndex]);
+      }
+    });
+
+    // --- Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentGraph);
+      renderState(0);
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('graphSelect').addEventListener('change', (e) => {
+      currentGraph = GRAPHS[e.target.value];
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

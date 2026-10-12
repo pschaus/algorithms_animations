@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heap Sort Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+
+      --node-default: #1e293b;
+      --node-active: #d97706;
+      --node-child: #7c3aed;
+      --node-sorted: #059669;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .phase-stepper-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      overflow-x: auto;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #151f32;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .phase-pill .pill-number {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: #24344d;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.7rem;
+    }
+
+    .phase-pill.active {
+      background: #1e3a8a;
+      color: #bfdbfe;
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .phase-pill.active .pill-number {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .phase-pill.completed {
+      color: #94a3b8;
+    }
+
+    .phase-pill.completed .pill-number {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    .tree-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-height: 380px;
+    }
+
+    svg.heap-svg {
+      width: 100%;
+      height: 360px;
+    }
+
+    .svg-edge {
+      stroke: #334869;
+      stroke-width: 2.5;
+      transition: stroke 0.3s, stroke-width 0.3s;
+    }
+
+    .svg-edge.active {
+      stroke: var(--accent-blue);
+      stroke-width: 4;
+    }
+
+    .svg-node-circle {
+      fill: var(--node-default);
+      stroke: #475569;
+      stroke-width: 2.5;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .svg-node-circle.active-k {
+      fill: #b45309;
+      stroke: #fbbf24;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+
+    .svg-node-circle.active-child {
+      fill: #6d28d9;
+      stroke: #c084fc;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.6));
+    }
+
+    .svg-node-circle.sorted {
+      fill: #065f46;
+      stroke: #34d399;
+      opacity: 0.45;
+    }
+
+    @keyframes swapPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.22); stroke-width: 5px; }
+      100% { transform: scale(1); }
+    }
+
+    .svg-node-circle.swapped {
+      fill: #065f46 !important;
+      stroke: #34d399 !important;
+      stroke-width: 4px !important;
+      filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.8)) !important;
+      animation: swapPulse 0.4s ease-out;
+    }
+
+    .cell-box.swapped {
+      border-color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.35) !important;
+      color: #fff !important;
+      animation: swapPulse 0.4s ease-out;
+    }
+
+    .svg-node-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .svg-node-index {
+      fill: #94a3b8;
+      font-family: monospace;
+      font-size: 10px;
+      text-anchor: middle;
+    }
+
+    .array-view-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .array-cells-row {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.75rem 0.5rem;
+      overflow-x: auto;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      align-items: flex-end;
+    }
+
+    .cell-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      min-width: 44px;
+      max-width: 64px;
+    }
+
+    .cell-idx {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .cell-box {
+      width: 100%;
+      height: 48px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .cell-box.unused {
+      background: #0b1120;
+      border-color: #1e293b;
+      color: #475569;
+      font-size: 0.85rem;
+    }
+
+    .cell-box.active-k {
+      background: #b45309;
+      border-color: #fbbf24;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+    }
+
+    .cell-box.active-child {
+      background: #6d28d9;
+      border-color: #c084fc;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
+    }
+
+    .cell-box.sorted {
+      background: #065f46;
+      border-color: #10b981;
+      color: #a7f3d0;
+    }
+
+    .legend-bar {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+    }
+
+    .custom-input-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-input-modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #151f32;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+    }
+
+    .modal-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      background: #090e1b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Heap Sort Visualizer</h1>
+        <div class="header-subtitle">In-place $O(N \log N)$ sorting using a binary max-heap</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Preset:</label>
+        <select id="presetSelect">
+          <option value="slide">Sedgewick Classic (S-O-R-T-E-X-A-M-P-L-E)</option>
+          <option value="random">Random Numbers (11 elements)</option>
+          <option value="reverse">Reverse Sorted (Worst Heapify)</option>
+          <option value="nearly">Nearly Sorted</option>
+        </select>
+      </div>
+
+      <button id="btnCustom" title="Custom Elements">✏ Custom</button>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="150" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnSound" class="control-item" style="cursor:pointer;" title="Toggle Synthesizer Sound">
+        <span>🔊</span>
+      </button>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <div class="phase-stepper-bar">
+    <div class="phase-pill" id="pillPhase1">
+      <span class="pill-number">1</span>
+      <span>Phase 1: Bottom-up Heap Construction (O(N))</span>
+    </div>
+    <div class="phase-pill" id="pillPhase2">
+      <span class="pill-number">2</span>
+      <span>Phase 2: Sortdown Phase (O(N log N))</span>
+    </div>
+    <div class="phase-pill" id="pillPhase3">
+      <span class="pill-number">✓</span>
+      <span>Sorted & Verified</span>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Java Algorithm Implementation</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">public static void</span> <span class="c-func">sort</span>(<span class="c-type">Comparable</span>[] a) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-type">int</span> n = a.length - <span class="c-comment">1</span>; <span class="c-comment">// 1-based indexing</span></span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-comment">// Phase 1: Build heap bottom-up</span></span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">for</span> (<span class="c-type">int</span> k = n/<span class="c-comment">2</span>; k &gt;= <span class="c-comment">1</span>; k--)</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">        <span class="c-func">sink</span>(a, k, n);</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    <span class="c-comment">// Phase 2: Sortdown</span></span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">    <span class="c-keyword">while</span> (n &gt; <span class="c-comment">1</span>) {</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">        <span class="c-func">exch</span>(a, <span class="c-comment">1</span>, n--);</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">        <span class="c-func">sink</span>(a, <span class="c-comment">1</span>, n);</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content"></span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content"><span class="c-keyword">private static void</span> <span class="c-func">sink</span>(<span class="c-type">Comparable</span>[] a, <span class="c-type">int</span> k, <span class="c-type">int</span> n) {</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">    <span class="c-keyword">while</span> (<span class="c-comment">2</span>*k &lt;= n) {</span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">        <span class="c-type">int</span> j = <span class="c-comment">2</span>*k;</span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">        <span class="c-keyword">if</span> (j &lt; n &amp;&amp; <span class="c-func">less</span>(a, j, j+<span class="c-comment">1</span>)) j++;</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content">        <span class="c-keyword">if</span> (!<span class="c-func">less</span>(a, k, j)) <span class="c-keyword">break</span>;</span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content">        <span class="c-func">exch</span>(a, k, j);</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">        k = j;</span></div>
+          <div class="code-row" data-line="20"><span class="code-line-num">20</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="21"><span class="code-line-num">21</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution State & Variables</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Welcome to Heap Sort. Click Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">k (parent)</div>
+            <div class="v-val" id="valK">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">j (larger child)</div>
+            <div class="v-val" id="valJ">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">n (heap size)</div>
+            <div class="v-val" id="valN">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Swaps</div>
+            <div class="v-val" id="valSwaps">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Educational Invariants</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-amber);">Heap Invariant:</strong> Key at node $k$ is greater than or equal to keys at children $2k$ and $2k+1$.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-blue);">O(N) Construction:</strong> Sinking from $N/2$ down to 1 takes linear time because most nodes are near the leaves with tiny sink heights: $\sum_{h=0}^{\lg N} \frac{N}{2^{h+1}} h \le N$.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">In-Place:</strong> Only $O(1)$ auxiliary memory required! No secondary array allocated.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Binary Heap Tree View (Implicit in Array)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="treeStatus">Complete Binary Tree</span>
+        </div>
+        <div class="tree-container">
+          <svg class="heap-svg" id="heapSvg" viewBox="0 0 760 360"></svg>
+        </div>
+        <div class="legend-bar">
+          <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div> Current Parent (k)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c084fc;"></div> Greater Child (j)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1e293b; border:1px solid #475569;"></div> Active Heap Element</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#065f46; border:1px solid #10b981;"></div> Sorted Final Position</div>
+        </div>
+      </div>
+
+      <div class="array-view-card">
+        <div class="card-header-line">
+          <span>Array View (1-Based Representation: a[1..n])</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="arrayBoundaryLabel">Heap: a[1..n] | Sorted: a[n+1..N]</span>
+        </div>
+        <div class="array-cells-row" id="arrayCellsRow"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="custom-input-modal" id="customModal">
+    <div class="modal-content">
+      <h3>Enter Custom Elements</h3>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+        Provide 5 to 14 numbers or letters separated by comma or space:
+      </p>
+      <input type="text" id="customInput" placeholder="e.g. 50, 20, 80, 10, 90, 30, 70" value="50, 20, 80, 10, 90, 30, 70">
+      <div class="modal-actions">
+        <button id="btnCancelCustom">Cancel</button>
+        <button id="btnApplyCustom" class="btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Web Audio Synthesizer ---
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(val, maxVal = 100, duration = 0.12) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const freq = 200 + (Math.max(10, Math.min(100, val)) / maxVal) * 550;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.type = 'triangle';
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // --- Data Presets ---
+    const PRESETS = {
+      slide: ["-", "S", "O", "R", "T", "E", "X", "A", "M", "P", "L", "E"],
+      random: ["-", 42, 17, 89, 33, 95, 21, 64, 12, 78, 55, 30],
+      reverse: ["-", 90, 80, 70, 60, 50, 40, 30, 20, 15, 10, 5],
+      nearly: ["-", 10, 20, 30, 50, 40, 60, 70, 80, 90, 95, 99]
+    };
+
+    let rawArray = [...PRESETS.slide];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // --- Simulation Step Generator ---
+    function buildSimulation(origArr) {
+      const steps = [];
+      const a = [...origArr];
+      const totalN = a.length - 1;
+      let swapsCount = 0;
+
+      function compare(i, j) {
+        if (typeof a[i] === 'string' && typeof a[j] === 'string') {
+          return a[i].localeCompare(a[j]) < 0;
+        }
+        return Number(a[i]) < Number(a[j]);
+      }
+
+      function snapshot(line, phase, descr, k = null, j = null, n = totalN, isSwap = false) {
+        steps.push({
+          line,
+          phase,
+          descr,
+          k,
+          j,
+          n,
+          isSwap,
+          swaps: swapsCount,
+          arr: [...a]
+        });
+      }
+
+      snapshot(1, 1, `Démarrage du Tri par Tas (Heap Sort) sur un tableau de taille ${totalN}. Indexation à base 1.`, null, null, totalN);
+
+      // Phase 1: Heapify
+      snapshot(4, 1, `Phase 1 : Construction du tas max (Heapify). Descente (sink) des nœuds de k = n/2 = ${Math.floor(totalN / 2)} jusqu'à 1.`, null, null, totalN);
+
+      for (let k = Math.floor(totalN / 2); k >= 1; k--) {
+        snapshot(5, 1, `Heapify : appel de <code>sink(a, k=${k}, n=${totalN})</code>. Le sous-arbre à la racine ${k} va être ordonné en tas.`, k, null, totalN);
+        sink(k, totalN, 1);
+      }
+
+      snapshot(6, 2, `Phase 1 terminée ! Le tableau est un tas max valide. La racine a[1] = '<strong>${a[1]}</strong>' est la clé maximale.`, null, null, totalN);
+
+      // Phase 2: Sortdown
+      let currentN = totalN;
+      while (currentN > 1) {
+        snapshot(7, 2, `Phase 2 : Extraction de la racine maximale a[1] = '<strong>${a[1]}</strong>' pour la placer à sa position triée a[${currentN}].`, 1, currentN, currentN);
+
+        // exch(a, 1, currentN--)
+        const temp = a[1];
+        a[1] = a[currentN];
+        a[currentN] = temp;
+        swapsCount++;
+        currentN--;
+
+        snapshot(8, 2, `🔄 Échange effectué : racine maximale permutée avec l'élément a[${currentN + 1}]. La taille du tas est réduite à n = ${currentN}. Nouvelle racine prête à descendre.`, 1, currentN + 1, currentN, true);
+
+        sink(1, currentN, 2);
+      }
+
+      // Phase 3: Completed
+      snapshot(11, 3, `Tri par tas terminé avec succès ! Tous les éléments sont triés par ordre croissant en place (in-place).`, null, null, 0);
+
+      function sink(startK, heapSize, phase) {
+        let currK = startK;
+        while (2 * currK <= heapSize) {
+          let j = 2 * currK;
+          snapshot(14, phase, `Examen des enfants de k=${currK} : l'enfant gauche est j=${j} ('<strong>${a[j]}</strong>').`, currK, j, heapSize);
+
+          if (j < heapSize) {
+            snapshot(16, phase, `Comparaison entre enfant gauche j=${j} ('${a[j]}') et enfant droit j+1=${j + 1} ('${a[j + 1]}').`, currK, j, heapSize);
+            if (compare(j, j + 1)) {
+              j++;
+              snapshot(16, phase, `L'enfant droit a[${j}] ('<strong>${a[j]}</strong>') est plus grand. Enfant sélectionné : j = ${j}.`, currK, j, heapSize);
+            }
+          }
+
+          snapshot(17, phase, `Comparaison : parent a[${currK}] ('${a[currK]}') vs plus grand enfant a[${j}] ('${a[j]}').`, currK, j, heapSize);
+          if (!compare(currK, j)) {
+            snapshot(17, phase, `✅ Invariant de tas respecté : parent a[${currK}] ('<strong>${a[currK]}</strong>') &ge; enfant a[${j}] ('<strong>${a[j]}</strong>'). <em>Aucun déplacement nécessaire !</em> La descente s'arrête.`, currK, j, heapSize, false);
+            break;
+          }
+
+          // exch(a, currK, j)
+          const t = a[currK];
+          a[currK] = a[j];
+          a[j] = t;
+          swapsCount++;
+
+          snapshot(18, phase, `🔄 Échange effectué (exch) : le parent a[${currK}] et l'enfant a[${j}] échangent leurs places. La clé '<strong>${a[currK]}</strong>' monte !`, currK, j, heapSize, true);
+          currK = j;
+          snapshot(19, phase, `Avancement de l'indice : k = ${currK} pour continuer la descente si nécessaire.`, currK, null, heapSize);
+        }
+      }
+
+      return steps;
+    }
+
+    // --- Layout Coordinates for Complete Binary Tree SVG ---
+    function computeTreeLayout(totalN) {
+      const positions = [];
+      const svgWidth = 760;
+      const svgHeight = 350;
+
+      for (let i = 1; i <= totalN; i++) {
+        const level = Math.floor(Math.log2(i));
+        const indexInLevel = i - Math.pow(2, level);
+        const countInLevel = Math.pow(2, level);
+        const y = 45 + level * 75;
+        const levelWidth = svgWidth;
+        const spacing = levelWidth / (countInLevel + 1);
+        const x = spacing * (indexInLevel + 1);
+        positions[i] = { x, y, level };
+      }
+      return positions;
+    }
+
+    // --- Render State ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+      const totalN = rawArray.length - 1;
+
+      // Update Phase Pills
+      const p1 = document.getElementById('pillPhase1');
+      const p2 = document.getElementById('pillPhase2');
+      const p3 = document.getElementById('pillPhase3');
+      p1.className = 'phase-pill' + (state.phase === 1 ? ' active' : (state.phase > 1 ? ' completed' : ''));
+      p2.className = 'phase-pill' + (state.phase === 2 ? ' active' : (state.phase > 2 ? ' completed' : ''));
+      p3.className = 'phase-pill' + (state.phase === 3 ? ' active completed' : '');
+
+      // Highlight Code Row
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valK').textContent = state.k !== null ? state.k : '—';
+      document.getElementById('valJ').textContent = state.j !== null ? state.j : '—';
+      document.getElementById('valN').textContent = state.n !== null ? state.n : '—';
+      document.getElementById('valSwaps').textContent = state.swaps;
+
+      // Play Tone
+      if (state.k && state.arr[state.k]) {
+        const charCode = typeof state.arr[state.k] === 'string' ? state.arr[state.k].charCodeAt(0) - 60 : Number(state.arr[state.k]);
+        playTone(charCode, 80);
+      }
+
+      // Render Tree SVG
+      renderTreeSvg(state, totalN);
+
+      // Render Array Row
+      renderArrayRow(state, totalN);
+    }
+
+    function renderTreeSvg(state, totalN) {
+      const svg = document.getElementById('heapSvg');
+      svg.innerHTML = '';
+      const pos = computeTreeLayout(totalN);
+
+      // Draw Edges
+      for (let i = 1; i <= totalN; i++) {
+        const left = 2 * i;
+        const right = 2 * i + 1;
+
+        if (left <= totalN) {
+          const edge = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          edge.setAttribute('x1', pos[i].x);
+          edge.setAttribute('y1', pos[i].y);
+          edge.setAttribute('x2', pos[left].x);
+          edge.setAttribute('y2', pos[left].y);
+          edge.setAttribute('class', 'svg-edge' + ((state.k === i && state.j === left) ? ' active' : ''));
+          svg.appendChild(edge);
+        }
+
+        if (right <= totalN) {
+          const edge = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          edge.setAttribute('x1', pos[i].x);
+          edge.setAttribute('y1', pos[i].y);
+          edge.setAttribute('x2', pos[right].x);
+          edge.setAttribute('y2', pos[right].y);
+          edge.setAttribute('class', 'svg-edge' + ((state.k === i && state.j === right) ? ' active' : ''));
+          svg.appendChild(edge);
+        }
+      }
+
+      // Draw Nodes
+      for (let i = 1; i <= totalN; i++) {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos[i].x);
+        circle.setAttribute('cy', pos[i].y);
+        circle.setAttribute('r', 19);
+
+        let cls = 'svg-node-circle';
+        if (i > state.n) cls += ' sorted';
+        else if (state.isSwap && (i === state.k || i === state.j)) cls += ' swapped';
+        else if (i === state.k) cls += ' active-k';
+        else if (i === state.j) cls += ' active-child';
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos[i].x);
+        text.setAttribute('y', pos[i].y);
+        text.setAttribute('class', 'svg-node-text');
+        text.textContent = state.arr[i];
+
+        const idxText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        idxText.setAttribute('x', pos[i].x);
+        idxText.setAttribute('y', pos[i].y - 23);
+        idxText.setAttribute('class', 'svg-node-index');
+        idxText.textContent = `k=${i}`;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        g.appendChild(idxText);
+        svg.appendChild(g);
+      }
+    }
+
+    function renderArrayRow(state, totalN) {
+      const container = document.getElementById('arrayCellsRow');
+      container.innerHTML = '';
+
+      for (let i = 0; i <= totalN; i++) {
+        const col = document.createElement('div');
+        col.className = 'cell-col';
+
+        const idxLabel = document.createElement('div');
+        idxLabel.className = 'cell-idx';
+        idxLabel.textContent = i === 0 ? '-' : i;
+
+        const box = document.createElement('div');
+        box.className = 'cell-box';
+
+        if (i === 0) {
+          box.classList.add('unused');
+          box.textContent = '—';
+          box.title = 'Index 0 unused in 1-based binary heap';
+        } else {
+          box.textContent = state.arr[i];
+          if (i > state.n) box.classList.add('sorted');
+          else if (state.isSwap && (i === state.k || i === state.j)) box.classList.add('swapped');
+          else if (i === state.k) box.classList.add('active-k');
+          else if (i === state.j) box.classList.add('active-child');
+        }
+
+        col.appendChild(idxLabel);
+        col.appendChild(box);
+        container.appendChild(col);
+      }
+
+      document.getElementById('arrayBoundaryLabel').textContent =
+        state.n > 0
+          ? `Heap: a[1..${state.n}] | Sorted suffix: a[${state.n + 1}..${totalN}]`
+          : `Fully Sorted! Array a[1..${totalN}]`;
+    }
+
+    // --- Playback Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(rawArray);
+      renderState(0);
+    }
+
+    function loadPreset(key) {
+      pause();
+      if (key === 'random') {
+        const rand = ["-"];
+        for (let i = 0; i < 11; i++) rand.push(Math.floor(Math.random() * 89) + 10);
+        rawArray = rand;
+      } else {
+        rawArray = [...PRESETS[key]];
+      }
+      resetSimulation();
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      loadPreset(e.target.value);
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    const btnSound = document.getElementById('btnSound');
+    btnSound.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      btnSound.innerHTML = soundEnabled ? '<span>🔊</span>' : '<span style="opacity:0.4;">🔇</span>';
+      if (soundEnabled) initAudio();
+    });
+
+    // Custom Input Modal
+    const customModal = document.getElementById('customModal');
+    document.getElementById('btnCustom').addEventListener('click', () => {
+      pause();
+      customModal.classList.add('open');
+    });
+    document.getElementById('btnCancelCustom').addEventListener('click', () => {
+      customModal.classList.remove('open');
+    });
+    document.getElementById('btnApplyCustom').addEventListener('click', () => {
+      const val = document.getElementById('customInput').value;
+      const parts = val.split(/[,\s]+/).map(s => s.trim()).filter(s => s.length > 0);
+      if (parts.length >= 4 && parts.length <= 14) {
+        rawArray = ["-", ...parts.map(p => isNaN(p) ? p.toUpperCase() : parseInt(p))];
+        customModal.classList.remove('open');
+        resetSimulation();
+      } else {
+        alert("Please enter between 4 and 14 elements.");
+      }
+    });
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

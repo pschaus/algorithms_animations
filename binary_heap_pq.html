@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Heap Priority Queue Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .interactive-ops {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button.btn-danger {
+      background: #991b1b;
+      border-color: #dc2626;
+      color: #fff;
+    }
+
+    button.btn-danger:hover {
+      background: #b91c1c;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Heap Tree View */
+    .tree-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 360px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg.heap-svg {
+      width: 100%;
+      height: 350px;
+    }
+
+    .svg-edge {
+      stroke: #334869;
+      stroke-width: 2.5;
+      transition: all 0.25s;
+    }
+
+    .svg-edge.active {
+      stroke: #fbbf24;
+      stroke-width: 4;
+    }
+
+    .svg-node-circle {
+      fill: #1e293b;
+      stroke: #475569;
+      stroke-width: 2.5;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .svg-node-circle.active-k {
+      fill: #b45309;
+      stroke: #fbbf24;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+    }
+
+    .svg-node-circle.active-other {
+      fill: #6d28d9;
+      stroke: #c084fc;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.6));
+    }
+
+    @keyframes swapPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.22); stroke-width: 5px; }
+      100% { transform: scale(1); }
+    }
+
+    .svg-node-circle.swapped {
+      fill: #065f46 !important;
+      stroke: #34d399 !important;
+      stroke-width: 4px !important;
+      filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.8)) !important;
+      animation: swapPulse 0.4s ease-out;
+    }
+
+    .cell-box.swapped {
+      border-color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.35) !important;
+      color: #fff !important;
+      animation: swapPulse 0.4s ease-out;
+    }
+
+    .svg-node-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .svg-node-idx {
+      fill: #94a3b8;
+      font-family: monospace;
+      font-size: 10px;
+      text-anchor: middle;
+    }
+
+    /* Array Row */
+    .array-cells-row {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.75rem 0.5rem;
+      overflow-x: auto;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      align-items: flex-end;
+    }
+
+    .cell-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      min-width: 44px;
+      max-width: 60px;
+    }
+
+    .cell-idx {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .cell-box {
+      width: 100%;
+      height: 48px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .cell-box.unused {
+      background: #0b1120;
+      border-color: #1e293b;
+      color: #475569;
+    }
+
+    .cell-box.active-k {
+      background: #b45309;
+      border-color: #fbbf24;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+    }
+
+    .cell-box.active-other {
+      background: #6d28d9;
+      border-color: #c084fc;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Binary Heap Priority Queue</h1>
+        <div class="header-subtitle">Max-PQ: logarithmic insert() via swim and delMax() via sink</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="interactive-ops">
+        <button id="btnInsertPrompt" class="btn-primary">+ Insert Key</button>
+        <button id="btnDelMax" class="btn-danger">− delMax()</button>
+        <button id="btnRandomInsert">🎲 Random</button>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="800">
+        <span class="dynamic-val" id="speedVal">800ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>MaxPQ.java (1-Based Complete Binary Tree)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">public void</span> <span class="c-func">insert</span>(Key v) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    pq[++n] = v;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-func">swim</span>(n);</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content"><span class="c-keyword">private void</span> <span class="c-func">swim</span>(<span class="c-type">int</span> k) {</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    <span class="c-keyword">while</span> (k &gt; <span class="c-comment">1</span> &amp;&amp; <span class="c-func">less</span>(k/<span class="c-comment">2</span>, k)) {</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">        <span class="c-func">exch</span>(k/<span class="c-comment">2</span>, k);</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">        k = k/<span class="c-comment">2</span>;</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content"><span class="c-keyword">public</span> Key <span class="c-func">delMax</span>() {</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">    Key max = pq[<span class="c-comment">1</span>];</span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">    <span class="c-func">exch</span>(<span class="c-comment">1</span>, n--);</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">    <span class="c-func">sink</span>(<span class="c-comment">1</span>);</span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">    pq[n+<span class="c-comment">1</span>] = <span class="c-keyword">null</span>;</span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">    <span class="c-keyword">return</span> max;</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content"><span class="c-keyword">private void</span> <span class="c-func">sink</span>(<span class="c-type">int</span> k) {</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">    <span class="c-keyword">while</span> (<span class="c-comment">2</span>*k &lt;= n) {</span></div>
+          <div class="code-row" data-line="20"><span class="code-line-num">20</span><span class="code-line-content">        <span class="c-type">int</span> j = <span class="c-comment">2</span>*k;</span></div>
+          <div class="code-row" data-line="21"><span class="code-line-num">21</span><span class="code-line-content">        <span class="c-keyword">if</span> (j &lt; n &amp;&amp; <span class="c-func">less</span>(j, j+<span class="c-comment">1</span>)) j++;</span></div>
+          <div class="code-row" data-line="22"><span class="code-line-num">22</span><span class="code-line-content">        <span class="c-keyword">if</span> (!<span class="c-func">less</span>(k, j)) <span class="c-keyword">break</span>;</span></div>
+          <div class="code-row" data-line="23"><span class="code-line-num">23</span><span class="code-line-content">        <span class="c-func">exch</span>(k, j);</span></div>
+          <div class="code-row" data-line="24"><span class="code-line-num">24</span><span class="code-line-content">        k = j;</span></div>
+          <div class="code-row" data-line="25"><span class="code-line-num">25</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="26"><span class="code-line-num">26</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Welcome to Binary Heap PQ. Click Insert or delMax to animate operations.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">k (active)</div>
+            <div class="v-val" id="valK">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Other (parent/child)</div>
+            <div class="v-val" id="valOther">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Size n</div>
+            <div class="v-val" id="valN">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Max Root</div>
+            <div class="v-val" id="valMax">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Heap Mathematical Invariants</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-amber);">Max-Heap Property:</strong> Every node's key is $\ge$ both of its children keys ($pq[k] \ge pq[2k]$ and $pq[k] \ge pq[2k+1]$).</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">Logarithmic Operations:</strong> Height is bounded by $\lfloor \lg n \rfloor$. Both <code>insert()</code> and <code>delMax()</code> require at most $O(\log n)$ comparisons and swaps.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Complete Binary Tree Representation</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Root at index 1 | Children at 2k and 2k+1</span>
+        </div>
+        <div class="tree-box">
+          <svg class="heap-svg" id="heapSvg" viewBox="0 0 760 350"></svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Array Representation: pq[1..n]</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Index 0 is unused</span>
+        </div>
+        <div class="array-cells-row" id="arrayCellsRow"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Initial Heap
+    let currentHeap = ["-", "P", "Q", "E", "X", "A", "M", "P", "L", "E"];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 800;
+
+    // Simulation Builder
+    function buildInsertSimulation(val) {
+      const steps = [];
+      const pq = [...currentHeap];
+      let n = pq.length - 1;
+
+      function compare(i, j) {
+        if (typeof pq[i] === 'string' && typeof pq[j] === 'string') {
+          return pq[i].localeCompare(pq[j]) < 0;
+        }
+        return Number(pq[i]) < Number(pq[j]);
+      }
+
+      function snapshot(line, descr, k = null, other = null, isSwap = false) {
+        steps.push({
+          line,
+          descr,
+          k,
+          other,
+          n,
+          isSwap,
+          pq: [...pq]
+        });
+      }
+
+      snapshot(1, `Appel de <code>insert('${val}')</code> dans le tas max.`, null, null);
+
+      // pq[++n] = val
+      n++;
+      pq[n] = val;
+      snapshot(2, `Nouvelle clé '<strong>${val}</strong>' placée à la fin du tas à <code>pq[${n}]</code>. Appel de <code>swim(${n})</code> pour restaurer l'invariant de tas.`, n, null);
+
+      // swim(n)
+      let k = n;
+      while (k > 1) {
+        const parent = Math.floor(k / 2);
+        snapshot(6, `Examen du parent de k=${k} : le parent est <code>k/2 = ${parent}</code> ('<strong>${pq[parent]}</strong>').`, k, parent);
+
+        if (!compare(parent, k)) {
+          snapshot(6, `✅ Invariant respecté : le parent '<strong>${pq[parent]}</strong>' &ge; l'enfant '<strong>${pq[k]}</strong>'. <em>Aucun déplacement requis</em>, la remontée (swim) se termine.`, k, parent, false);
+          break;
+        }
+
+        // exch(parent, k)
+        const temp = pq[parent];
+        pq[parent] = pq[k];
+        pq[k] = temp;
+
+        snapshot(7, `🔄 Échange effectué (swim) : l'enfant '<strong>${pq[parent]}</strong>' et le parent '<strong>${pq[k]}</strong>' échangent leurs places. Le nœud remonte !`, parent, k, true);
+        k = parent;
+        snapshot(8, `Indice mis à jour : k = ${k}. Continuer la remontée si nécessaire.`, k, null);
+      }
+
+      snapshot(4, `Insertion terminée ! Invariant de tas max pleinement restauré. Nouvelle taille n = ${n}.`, null, null);
+
+      return { steps, newHeap: pq };
+    }
+
+    function buildDelMaxSimulation() {
+      const steps = [];
+      const pq = [...currentHeap];
+      let n = pq.length - 1;
+
+      function compare(i, j) {
+        if (typeof pq[i] === 'string' && typeof pq[j] === 'string') {
+          return pq[i].localeCompare(pq[j]) < 0;
+        }
+        return Number(pq[i]) < Number(pq[j]);
+      }
+
+      function snapshot(line, descr, k = null, other = null, isSwap = false) {
+        steps.push({
+          line,
+          descr,
+          k,
+          other,
+          n,
+          isSwap,
+          pq: [...pq]
+        });
+      }
+
+      if (n < 1) {
+        snapshot(11, "Le tas est vide ! Impossible d'effectuer delMax().", null, null);
+        return { steps, newHeap: pq };
+      }
+
+      snapshot(11, `Appel de <code>delMax()</code>. L'élément maximal racine est <strong>'${pq[1]}'</strong>.`, 1, null);
+
+      const max = pq[1];
+      snapshot(12, `Clé maximale extraite : <code>max = '<strong>${max}</strong>'</code>.`, 1, null);
+
+      // exch(1, n--)
+      const last = pq[n];
+      pq[1] = last;
+      pq.pop();
+      n--;
+
+      snapshot(13, `🔄 Échange effectué : racine remplacée par le dernier élément '<strong>${last}</strong>' (ancien index ${n + 1}). Taille réduite à n = ${n}. Prêt pour la descente.`, 1, n + 1, true);
+
+      // sink(1)
+      let k = 1;
+      while (2 * k <= n) {
+        let j = 2 * k;
+        snapshot(19, `Descente (sink) : le nœud k=${k} ('<strong>${pq[k]}</strong>') a pour enfant gauche j=${j} ('<strong>${pq[j]}</strong>').`, k, j);
+
+        if (j < n) {
+          snapshot(21, `Comparaison entre enfant gauche j=${j} ('${pq[j]}') et enfant droit j+1=${j+1} ('${pq[j+1]}').`, k, j);
+          if (compare(j, j + 1)) {
+            j++;
+            snapshot(21, `L'enfant droit '<strong>${pq[j]}</strong>' est plus grand. Enfant sélectionné : j = ${j}.`, k, j);
+          }
+        }
+
+        snapshot(22, `Comparaison : parent '<strong>${pq[k]}</strong>' vs plus grand enfant '<strong>${pq[j]}</strong>'.`, k, j);
+        if (!compare(k, j)) {
+          snapshot(22, `✅ Invariant respecté : parent '<strong>${pq[k]}</strong>' &ge; enfant '<strong>${pq[j]}</strong>'. <em>Aucun déplacement nécessaire !</em> La descente s'arrête.`, k, j, false);
+          break;
+        }
+
+        // exch(k, j)
+        const t = pq[k];
+        pq[k] = pq[j];
+        pq[j] = t;
+
+        snapshot(23, `🔄 Échange effectué (sink) : le parent '<strong>${pq[j]}</strong>' descend et l'enfant '<strong>${pq[k]}</strong>' monte.`, k, j, true);
+        k = j;
+        snapshot(24, `Indice mis à jour : k = ${k}. Continuer la descente si nécessaire.`, k, null);
+      }
+
+      snapshot(16, `<code>delMax()</code> terminé avec succès ! Clé maximale extraite : <strong>'${max}'</strong>. Nouvelle taille n = ${n}.`, null, null);
+
+      return { steps, newHeap: pq };
+    }
+
+    // Coordinates for complete binary tree
+    function computeTreeLayout(totalN) {
+      const positions = [];
+      const svgWidth = 760;
+
+      for (let i = 1; i <= totalN; i++) {
+        const level = Math.floor(Math.log2(i));
+        const indexInLevel = i - Math.pow(2, level);
+        const countInLevel = Math.pow(2, level);
+        const y = 45 + level * 75;
+        const spacing = svgWidth / (countInLevel + 1);
+        const x = spacing * (indexInLevel + 1);
+        positions[i] = { x, y, level };
+      }
+      return positions;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valK').textContent = state.k !== null ? state.k : '—';
+      document.getElementById('valOther').textContent = state.other !== null ? state.other : '—';
+      document.getElementById('valN').textContent = state.n;
+      document.getElementById('valMax').textContent = state.pq[1] || '—';
+
+      // Render Tree SVG
+      renderTreeSvg(state);
+
+      // Render Array
+      renderArrayRow(state);
+    }
+
+    function renderTreeSvg(state) {
+      const svg = document.getElementById('heapSvg');
+      svg.innerHTML = '';
+      const totalN = state.n;
+      const pos = computeTreeLayout(totalN);
+
+      // Draw Edges
+      for (let i = 1; i <= totalN; i++) {
+        const left = 2 * i;
+        const right = 2 * i + 1;
+
+        if (left <= totalN && pos[i] && pos[left]) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', pos[i].x);
+          line.setAttribute('y1', pos[i].y);
+          line.setAttribute('x2', pos[left].x);
+          line.setAttribute('y2', pos[left].y);
+          line.setAttribute('class', 'svg-edge' + ((state.k === i && state.other === left) || (state.k === left && state.other === i) ? ' active' : ''));
+          svg.appendChild(line);
+        }
+
+        if (right <= totalN && pos[i] && pos[right]) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', pos[i].x);
+          line.setAttribute('y1', pos[i].y);
+          line.setAttribute('x2', pos[right].x);
+          line.setAttribute('y2', pos[right].y);
+          line.setAttribute('class', 'svg-edge' + ((state.k === i && state.other === right) || (state.k === right && state.other === i) ? ' active' : ''));
+          svg.appendChild(line);
+        }
+      }
+
+      // Draw Nodes
+      for (let i = 1; i <= totalN; i++) {
+        if (!pos[i]) continue;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos[i].x);
+        circle.setAttribute('cy', pos[i].y);
+        circle.setAttribute('r', 18);
+
+        let cls = 'svg-node-circle';
+        if (state.isSwap && (i === state.k || i === state.other)) cls += ' swapped';
+        else if (i === state.k) cls += ' active-k';
+        else if (i === state.other) cls += ' active-other';
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos[i].x);
+        text.setAttribute('y', pos[i].y);
+        text.setAttribute('class', 'svg-node-text');
+        text.textContent = state.pq[i];
+
+        const idxText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        idxText.setAttribute('x', pos[i].x);
+        idxText.setAttribute('y', pos[i].y - 22);
+        idxText.setAttribute('class', 'svg-node-idx');
+        idxText.textContent = `k=${i}`;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        g.appendChild(idxText);
+        svg.appendChild(g);
+      }
+    }
+
+    function renderArrayRow(state) {
+      const container = document.getElementById('arrayCellsRow');
+      container.innerHTML = '';
+
+      for (let i = 0; i <= state.n; i++) {
+        const col = document.createElement('div');
+        col.className = 'cell-col';
+
+        const idx = document.createElement('div');
+        idx.className = 'cell-idx';
+        idx.textContent = i === 0 ? '-' : i;
+
+        const box = document.createElement('div');
+        box.className = 'cell-box';
+
+        if (i === 0) {
+          box.classList.add('unused');
+          box.textContent = '—';
+        } else {
+          box.textContent = state.pq[i];
+          if (state.isSwap && (i === state.k || i === state.other)) box.classList.add('swapped');
+          else if (i === state.k) box.classList.add('active-k');
+          else if (i === state.other) box.classList.add('active-other');
+        }
+
+        col.appendChild(idx);
+        col.appendChild(box);
+        container.appendChild(col);
+      }
+    }
+
+    // --- Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function triggerInsert(val) {
+      pause();
+      const res = buildInsertSimulation(val);
+      simulationSteps = res.steps;
+      currentHeap = res.newHeap;
+      renderState(0);
+      play();
+    }
+
+    function triggerDelMax() {
+      pause();
+      const res = buildDelMaxSimulation();
+      simulationSteps = res.steps;
+      currentHeap = res.newHeap;
+      renderState(0);
+      play();
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', () => {
+      pause();
+      currentHeap = ["-", "P", "Q", "E", "X", "A", "M", "P", "L", "E"];
+      triggerInsert("Z");
+    });
+
+    document.getElementById('btnInsertPrompt').addEventListener('click', () => {
+      const val = prompt("Enter a key to insert (letter or number):", "T");
+      if (val && val.trim().length > 0) {
+        triggerInsert(val.trim().toUpperCase());
+      }
+    });
+
+    document.getElementById('btnDelMax').addEventListener('click', triggerDelMax);
+
+    document.getElementById('btnRandomInsert').addEventListener('click', () => {
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const randLetter = letters[Math.floor(Math.random() * letters.length)];
+      triggerInsert(randLetter);
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const res = buildInsertSimulation("Z");
+      simulationSteps = res.steps;
+      currentHeap = res.newHeap;
+      renderState(0);
+    });
+  </script>
+</body>
+</html>

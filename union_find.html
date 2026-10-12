@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Union-Find (Disjoint Sets) Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+
+      /* Component Colors */
+      --comp-0: #38bdf8;
+      --comp-1: #f59e0b;
+      --comp-2: #10b981;
+      --comp-3: #ec4899;
+      --comp-4: #8b5cf6;
+      --comp-5: #14b8a6;
+      --comp-6: #f97316;
+      --comp-7: #06b6d4;
+      --comp-8: #84cc16;
+      --comp-9: #e11d48;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-pills-bar {
+      display: flex;
+      gap: 0.35rem;
+      background: #151f32;
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Queue of Operations */
+    .operations-queue {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+    }
+
+    .op-chip {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.78rem;
+      font-family: monospace;
+      color: #cbd5e1;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .op-chip.current {
+      background: #1e3a8a;
+      border-color: #3b82f6;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .op-chip.done {
+      background: #0f172a;
+      border-color: #10b981;
+      color: #34d399;
+    }
+
+    /* Forest Canvas */
+    .forest-canvas-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      position: relative;
+      min-height: 380px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg.uf-svg {
+      width: 100%;
+      height: 380px;
+    }
+
+    .uf-edge {
+      stroke: #475569;
+      stroke-width: 2.5;
+      marker-end: url(#arrowhead);
+      transition: stroke 0.25s, stroke-width 0.25s;
+    }
+
+    .uf-edge.active {
+      stroke: #fbbf24;
+      stroke-width: 4;
+      marker-end: url(#arrowhead-active);
+    }
+
+    .uf-edge.compressed {
+      stroke: #38bdf8;
+      stroke-dasharray: 4;
+      stroke-width: 3.5;
+    }
+
+    .uf-node-circle {
+      stroke-width: 3;
+      transition: transform 0.2s, stroke 0.25s, filter 0.25s;
+      cursor: grab;
+    }
+
+    .uf-node-circle:active {
+      cursor: grabbing;
+    }
+
+    .uf-node-circle.root-node {
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .uf-node-circle.inspecting {
+      stroke: #fbbf24 !important;
+      stroke-width: 4.5;
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7));
+    }
+
+    .uf-node-circle.accepted-node {
+      stroke: #10b981 !important;
+      stroke-width: 4.5;
+      transform: scale(1.14);
+      filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.85));
+    }
+
+    .uf-node-circle.cycle-rejected-node {
+      stroke: #f43f5e !important;
+      stroke-width: 4.5;
+      stroke-dasharray: 4;
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.85));
+    }
+
+    .uf-node-label {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .arr-cell.cycle-inspect {
+      background: #7f1d1d !important;
+      color: #fecaca !important;
+      border-color: #ef4444 !important;
+      font-weight: 800;
+    }
+
+    .arr-cell.merge-inspect {
+      background: #064e3b !important;
+      color: #a7f3d0 !important;
+      border-color: #10b981 !important;
+      font-weight: 800;
+    }
+
+    /* Arrays Table */
+    .array-table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .array-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(10, 1fr);
+      gap: 0.35rem;
+      align-items: center;
+      background: var(--bg-card-inner);
+      padding: 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .array-row-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+      padding-right: 0.5rem;
+    }
+
+    .arr-cell {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: 1.5px solid var(--border-color);
+      background: #1e293b;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .arr-cell.idx-header {
+      background: transparent;
+      border-color: transparent;
+      color: #64748b;
+      font-size: 0.75rem;
+      height: 24px;
+    }
+
+    .arr-cell.active-inspect {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+      transform: scale(1.08);
+      z-index: 2;
+    }
+
+    .arr-cell.changed {
+      border-color: var(--accent-emerald) !important;
+      background: #064e3b;
+      animation: pulseCell 0.5s ease;
+    }
+
+    @keyframes pulseCell {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Union-Find (Disjoint Sets)</h1>
+        <div class="header-subtitle">Dynamic connectivity: Quick-Find vs Quick-Union vs WQUPC</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="mode-pills-bar">
+        <button class="mode-btn" id="modeQuickFind">Quick-Find</button>
+        <button class="mode-btn" id="modeQuickUnion">Quick-Union</button>
+        <button class="mode-btn active" id="modeWQUPC">WQUPC</button>
+      </div>
+
+      <div class="control-item">
+        <label>Pairs:</label>
+        <select id="presetSelect">
+          <option value="sedgewick">Sedgewick tinyUF: 10 nodes (4-3, 3-8, 6-5, 9-4, 2-1...)</option>
+          <option value="tall">Worst-case chain: 0-1, 1-2, 2-3, 3-4, 4-5...</option>
+          <option value="tree">Balanced binary merges</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="800">
+        <span class="dynamic-val" id="speedVal">800ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span id="codeTitle">Weighted Quick-Union with Path Compression (Java)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Operation & Variable State</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Select an algorithm variant and press Play or Next to trace dynamic connectivity.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Current Pair</div>
+            <div class="v-val" id="valPair">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Components</div>
+            <div class="v-val" id="valCount">10</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Array Accesses</div>
+            <div class="v-val" id="valCost">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Connected?</div>
+            <div class="v-val" id="valConnected">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Union Operation Stream</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="queueProgress">1 / 11</span>
+        </div>
+        <div class="operations-queue" id="opQueueContainer"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Algorithm Theoretical Bounds</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;" id="boundsCardText">
+          <p><strong style="color:var(--accent-emerald);">WQUPC (Nearly Linear):</strong> With tree weighting and path compression, any sequence of $M$ operations on $N$ elements takes $O(N + M \alpha(N))$ time, where $\alpha(N) \le 4$ for all practical universe sizes!</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-amber);">Quick-Find:</strong> Fast $O(1)$ find, but expensive $O(N)$ union. Takes quadratic $O(M \cdot N)$ time for $M$ unions.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-rose);">Quick-Union:</strong> Fast union if trees are flat, but trees can degrade into linear chains of depth $N$, leading to $O(M \cdot N)$ worst-case.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Disjoint Sets Forest View</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;">💡 Glissez-déposez les nœuds pour réorganiser la forêt</span>
+        </div>
+        <div class="forest-canvas-container">
+          <svg class="uf-svg" id="ufSvg" viewBox="0 0 760 380">
+            <defs>
+              <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#64748b" />
+              </marker>
+              <marker id="arrowhead-active" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#fbbf24" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <div class="array-table-card">
+        <div class="card-header-line">
+          <span id="arrayCardTitle">Array Representation (parent[i] & sz[i])</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Indexed 0 to 9</span>
+        </div>
+        <div class="array-grid" id="arrayGridContainer"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Component Palette (10 distinct colors)
+    const COMP_COLORS = [
+      "#38bdf8", "#f59e0b", "#10b981", "#ec4899", "#8b5cf6",
+      "#14b8a6", "#f97316", "#06b6d4", "#84cc16", "#e11d48"
+    ];
+
+    // Presets
+    const PRESETS = {
+      sedgewick: [
+        [4, 3], [3, 8], [6, 5], [9, 4], [2, 1],
+        [8, 9], [5, 0], [7, 2], [6, 1], [1, 0], [6, 7]
+      ],
+      tall: [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5],
+        [5, 6], [6, 7], [7, 8], [8, 9]
+      ],
+      tree: [
+        [0, 1], [2, 3], [4, 5], [6, 7], [8, 9],
+        [0, 2], [4, 6], [0, 4]
+      ]
+    };
+
+    let activeMode = 'wqupc'; // 'quickfind', 'quickunion', 'wqupc'
+    let currentPairs = [...PRESETS.sedgewick];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 800;
+
+    // --- Java Code Snippets ---
+    const CODE_SNIPPETS = {
+      quickfind: [
+        { line: 1, text: "public int find(int p) {" },
+        { line: 2, text: "    return id[p]; // O(1) direct lookup" },
+        { line: 3, text: "}" },
+        { line: 4, text: "public void union(int p, int q) {" },
+        { line: 5, text: "    int pid = id[p]; int qid = id[q];" },
+        { line: 6, text: "    if (pid == qid) return;" },
+        { line: 7, text: "    for (int i = 0; i < id.length; i++)" },
+        { line: 8, text: "        if (id[i] == pid) id[i] = qid;" },
+        { line: 9, text: "    count--;" },
+        { line: 10, text: "}" }
+      ],
+      quickunion: [
+        { line: 1, text: "public int find(int p) {" },
+        { line: 2, text: "    while (p != parent[p]) p = parent[p];" },
+        { line: 3, text: "    return p;" },
+        { line: 4, text: "}" },
+        { line: 5, text: "public void union(int p, int q) {" },
+        { line: 6, text: "    int rootP = find(p); int rootQ = find(q);" },
+        { line: 7, text: "    if (rootP == rootQ) return;" },
+        { line: 8, text: "    parent[rootP] = rootQ;" },
+        { line: 9, text: "    count--;" },
+        { line: 10, text: "}" }
+      ],
+      wqupc: [
+        { line: 1, text: "public int find(int p) {" },
+        { line: 2, text: "    while (p != parent[p]) {" },
+        { line: 3, text: "        parent[p] = parent[parent[p]]; // Compress" },
+        { line: 4, text: "        p = parent[p];" },
+        { line: 5, text: "    }" },
+        { line: 6, text: "    return p;" },
+        { line: 7, text: "}" },
+        { line: 8, text: "public void union(int p, int q) {" },
+        { line: 9, text: "    int rootP = find(p); int rootQ = find(q);" },
+        { line: 10, text: "    if (rootP == rootQ) return;" },
+        { line: 11, text: "    if (sz[rootP] < sz[rootQ]) {" },
+        { line: 12, text: "        parent[rootP] = rootQ; sz[rootQ] += sz[rootP];" },
+        { line: 13, text: "    } else {" },
+        { line: 14, text: "        parent[rootQ] = rootP; sz[rootP] += sz[rootQ];" },
+        { line: 15, text: "    }" },
+        { line: 16, text: "    count--;" },
+        { line: 17, text: "}" }
+      ]
+    };
+
+    function renderCodeEditor() {
+      const container = document.getElementById('codeEditor');
+      container.innerHTML = '';
+      const snippet = CODE_SNIPPETS[activeMode];
+      snippet.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'code-row';
+        row.setAttribute('data-line', item.line);
+        row.innerHTML = `<span class="code-line-num">${item.line}</span><span class="code-line-content">${escapeHtml(item.text)}</span>`;
+        container.appendChild(row);
+      });
+      document.getElementById('codeTitle').textContent =
+        activeMode === 'quickfind' ? 'Quick-Find (Eager Approach)' :
+        activeMode === 'quickunion' ? 'Quick-Union (Lazy Approach)' :
+        'Weighted Quick-Union with Path Compression (WQUPC)';
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // --- Simulation Builder ---
+    function buildSimulation() {
+      const steps = [];
+      const N = 10;
+      let count = N;
+      let totalAccesses = 0;
+
+      let id = [];
+      let sz = [];
+      for (let i = 0; i < N; i++) {
+        id[i] = i;
+        sz[i] = 1;
+      }
+
+      function getRoot(p) {
+        let curr = p;
+        while (curr !== id[curr]) {
+          totalAccesses += 2;
+          curr = id[curr];
+        }
+        totalAccesses += 1;
+        return curr;
+      }
+
+      function addStep({ line, descr, p, q, rootP = null, rootQ = null, activeInspect = null, activeEdge = null, isConnected = null, isCycle = false, isMerge = false, opIndex }) {
+        steps.push({
+          line,
+          descr,
+          p,
+          q,
+          rootP,
+          rootQ,
+          activeInspect,
+          activeEdge,
+          isConnected,
+          isCycle,
+          isMerge,
+          opIndex,
+          count,
+          totalAccesses,
+          id: [...id],
+          sz: [...sz]
+        });
+      }
+
+      addStep({
+        line: 1,
+        descr: `Initialized ${activeMode.toUpperCase()} with N = ${N} isolated components (0 to 9).`,
+        p: null,
+        q: null,
+        opIndex: 0
+      });
+
+      for (let opIdx = 0; opIdx < currentPairs.length; opIdx++) {
+        const [p, q] = currentPairs[opIdx];
+
+        if (activeMode === 'quickfind') {
+          totalAccesses += 2;
+          const pid = id[p];
+          const qid = id[q];
+
+          addStep({
+            line: 5,
+            descr: `<strong>union(${p}, ${q})</strong>: Inspect id[${p}] = ${pid} and id[${q}] = ${qid}.`,
+            p, q,
+            activeInspect: [p, q],
+            opIndex: opIdx
+          });
+
+          if (pid === qid) {
+            addStep({
+              line: 6,
+              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà le même identifiant (<code>id = ${pid}</code>). Déjà connectés : <em>aucun élément n'est déplacé ni modifié !</em>`,
+              p, q,
+              activeInspect: [p, q],
+              isCycle: true,
+              isConnected: true,
+              opIndex: opIdx
+            });
+          } else {
+            addStep({
+              line: 7,
+              descr: `Recherche dans le tableau <code>id[]</code> pour réécrire tous les éléments d'identifiant ${pid} vers ${qid}.`,
+              p, q,
+              activeInspect: [p, q],
+              isConnected: false,
+              opIndex: opIdx
+            });
+
+            for (let i = 0; i < N; i++) {
+              totalAccesses += 1;
+              if (id[i] === pid) {
+                id[i] = qid;
+                totalAccesses += 1;
+              }
+            }
+            count--;
+
+            addStep({
+              line: 9,
+              descr: `✅ <strong>Fusion réussie !</strong> Tous les éléments d'identifiant ${pid} portent désormais ${qid}. Composantes restantes : <strong>${count}</strong>.`,
+              p, q,
+              activeInspect: [p, q],
+              isMerge: true,
+              opIndex: opIdx
+            });
+          }
+
+        } else if (activeMode === 'quickunion') {
+          addStep({
+            line: 5,
+            descr: `<strong>union(${p}, ${q})</strong>: Parcours des pointeurs parents pour trouver les racines de ${p} et ${q}.`,
+            p, q,
+            activeInspect: [p, q],
+            opIndex: opIdx
+          });
+
+          const rootP = getRoot(p);
+          const rootQ = getRoot(q);
+
+          addStep({
+            line: 6,
+            descr: `Racines trouvées : root(${p}) = <strong>${rootP}</strong>, root(${q}) = <strong>${rootQ}</strong>.`,
+            p, q, rootP, rootQ,
+            activeInspect: [rootP, rootQ],
+            opIndex: opIdx
+          });
+
+          if (rootP === rootQ) {
+            addStep({
+              line: 7,
+              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà la même racine <strong>${rootP}</strong>. Déjà connectés : <em>aucun déplacement de sous-arbre n'est effectué !</em>`,
+              p, q, rootP, rootQ,
+              activeInspect: [p, q, rootP],
+              isCycle: true,
+              isConnected: true,
+              opIndex: opIdx
+            });
+          } else {
+            id[rootP] = rootQ;
+            totalAccesses += 1;
+            count--;
+
+            addStep({
+              line: 8,
+              descr: `✅ <strong>Union réussie !</strong> La racine <strong>${rootP}</strong> est rattachée sous <strong>${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). L'arbre de ${rootP} est <strong>déplacé sous la racine ${rootQ}</strong>. Composantes restantes : ${count}.`,
+              p, q, rootP, rootQ,
+              activeInspect: [rootP, rootQ],
+              activeEdge: [rootP, rootQ],
+              isMerge: true,
+              isConnected: false,
+              opIndex: opIdx
+            });
+          }
+
+        } else if (activeMode === 'wqupc') {
+          addStep({
+            line: 8,
+            descr: `<strong>union(${p}, ${q})</strong>: Recherche des racines avec compression de chemin.`,
+            p, q,
+            activeInspect: [p, q],
+            opIndex: opIdx
+          });
+
+          // find with path compression
+          function findWQUPC(curr) {
+            while (curr !== id[curr]) {
+              totalAccesses += 3;
+              // two-pass or halving: parent[curr] = parent[parent[curr]]
+              const grandparent = id[id[curr]];
+              if (id[curr] !== grandparent) {
+                id[curr] = grandparent;
+              }
+              curr = id[curr];
+            }
+            totalAccesses += 1;
+            return curr;
+          }
+
+          const rootP = findWQUPC(p);
+          const rootQ = findWQUPC(q);
+
+          addStep({
+            line: 9,
+            descr: `Racines trouvées : root(${p}) = <strong>${rootP}</strong> (taille=${sz[rootP]}), root(${q}) = <strong>${rootQ}</strong> (taille=${sz[rootQ]}).`,
+            p, q, rootP, rootQ,
+            activeInspect: [rootP, rootQ],
+            opIndex: opIdx
+          });
+
+          if (rootP === rootQ) {
+            addStep({
+              line: 10,
+              descr: `⚠️ <strong>Cycle détecté !</strong> Les nœuds <strong>${p}</strong> et <strong>${q}</strong> partagent déjà la même racine <strong>${rootP}</strong>. Déjà connectés : <em>aucun déplacement d'arbre n'est nécessaire !</em>`,
+              p, q, rootP, rootQ,
+              activeInspect: [p, q, rootP],
+              isCycle: true,
+              isConnected: true,
+              opIndex: opIdx
+            });
+          } else {
+            totalAccesses += 4;
+            if (sz[rootP] < sz[rootQ]) {
+              id[rootP] = rootQ;
+              sz[rootQ] += sz[rootP];
+              count--;
+              addStep({
+                line: 12,
+                descr: `✅ <strong>Union pondérée :</strong> L'arbre de ${rootP} est plus petit (${sz[rootP]} < ${sz[rootQ]}). La racine <strong>${rootP} est déplacée sous ${rootQ}</strong> (<code>parent[${rootP}] = ${rootQ}</code>). Nouvelle taille = ${sz[rootQ]}.`,
+                p, q, rootP, rootQ,
+                activeInspect: [rootP, rootQ],
+                activeEdge: [rootP, rootQ],
+                isMerge: true,
+                isConnected: false,
+                opIndex: opIdx
+              });
+            } else {
+              id[rootQ] = rootP;
+              sz[rootP] += sz[rootQ];
+              count--;
+              addStep({
+                line: 14,
+                descr: `✅ <strong>Union pondérée :</strong> L'arbre de ${rootQ} est plus petit ou égal (${sz[rootQ]} &le; ${sz[rootP]}). La racine <strong>${rootQ} est déplacée sous ${rootP}</strong> (<code>parent[${rootQ}] = ${rootP}</code>). Nouvelle taille = ${sz[rootP]}.`,
+                p, q, rootP, rootQ,
+                activeInspect: [rootP, rootQ],
+                activeEdge: [rootQ, rootP],
+                isMerge: true,
+                isConnected: false,
+                opIndex: opIdx
+              });
+            }
+          }
+        }
+      }
+
+      addStep({
+        line: 1,
+        descr: `Union sequence completed! Final component count: <strong>${count}</strong>. Total array accesses: <strong>${totalAccesses}</strong>.`,
+        p: null, q: null,
+        opIndex: currentPairs.length - 1
+      });
+
+      return steps;
+    }
+
+    // Drag and Drop State for Forest Nodes
+    let draggedUfNode = null;
+    let dragUfOffset = { x: 0, y: 0 };
+    let customForestPositions = {};
+
+    function getUfSvgCoordinates(evt, svg) {
+      const rect = svg.getBoundingClientRect();
+      const scaleX = 760 / rect.width;
+      const scaleY = 380 / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
+
+    // --- Forest Node Layout Coordinates ---
+    function computeForestLayout(parentArr) {
+      const N = parentArr.length;
+      // Find roots
+      const roots = [];
+      const children = Array.from({ length: N }, () => []);
+      for (let i = 0; i < N; i++) {
+        if (parentArr[i] === i) {
+          roots.push(i);
+        } else {
+          children[parentArr[i]].push(i);
+        }
+      }
+
+      const positions = [];
+      const svgWidth = 760;
+      const svgHeight = 360;
+
+      // Group trees and lay them out horizontally
+      let totalTrees = roots.length;
+      let treeWidth = svgWidth / totalTrees;
+
+      roots.forEach((root, treeIdx) => {
+        function layoutSubtree(node, depth, minX, maxX) {
+          const y = 60 + depth * 75;
+          const x = (minX + maxX) / 2;
+          if (customForestPositions[node]) {
+            positions[node] = { ...customForestPositions[node], depth };
+          } else {
+            positions[node] = { x, y, depth };
+          }
+
+          const kids = children[node];
+          if (kids.length > 0) {
+            const kidWidth = (maxX - minX) / kids.length;
+            kids.forEach((kid, idx) => {
+              layoutSubtree(kid, depth + 1, minX + idx * kidWidth, minX + (idx + 1) * kidWidth);
+            });
+          }
+        }
+
+        layoutSubtree(root, 0, treeWidth * treeIdx + 10, treeWidth * (treeIdx + 1) - 10);
+      });
+
+      return positions;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valPair').textContent = state.p !== null ? `(${state.p}, ${state.q})` : '—';
+      document.getElementById('valCount').textContent = state.count;
+      document.getElementById('valCost').textContent = state.totalAccesses;
+      document.getElementById('valConnected').textContent =
+        state.isConnected === null ? '—' : (state.isConnected ? 'OUI (Cycle)' : 'NON (Union)');
+      document.getElementById('valConnected').style.color =
+        state.isConnected === true ? 'var(--accent-rose)' : (state.isConnected === false ? 'var(--accent-emerald)' : 'var(--accent-blue)');
+
+      // Render Queue Chips
+      renderQueueChips(state.opIndex);
+
+      // Render Forest SVG
+      renderForestSvg(state);
+
+      // Render Array Table
+      renderArrayTable(state);
+    }
+
+    function renderQueueChips(currentOpIdx) {
+      const container = document.getElementById('opQueueContainer');
+      container.innerHTML = '';
+      currentPairs.forEach((pair, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'op-chip';
+        if (idx === currentOpIdx) chip.classList.add('current');
+        else if (idx < currentOpIdx) chip.classList.add('done');
+        chip.textContent = `${pair[0]}-${pair[1]}`;
+        container.appendChild(chip);
+      });
+      document.getElementById('queueProgress').textContent = `${Math.min(currentOpIdx + 1, currentPairs.length)} / ${currentPairs.length}`;
+    }
+
+    function renderForestSvg(state) {
+      const svg = document.getElementById('ufSvg');
+      // preserve defs
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      svg.appendChild(defs);
+
+      const pos = computeForestLayout(state.id);
+
+      // Determine component root for each node
+      function findRoot(node) {
+        let curr = node;
+        while (curr !== state.id[curr]) curr = state.id[curr];
+        return curr;
+      }
+
+      // Draw Edges (child -> parent)
+      for (let i = 0; i < 10; i++) {
+        const p = state.id[i];
+        if (p !== i && pos[i] && pos[p]) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', pos[i].x);
+          line.setAttribute('y1', pos[i].y);
+          line.setAttribute('x2', pos[p].x);
+          line.setAttribute('y2', pos[p].y);
+
+          let cls = 'uf-edge';
+          if (state.activeEdge && state.activeEdge[0] === i && state.activeEdge[1] === p) {
+            cls += ' active';
+          }
+          line.setAttribute('class', cls);
+          svg.appendChild(line);
+        }
+      }
+
+      // Draw Nodes
+      for (let i = 0; i < 10; i++) {
+        if (!pos[i]) continue;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const root = findRoot(i);
+        const compColor = COMP_COLORS[root % COMP_COLORS.length];
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', pos[i].x);
+        circle.setAttribute('cy', pos[i].y);
+        circle.setAttribute('r', 18);
+        circle.setAttribute('fill', '#151f32');
+        circle.setAttribute('stroke', compColor);
+
+        let cls = 'uf-node-circle';
+        if (state.id[i] === i) cls += ' root-node';
+        if (state.activeInspect && state.activeInspect.includes(i)) {
+          if (state.isCycle) {
+            cls += ' cycle-rejected-node';
+          } else if (state.isMerge) {
+            cls += ' accepted-node';
+          } else {
+            cls += ' inspecting';
+          }
+        }
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', pos[i].x);
+        text.setAttribute('y', pos[i].y);
+        text.setAttribute('class', 'uf-node-label');
+        text.textContent = i;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+
+        // Interactive Drag and Drop for Forest Nodes
+        g.style.cursor = 'grab';
+        g.addEventListener('mousedown', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          draggedUfNode = i;
+          const pt = getUfSvgCoordinates(evt, svg);
+          dragUfOffset.x = pos[i].x - pt.x;
+          dragUfOffset.y = pos[i].y - pt.y;
+          g.style.cursor = 'grabbing';
+        });
+
+        svg.appendChild(g);
+      }
+    }
+
+    // Attach canvas drag listeners for Forest SVG
+    const ufSvgEl = document.getElementById('ufSvg');
+    ufSvgEl.addEventListener('mousemove', (evt) => {
+      if (draggedUfNode !== null) {
+        const pt = getUfSvgCoordinates(evt, ufSvgEl);
+        const newX = Math.max(25, Math.min(735, Math.round(pt.x + dragUfOffset.x)));
+        const newY = Math.max(25, Math.min(355, Math.round(pt.y + dragUfOffset.y)));
+        customForestPositions[draggedUfNode] = { x: newX, y: newY };
+        renderForestSvg(simulationSteps[currentStepIndex]);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (draggedUfNode !== null) {
+        draggedUfNode = null;
+        renderForestSvg(simulationSteps[currentStepIndex]);
+      }
+    });
+
+    function renderArrayTable(state) {
+      const container = document.getElementById('arrayGridContainer');
+      container.innerHTML = '';
+
+      // Header row
+      const hdrLabel = document.createElement('div');
+      hdrLabel.className = 'array-row-label';
+      hdrLabel.textContent = 'Index [i]';
+      container.appendChild(hdrLabel);
+
+      for (let i = 0; i < 10; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'arr-cell idx-header';
+        cell.textContent = i;
+        container.appendChild(cell);
+      }
+
+      // id[] or parent[] row
+      const idLabel = document.createElement('div');
+      idLabel.className = 'array-row-label';
+      idLabel.textContent = activeMode === 'quickfind' ? 'id[i]' : 'parent[i]';
+      container.appendChild(idLabel);
+
+      for (let i = 0; i < 10; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'arr-cell';
+        cell.textContent = state.id[i];
+
+        if (state.activeInspect && state.activeInspect.includes(i)) {
+          if (state.isCycle) {
+            cell.classList.add('cycle-inspect');
+          } else if (state.isMerge) {
+            cell.classList.add('merge-inspect');
+          } else {
+            cell.classList.add('active-inspect');
+          }
+        }
+
+        container.appendChild(cell);
+      }
+
+      // sz[] row (for WQUPC)
+      if (activeMode === 'wqupc') {
+        const szLabel = document.createElement('div');
+        szLabel.className = 'array-row-label';
+        szLabel.textContent = 'sz[i]';
+        container.appendChild(szLabel);
+
+        for (let i = 0; i < 10; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'arr-cell';
+          cell.style.color = '#94a3b8';
+          cell.textContent = state.sz[i];
+          container.appendChild(cell);
+        }
+      }
+    }
+
+    // --- Playback Engine ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      customForestPositions = {};
+      renderCodeEditor();
+      simulationSteps = buildSimulation();
+      renderState(0);
+    }
+
+    // --- Event Handlers ---
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('modeQuickFind').addEventListener('click', () => {
+      setMode('quickfind');
+    });
+    document.getElementById('modeQuickUnion').addEventListener('click', () => {
+      setMode('quickunion');
+    });
+    document.getElementById('modeWQUPC').addEventListener('click', () => {
+      setMode('wqupc');
+    });
+
+    function setMode(mode) {
+      activeMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      if (mode === 'quickfind') document.getElementById('modeQuickFind').classList.add('active');
+      if (mode === 'quickunion') document.getElementById('modeQuickUnion').classList.add('active');
+      if (mode === 'wqupc') document.getElementById('modeWQUPC').classList.add('active');
+      resetSimulation();
+    }
+
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      currentPairs = [...PRESETS[e.target.value]];
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

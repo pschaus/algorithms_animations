@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINFO1121 — Algorithms & Data Structures Visualizers</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-hover: #1c2b45;
+      --bg-card-inner: #0f172a;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+    }
+
+    .header-titles h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-titles .subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Menu Dropdown */
+    .menu-dropdown-wrapper {
+      position: relative;
+    }
+
+    .btn-dropdown-trigger {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .btn-dropdown-trigger:hover, .btn-dropdown-trigger.active {
+      background: #27354f;
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
+    .menu-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 320px;
+      max-height: 480px;
+      background: #111a2e;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+      padding: 0.75rem;
+      overflow-y: auto;
+      display: none;
+      z-index: 150;
+      backdrop-filter: blur(8px);
+    }
+
+    .menu-dropdown-panel.open {
+      display: block;
+      animation: fadeInDown 0.15s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      padding: 0.4rem 0.6rem 0.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 0.4rem;
+    }
+
+    .dropdown-section-title:first-child {
+      border-top: none;
+      margin-top: 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      transition: background 0.15s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-blue);
+    }
+
+    .dropdown-item .badge-status {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-status.available {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .badge-status.planned {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-dim);
+    }
+
+    .nav-link-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .nav-link-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-light);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Hero Banner (Compact) */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-banner::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      bottom: -60px;
+      left: 30%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+      background: linear-gradient(120deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 850px;
+      line-height: 1.45;
+      margin-bottom: 0.85rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-number {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Controls Bar: Search & Category Pills */
+    .controls-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 260px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+      font-size: 0.95rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem 1rem 0.6rem 2.4rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .view-toggle-wrap, .layout-toggle-wrap {
+      display: flex;
+      background: var(--bg-card-inner);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .view-toggle-btn, .layout-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .view-toggle-btn.active, .layout-btn.active {
+      background: #1e293b;
+      color: var(--accent-blue);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Category Filter Chips */
+    .filter-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .filter-pill {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.3rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s;
+    }
+
+    .filter-pill:hover {
+      background: #1e293b;
+      color: var(--text-main);
+      border-color: var(--border-light);
+    }
+
+    .filter-pill.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .filter-pill .pill-count {
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.68rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 9999px;
+    }
+
+    .filter-pill.active .pill-count {
+      background: rgba(56, 189, 248, 0.3);
+      color: #fff;
+    }
+
+    /* List View (Table / Grouped by Chapter) */
+    .list-view-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .module-group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .module-group-header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.25rem;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .module-group-count {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .algo-list-row {
+      display: grid;
+      grid-template-columns: 130px 1.4fr 2fr 160px 110px;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s;
+    }
+
+    .algo-list-row:last-child {
+      border-bottom: none;
+    }
+
+    .algo-list-row:hover {
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    .algo-list-row.available {
+      border-left: 3px solid var(--accent-emerald);
+    }
+
+    .algo-list-row.planned {
+      border-left: 3px solid transparent;
+      opacity: 0.65;
+    }
+
+    .row-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .row-title-link {
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .row-title-link:hover {
+      color: var(--accent-blue);
+      text-decoration: underline;
+    }
+
+    .row-subtitle {
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .row-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .row-complexities {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      font-family: monospace;
+      font-size: 0.72rem;
+    }
+
+    .row-comp-item {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+    }
+
+    .row-comp-item span.comp-val {
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    .row-comp-item span.comp-val.accent {
+      color: var(--accent-emerald);
+    }
+
+    .btn-launch-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border: 1px solid #38bdf8;
+      border-radius: 6px;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-launch-row:hover {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+    }
+
+    .badge-planned-row {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    @media (max-width: 950px) {
+      .algo-list-row {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+    }
+
+    /* Cards Grid */
+    .catalog-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .catalog-section-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .results-count {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .grid-algorithms {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Algorithm Card */
+    .card-algorithm {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card-algorithm:hover {
+      border-color: var(--border-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-algorithm.available {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: linear-gradient(180deg, rgba(21, 31, 50, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    }
+
+    .card-algorithm.available:hover {
+      border-color: var(--accent-blue);
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.15);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.85rem;
+      gap: 0.5rem;
+    }
+
+    .card-category-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .card-badge-status {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .card-badge-status.available {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .card-badge-status.available::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    .card-badge-status.planned {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-dim);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .card-title a:hover {
+      color: var(--accent-blue);
+    }
+
+    .card-french-title {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-style: italic;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+      flex-grow: 1;
+    }
+
+    /* Complexity Metrics Grid */
+    .complexity-box {
+      background: var(--bg-card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .comp-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .comp-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .comp-val {
+      font-size: 0.8rem;
+      font-family: monospace;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .comp-val.accent {
+      color: var(--accent-emerald);
+    }
+
+    /* Property Chips */
+    .card-properties {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .prop-chip {
+      font-size: 0.72rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    /* Action CTA Button */
+    .card-footer {
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-launch {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-launch.active {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-launch.active:hover {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-launch.disabled {
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--text-dim);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: not-allowed;
+    }
+
+    /* Empty state */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      border-top: 1px solid var(--border-color);
+      padding: 1.8rem 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0.75rem 1rem;
+      }
+      main {
+        padding: 1.2rem 1rem 3rem;
+      }
+      .grid-algorithms {
+        grid-template-columns: 1fr;
+      }
+      .hero-banner {
+        padding: 1.5rem;
+      }
+      .hero-title {
+        font-size: 1.45rem;
+      }
+      .complexity-box {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation with Menu Dropdown -->
+  <header>
+    <a href="index.html" class="header-branding">
+      <span class="badge-course">LINFO1121</span>
+      <div class="header-titles">
+        <h1>Algorithms Animations</h1>
+        <div class="subtitle">Interactive Visualizers • UCLouvain School of Engineering</div>
+      </div>
+    </a>
+
+    <div class="header-nav">
+      <!-- Algorithms Menu Dropdown -->
+      <div class="menu-dropdown-wrapper">
+        <button class="btn-dropdown-trigger" id="btnMenuDropdown" aria-expanded="false" title="Quick navigation to all algorithms">
+          <span>⚡ Algorithms Menu</span>
+          <span style="font-size: 0.7rem;">▼</span>
+        </button>
+        <div class="menu-dropdown-panel" id="menuDropdownPanel">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <a href="https://perso.uclouvain.be/pierre.schaus/" target="_blank" rel="noopener" class="nav-link-btn" title="Course Instructor">
+        <span>👨‍🏫 Prof. P. Schaus</span>
+      </a>
+      <a href="https://algs4.cs.princeton.edu/cheatsheet/" target="_blank" rel="noopener" class="nav-link-btn" title="Sedgewick & Wayne Online Cheatsheet">
+        <span>📑 Cheatsheet</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- Hero Introduction Banner -->
+    <div class="hero-banner">
+      <h2 class="hero-title">Interactive Algorithm Animations</h2>
+      <p class="hero-description">
+        Visual, step-by-step interactive animations designed for students of <strong>LINFO1121: Data Structures and Algorithms</strong> at UCLouvain.
+        Step forward and backward through algorithm executions, inspect variables, observe data structures in memory, and analyze runtime complexity.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-box">
+          <span class="stat-number" id="statAvailableCount">1</span>
+          <span class="stat-label">Live Visualizer</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number" id="statTotalCount">15</span>
+          <span class="stat-label">Curriculum Topics</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">6</span>
+          <span class="stat-label">Course Modules</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Step-by-Step Interactive</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Panel: Search & Filter Pills -->
+    <div class="controls-panel">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search algorithm, complexity (e.g. O(n+k)), or keyword... (Press '/' to focus)" autocomplete="off">
+        </div>
+
+        <div class="view-toggle-wrap">
+          <button class="view-toggle-btn active" id="btnToggleAll" data-view="all">All Topics</button>
+          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">10</span>)</button>
+        </div>
+
+        <div class="layout-toggle-wrap">
+          <button class="layout-btn active" id="btnLayoutList" title="Affichage en liste groupée">📋 Liste</button>
+          <button class="layout-btn" id="btnLayoutGrid" title="Affichage en cartes détaillées">🎴 Grille</button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="filter-pills-row" id="categoryPillsContainer">
+        <!-- Dynamically rendered pills -->
+      </div>
+    </div>
+
+    <!-- Algorithm Catalog Section -->
+    <div class="catalog-section-header">
+      <h2>
+        <span id="catalogSectionTitle">Algorithm Directory</span>
+        <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-dim);" id="categoryFilterLabel">• All Categories</span>
+      </h2>
+      <span class="results-count" id="resultsCount">Showing 10 algorithms</span>
+    </div>
+
+    <div id="catalogContentContainer">
+      <!-- Dynamically rendered as List or Grid -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <strong>LINFO1121: Data Structures &amp; Algorithms</strong> — UCLouvain (Louvain-la-Neuve, Belgium).
+      <br>
+      Reference Textbook: <em>Algorithms 4th Edition</em> by Robert Sedgewick &amp; Kevin Wayne.
+    </p>
+    <p style="margin-top: 0.5rem; font-size: 0.75rem;">
+      Animations built with vanilla HTML5, CSS &amp; JavaScript. To add a new algorithm visualizer, consult <a href="agents.md">agents.md</a>.
+    </p>
+  </footer>
+
+  <!-- Catalog Data & Interactive Logic -->
+  <script>
+    /**
+     * ALGORITHMS REGISTRY
+     * 
+     * NOTE FOR AGENTS & DEVELOPERS:
+     * When adding a new algorithm animation:
+     * 1. Set status to "available"
+     * 2. Set file to your relative html filename (e.g., "quicksort.html")
+     * 3. Update or add metadata (complexities, properties, features)
+     * Consult agents.md for the full procedure.
+     */
+    const ALGORITHMS = [
+      /* ================= PART 2: SORTING ================= */
+      {
+        id: "counting-sort",
+        title: "Counting Sort",
+        frenchTitle: "Tri par dénombrement (paires clé-valeur)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "counting_sort.html",
+        status: "available",
+        description: "Stable linear-time non-comparative sorting for arrays of integer pairs (a_i, b_i). Computes frequencies, cumulative prefix sums, and places elements from right to left to guarantee stability.",
+        complexities: {
+          best: "O(n + R)",
+          avg: "O(n + R)",
+          worst: "O(n + R)",
+          space: "O(n + R)"
+        },
+        properties: ["Stable", "Non-comparative", "Linear Time", "Out-of-place"],
+        features: ["Step-by-step", "Phase pill tracker", "Stability proof", "Custom input", "Sound effects"]
+      },
+      {
+        id: "selection-sort",
+        title: "Selection Sort",
+        frenchTitle: "Tri par sélection",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "selection_sort.html",
+        status: "planned",
+        description: "Repeatedly finds the minimum remaining element and swaps it into place. Preserves simple O(1) extra space but always requires ~n²/2 comparisons.",
+        complexities: {
+          best: "O(n²)",
+          avg: "O(n²)",
+          worst: "O(n²)",
+          space: "O(1)"
+        },
+        properties: ["Not Stable", "Comparative", "In-place", "Insensitive to input"],
+        features: ["Min-pointer animation", "Swap count tracker", "Comparison counter"]
+      },
+      {
+        id: "insertion-sort",
+        title: "Insertion Sort",
+        frenchTitle: "Tri par insertion",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "insertion_sort.html",
+        status: "planned",
+        description: "Builds sorted array one element at a time by inserting each element into its proper position. Highly efficient for partially sorted arrays with linear runtime O(n+I).",
+        complexities: {
+          best: "O(n)",
+          avg: "O(n²)",
+          worst: "O(n²)",
+          space: "O(1)"
+        },
+        properties: ["Stable", "Comparative", "In-place", "Adaptive"],
+        features: ["Inversions counter", "Partially sorted preset", "Step-by-step shift"]
+      },
+      {
+        id: "merge-sort",
+        title: "Merge Sort",
+        frenchTitle: "Tri fusion (Top-Down & Bottom-Up)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "merge_sort.html",
+        status: "planned",
+        description: "Divide-and-conquer algorithm dividing the array in half, sorting recursively, and merging sorted halves with guaranteed O(n log n) comparisons.",
+        complexities: {
+          best: "O(n log n)",
+          avg: "O(n log n)",
+          worst: "O(n log n)",
+          space: "O(n)"
+        },
+        properties: ["Stable", "Comparative", "Divide & Conquer", "Optimal comparisons"],
+        features: ["Recursion tree view", "Auxiliary array visualization", "Merge pointers"]
+      },
+      {
+        id: "quick-sort",
+        title: "Quick Sort & 3-Way Partitioning",
+        frenchTitle: "Tri rapide & partition à 3 voies (Dijkstra)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "quick_sort.html",
+        status: "planned",
+        description: "Partitions around a pivot element. 3-way Dutch National Flag partitioning efficiently handles duplicate keys in linear time O(n).",
+        complexities: {
+          best: "O(n log n)",
+          avg: "O(n log n)",
+          worst: "O(n²)",
+          space: "O(log n)"
+        },
+        properties: ["Not Stable", "Comparative", "In-place", "Dutch National Flag"],
+        features: ["Pivot selection visualizer", "Duplicate keys demo", "Call stack view"]
+      },
+      {
+        id: "heap-sort",
+        title: "Heap Sort",
+        frenchTitle: "Tri par tas",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "heap_sort.html",
+        status: "available",
+        description: "Transforms the array into a max-heap (bottom-up heapify in O(n)) then repeatedly extracts the root to sort in-place in guaranteed O(n log n).",
+        complexities: {
+          best: "O(n log n)",
+          avg: "O(n log n)",
+          worst: "O(n log n)",
+          space: "O(1)"
+        },
+        properties: ["Not Stable", "Comparative", "In-place", "Optimal space"],
+        features: ["Dual view: Tree & Array", "Sink / swim step animation", "Sound synthesis", "Custom presets"]
+      },
+      {
+        id: "radix-sort",
+        title: "Radix Sort (LSD String Sort)",
+        frenchTitle: "Tri par base (LSD & comptage)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "radix_sort.html",
+        status: "available",
+        description: "Sorts fixed-length strings or integers by processing characters from right to left (least significant digit first) using successive passes of stable key-indexed counting.",
+        complexities: {
+          best: "O(W · (N + R))",
+          avg: "O(W · (N + R))",
+          worst: "O(W · (N + R))",
+          space: "O(N + R)"
+        },
+        properties: ["Stable", "Non-comparative", "Linear Time", "Out-of-place"],
+        features: ["Multi-pass digit stepper", "Key-indexed counting breakdown", "Stability visualization", "Auxiliary array distribution"]
+      },
+
+      /* ================= PART 1: DATA STRUCTURES & UNION-FIND ================= */
+      {
+        id: "union-find",
+        title: "Union-Find (Disjoint Sets)",
+        frenchTitle: "Ensembles disjoints (Quick-Find, Quick-Union, WQUPC)",
+        category: "part1",
+        categoryName: "Part 1: Data Structures",
+        file: "union_find.html",
+        status: "available",
+        description: "Models dynamic connectivity between N elements. Compares Quick-Find O(n), Quick-Union, and Weighted Quick-Union with Path Compression O(α(n)).",
+        complexities: {
+          best: "O(1)",
+          avg: "O(α(n))",
+          worst: "O(α(n))",
+          space: "O(n)"
+        },
+        properties: ["Dynamic Connectivity", "Nearly Linear Time", "Path Compression"],
+        features: ["Forest tree graph", "Component coloring", "Access cost counter", "3 variants comparison"]
+      },
+
+      /* ================= PART 3: SEARCH TREES ================= */
+      {
+        id: "bst",
+        title: "Binary Search Tree (BST)",
+        frenchTitle: "Arbre binaire de recherche",
+        category: "part3",
+        categoryName: "Part 3: Search Trees",
+        file: "bst.html",
+        status: "planned",
+        description: "Symbol table implementation using linked nodes where left keys < node < right keys. Explores insertion, search, and Hibbard deletion.",
+        complexities: {
+          best: "O(log n)",
+          avg: "O(log n)",
+          worst: "O(n)",
+          space: "O(n)"
+        },
+        properties: ["Ordered Symbol Table", "Unbalanced worst-case", "Recursive structure"],
+        features: ["Tree layout renderer", "In-order traversal", "Hibbard deletion step"]
+      },
+      {
+        id: "red-black-bst",
+        title: "2-3 Search Trees & Left-Leaning Red-Black BST",
+        frenchTitle: "Arbres 2-3 & Arbre Rouge-Noir penché à gauche (LLRB)",
+        category: "part3",
+        categoryName: "Part 3: Search Trees",
+        file: "red_black_bst.html",
+        status: "available",
+        description: "Parallel synchronized visualizer showing the exact 1-to-1 isometric mapping between 2-3 trees and Left-Leaning Red-Black (LLRB) BSTs. Demonstrates 3-nodes as red links, temporary 4-nodes, splits via flipColors, and fix-up rotations.",
+        complexities: {
+          best: "O(log n)",
+          avg: "O(log n)",
+          worst: "O(log n)",
+          space: "O(n)"
+        },
+        properties: ["Balanced BST", "Logarithmic guarantee", "Rotations & Color flips", "2-3 Tree Isometry"],
+        features: ["2-3 & LLRB Parallel Sync", "Isometric Red Link Mapping", "4-Node Split via flipColors", "Rotate Left & Right"]
+      },
+
+      /* ================= PART 4: HASH TABLES & STRINGS ================= */
+      {
+        id: "hash-tables",
+        title: "Hash Tables (Chaining & Linear Probing)",
+        frenchTitle: "Tables de hachage (Chaînage & Adressage ouvert)",
+        category: "part4",
+        categoryName: "Part 4: Hash & Strings",
+        file: "hash_tables.html",
+        status: "available",
+        description: "Transforms keys into array indices using hash functions. Compares Separate Chaining vs Linear Probing collision resolution strategies with cluster detection.",
+        complexities: {
+          best: "O(1)",
+          avg: "O(1)",
+          worst: "O(n)",
+          space: "O(n)"
+        },
+        properties: ["Symbol Table", "Uniform Hashing Assumption", "Load factor α"],
+        features: ["Separate Chaining & Linear Probing", "Horner polynomial hash view", "Cluster detection", "Load factor α monitor"]
+      },
+      {
+        id: "kmp-search",
+        title: "Knuth-Morris-Pratt (KMP) Substring Search",
+        frenchTitle: "Recherche de sous-chaîne KMP (DFA)",
+        category: "part4",
+        categoryName: "Part 4: Hash & Strings",
+        file: "kmp_search.html",
+        status: "available",
+        description: "Searches for a pattern of length M in text of length N without backup in text using a Deterministic Finite Automaton (DFA) constructed in O(M · R).",
+        complexities: {
+          best: "O(N)",
+          avg: "O(N)",
+          worst: "O(N)",
+          space: "O(M · R)"
+        },
+        properties: ["Linear time", "No text backup", "Automaton DFA state machine"],
+        features: ["DFA transition matrix view", "Shadow state X tracking", "State machine graph", "No-backup text traversal"]
+      },
+
+      /* ================= PART 5: PRIORITY QUEUES ================= */
+      {
+        id: "binary-heap-pq",
+        title: "Binary Heap Priority Queue",
+        frenchTitle: "File de priorité (Tas binaire)",
+        category: "part5",
+        categoryName: "Part 5: Priority Queues",
+        file: "binary_heap_pq.html",
+        status: "available",
+        description: "Complete binary tree stored implicitly in an array. Supports insert and delMax/delMin in logarithmic time O(log n) via swim and sink operations.",
+        complexities: {
+          best: "O(1)",
+          avg: "O(log n)",
+          worst: "O(log n)",
+          space: "O(n)"
+        },
+        properties: ["Heap-ordered", "Implicit array structure", "Logarithmic guarantee"],
+        features: ["Array <-> Tree sync", "Interactive insert & delMax", "Animated swim & sink", "1-based indexing"]
+      },
+
+      /* ================= PART 6: GRAPHS ================= */
+      {
+        id: "graph-traversals",
+        title: "Graph Search: DFS & BFS",
+        frenchTitle: "Parcours de graphes (Profondeur & Largeur)",
+        category: "part6",
+        categoryName: "Part 6: Graphs",
+        file: "graph_traversals.html",
+        status: "planned",
+        description: "Compares Depth-First Search (stack / recursion) and Breadth-First Search (queue / shortest hop path) on directed and undirected graphs.",
+        complexities: {
+          best: "O(V + E)",
+          avg: "O(V + E)",
+          worst: "O(V + E)",
+          space: "O(V)"
+        },
+        properties: ["Fundamental Graph Search", "Connected components", "Cycle detection"],
+        features: ["Interactive graph canvas", "Visited marked[] array", "Active stack/queue"]
+      },
+      {
+        id: "dijkstra-shortest-path",
+        title: "Dijkstra's Shortest Path",
+        frenchTitle: "Plus courts chemins (Algorithme de Dijkstra)",
+        category: "part6",
+        categoryName: "Part 6: Graphs",
+        file: "dijkstra.html",
+        status: "available",
+        description: "Finds shortest paths from a source to all other vertices in non-negative edge weighted digraphs using edge relaxation and an index priority queue.",
+        complexities: {
+          best: "O(E log V)",
+          avg: "O(E log V)",
+          worst: "O(E log V)",
+          space: "O(V)"
+        },
+        properties: ["Greedy Algorithm", "Edge relaxation", "Index Min-PQ"],
+        features: ["Directed graph canvas", "distTo[] and edgeTo[] tables", "IndexMinPQ state", "Edge relaxation animation"]
+      },
+      {
+        id: "kruskal-mst",
+        title: "Kruskal's Minimum Spanning Tree (MST)",
+        frenchTitle: "Arbre couvrant minimal (Algorithme de Kruskal)",
+        category: "part6",
+        categoryName: "Part 6: Graphs",
+        file: "kruskal.html",
+        status: "available",
+        description: "Greedy algorithm that sorts all edges in ascending order of weight and uses Union-Find to accept safe edges and reject cycles, constructing the optimal Minimum Spanning Tree in O(E log E).",
+        complexities: {
+          best: "O(E log E)",
+          avg: "O(E log E)",
+          worst: "O(E log E)",
+          space: "O(V + E)"
+        },
+        properties: ["Greedy Algorithm", "Cut Property", "Union-Find & MinPQ"],
+        features: ["Sorted edges priority stream", "Union-Find cycle detection", "Connected component coloring", "Cut property proof"]
+      }
+    ];
+
+    // Categories Configuration (in course sequence)
+    const CATEGORIES = [
+      { id: "all", label: "All Categories" },
+      { id: "part1", label: "Part 1: Data Structures" },
+      { id: "part2", label: "Part 2: Sorting" },
+      { id: "part3", label: "Part 3: Search Trees" },
+      { id: "part4", label: "Part 4: Hash & Strings" },
+      { id: "part5", label: "Part 5: Priority Queues" },
+      { id: "part6", label: "Part 6: Graphs" }
+    ];
+
+    // State
+    let currentCategory = "all";
+    let currentViewFilter = "all"; // "all" or "available"
+    let searchQuery = "";
+    let currentLayout = "list"; // "list" (default) or "grid"
+
+    // DOM Elements
+    const searchInput = document.getElementById("searchInput");
+    const catalogContentContainer = document.getElementById("catalogContentContainer");
+    const categoryPillsContainer = document.getElementById("categoryPillsContainer");
+    const resultsCountEl = document.getElementById("resultsCount");
+    const categoryFilterLabelEl = document.getElementById("categoryFilterLabel");
+    const btnToggleAll = document.getElementById("btnToggleAll");
+    const btnToggleAvailable = document.getElementById("btnToggleAvailable");
+    const btnLayoutList = document.getElementById("btnLayoutList");
+    const btnLayoutGrid = document.getElementById("btnLayoutGrid");
+    const btnMenuDropdown = document.getElementById("btnMenuDropdown");
+    const menuDropdownPanel = document.getElementById("menuDropdownPanel");
+
+    // Init
+    function init() {
+      renderDropdownMenu();
+      renderCategoryPills();
+      renderCatalog();
+      setupEventListeners();
+      updateStats();
+    }
+
+    function updateStats() {
+      const availableCount = ALGORITHMS.filter(a => a.status === "available").length;
+      document.getElementById("statAvailableCount").textContent = availableCount;
+      document.getElementById("statTotalCount").textContent = ALGORITHMS.length;
+      document.getElementById("availableBtnCount").textContent = availableCount;
+    }
+
+    // Populate Top Header Dropdown
+    function renderDropdownMenu() {
+      menuDropdownPanel.innerHTML = "";
+
+      CATEGORIES.forEach(cat => {
+        if (cat.id === "all") return;
+        const catAlgos = ALGORITHMS.filter(a => a.category === cat.id);
+        if (catAlgos.length === 0) return;
+
+        const title = document.createElement("div");
+        title.className = "dropdown-section-title";
+        title.textContent = cat.label;
+        menuDropdownPanel.appendChild(title);
+
+        catAlgos.forEach(algo => {
+          const item = document.createElement("a");
+          item.className = "dropdown-item";
+          item.href = algo.status === "available" ? algo.file : "#card-" + algo.id;
+          if (algo.status !== "available") {
+            item.onclick = (e) => {
+              e.preventDefault();
+              selectCategory("all");
+              highlightCard(algo.id);
+              closeDropdown();
+            };
+          } else {
+            item.onclick = () => closeDropdown();
+          }
+
+          item.innerHTML = `
+            <span>${algo.title}</span>
+            <span class="badge-status ${algo.status}">${algo.status === 'available' ? 'Live' : 'Soon'}</span>
+          `;
+          menuDropdownPanel.appendChild(item);
+        });
+      });
+    }
+
+    // Render Filter Pills
+    function renderCategoryPills() {
+      categoryPillsContainer.innerHTML = "";
+
+      CATEGORIES.forEach(cat => {
+        const count = cat.id === "all" 
+          ? ALGORITHMS.length 
+          : ALGORITHMS.filter(a => a.category === cat.id).length;
+
+        const pill = document.createElement("button");
+        pill.className = `filter-pill ${currentCategory === cat.id ? 'active' : ''}`;
+        pill.dataset.cat = cat.id;
+        pill.innerHTML = `
+          <span>${cat.label}</span>
+          <span class="pill-count">${count}</span>
+        `;
+
+        pill.addEventListener("click", () => {
+          selectCategory(cat.id);
+        });
+
+        categoryPillsContainer.appendChild(pill);
+      });
+    }
+
+    function selectCategory(catId) {
+      currentCategory = catId;
+      document.querySelectorAll(".filter-pill").forEach(p => {
+        p.classList.toggle("active", p.dataset.cat === catId);
+      });
+      const catObj = CATEGORIES.find(c => c.id === catId);
+      categoryFilterLabelEl.textContent = `• ${catObj ? catObj.label : 'All'}`;
+      renderCatalog();
+    }
+
+    // Filter Algorithms
+    function getFilteredAlgorithms() {
+      const q = searchQuery.trim().toLowerCase();
+
+      return ALGORITHMS.filter(algo => {
+        // Status view filter
+        if (currentViewFilter === "available" && algo.status !== "available") {
+          return false;
+        }
+
+        // Category filter
+        if (currentCategory !== "all" && algo.category !== currentCategory) {
+          return false;
+        }
+
+        // Search text filter
+        if (q.length > 0) {
+          const matchTitle = algo.title.toLowerCase().includes(q);
+          const matchFrench = algo.frenchTitle && algo.frenchTitle.toLowerCase().includes(q);
+          const matchDesc = algo.description.toLowerCase().includes(q);
+          const matchCat = algo.categoryName.toLowerCase().includes(q);
+          const matchProps = algo.properties.some(p => p.toLowerCase().includes(q));
+          const matchComp = Object.values(algo.complexities).some(c => c.toLowerCase().includes(q));
+          
+          if (!matchTitle && !matchFrench && !matchDesc && !matchCat && !matchProps && !matchComp) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    // Main Catalog Renderer (switches between List View and Grid View)
+    function renderCatalog() {
+      const list = getFilteredAlgorithms();
+      resultsCountEl.textContent = `Affichage de ${list.length} algorithme${list.length === 1 ? '' : 's'}`;
+
+      if (list.length === 0) {
+        catalogContentContainer.innerHTML = `
+          <div class="no-results" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 3rem 1rem;">
+            <p style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</p>
+            <p style="font-size: 1.1rem; color: #fff; font-weight: 700;">Aucun algorithme trouvé</p>
+            <p style="margin-top: 0.35rem; color: var(--text-dim);">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
+            <button class="btn-launch-row" style="margin-top: 1.2rem; display: inline-flex;" onclick="clearFilters()">Réinitialiser les filtres</button>
+          </div>
+        `;
+        return;
+      }
+
+      if (currentLayout === "list") {
+        renderListView(list);
+      } else {
+        renderGridView(list);
+      }
+    }
+
+    // Render Categorized List View
+    function renderListView(list) {
+      // Find categories that have at least one matching algorithm
+      const activeCats = CATEGORIES.filter(c => c.id !== "all" && list.some(a => a.category === c.id));
+
+      let html = `<div class="list-view-container">`;
+
+      activeCats.forEach(cat => {
+        const catAlgos = list.filter(a => a.category === cat.id);
+        const liveCount = catAlgos.filter(a => a.status === "available").length;
+
+        html += `
+          <div class="module-group-card">
+            <div class="module-group-header">
+              <span>${cat.label}</span>
+              <span class="module-group-count">${liveCount} / ${catAlgos.length} Live</span>
+            </div>
+            <div class="module-group-body">
+        `;
+
+        catAlgos.forEach(algo => {
+          const isAvail = algo.status === "available";
+
+          html += `
+            <div class="algo-list-row ${algo.status}" id="card-${algo.id}">
+              <div>
+                <span class="card-badge-status ${algo.status}">
+                  ${isAvail ? '● Live' : '⏳ Bientôt'}
+                </span>
+              </div>
+
+              <div class="row-title-area">
+                ${isAvail 
+                  ? `<a href="${algo.file}" class="row-title-link">${algo.title}</a>` 
+                  : `<span class="row-title-link" style="color: var(--text-muted); cursor: default;">${algo.title}</span>`}
+                ${algo.frenchTitle ? `<span class="row-subtitle">${algo.frenchTitle}</span>` : ''}
+              </div>
+
+              <div class="row-desc">
+                <div>${algo.description}</div>
+                <div class="card-properties" style="margin-top: 0.4rem; margin-bottom: 0;">
+                  ${algo.properties.slice(0, 3).map(prop => `<span class="prop-chip">${prop}</span>`).join('')}
+                </div>
+              </div>
+
+              <div class="row-complexities">
+                <div class="row-comp-item">
+                  <span>Temps:</span>
+                  <span class="comp-val ${isAvail ? 'accent' : ''}">${algo.complexities.avg || algo.complexities.worst}</span>
+                </div>
+                <div class="row-comp-item">
+                  <span>Espace:</span>
+                  <span class="comp-val">${algo.complexities.space}</span>
+                </div>
+              </div>
+
+              <div>
+                ${isAvail ? `
+                  <a href="${algo.file}" class="btn-launch-row">
+                    <span>Ouvrir</span>
+                    <span>➔</span>
+                  </a>
+                ` : `
+                  <span class="badge-planned-row">Bientôt</span>
+                `}
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      catalogContentContainer.innerHTML = html;
+    }
+
+    // Render Grid View
+    function renderGridView(list) {
+      catalogContentContainer.innerHTML = `
+        <div class="grid-algorithms" id="algorithmsGrid">
+          ${list.map(algo => {
+            const isAvail = algo.status === "available";
+
+            return `
+              <article class="card-algorithm ${isAvail ? 'available' : ''}" id="card-${algo.id}">
+                <div>
+                  <div class="card-top">
+                    <span class="card-category-tag">${algo.categoryName.split(':')[0]}</span>
+                    <span class="card-badge-status ${algo.status}">
+                      ${isAvail ? '● Live Visualizer' : '⏳ Planned'}
+                    </span>
+                  </div>
+
+                  <h3 class="card-title">
+                    ${isAvail ? `<a href="${algo.file}">${algo.title}</a>` : algo.title}
+                  </h3>
+                  ${algo.frenchTitle ? `<div class="card-french-title">${algo.frenchTitle}</div>` : ''}
+
+                  <p class="card-desc">${algo.description}</p>
+
+                  <!-- Complexity Table -->
+                  <div class="complexity-box">
+                    <div class="comp-col">
+                      <span class="comp-label">Best</span>
+                      <span class="comp-val ${isAvail ? 'accent' : ''}">${algo.complexities.best}</span>
+                    </div>
+                    <div class="comp-col">
+                      <span class="comp-label">Average</span>
+                      <span class="comp-val">${algo.complexities.avg}</span>
+                    </div>
+                    <div class="comp-col">
+                      <span class="comp-label">Worst</span>
+                      <span class="comp-val">${algo.complexities.worst}</span>
+                    </div>
+                    <div class="comp-col">
+                      <span class="comp-label">Space</span>
+                      <span class="comp-val">${algo.complexities.space}</span>
+                    </div>
+                  </div>
+
+                  <!-- Tags / Properties -->
+                  <div class="card-properties">
+                    ${algo.properties.map(prop => `<span class="prop-chip">${prop}</span>`).join('')}
+                  </div>
+                </div>
+
+                <!-- Footer CTA -->
+                <div class="card-footer">
+                  ${isAvail ? `
+                    <a href="${algo.file}" class="btn-launch active">
+                      <span>Launch Visualizer</span>
+                      <span>➔</span>
+                    </a>
+                  ` : `
+                    <button class="btn-launch disabled" disabled>
+                      <span>Upcoming Visualizer</span>
+                    </button>
+                  `}
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function clearFilters() {
+      searchInput.value = "";
+      searchQuery = "";
+      selectCategory("all");
+      setViewFilter("all");
+    }
+
+    function setViewFilter(view) {
+      currentViewFilter = view;
+      btnToggleAll.classList.toggle("active", view === "all");
+      btnToggleAvailable.classList.toggle("active", view === "available");
+      renderCatalog();
+    }
+
+    function highlightCard(id) {
+      const el = document.getElementById("card-" + id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.outline = "2px solid var(--accent-blue)";
+        el.style.boxShadow = "0 0 25px rgba(56, 189, 248, 0.4)";
+        setTimeout(() => {
+          el.style.outline = "";
+          el.style.boxShadow = "";
+        }, 1800);
+      }
+    }
+
+    function closeDropdown() {
+      menuDropdownPanel.classList.remove("open");
+      btnMenuDropdown.classList.remove("active");
+      btnMenuDropdown.setAttribute("aria-expanded", "false");
+    }
+
+    function setupEventListeners() {
+      // Search
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        renderCatalog();
+      });
+
+      // Quick slash shortcut to focus search
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      });
+
+      // Layout Switcher
+      btnLayoutList.addEventListener("click", () => {
+        if (currentLayout !== "list") {
+          currentLayout = "list";
+          btnLayoutList.classList.add("active");
+          btnLayoutGrid.classList.remove("active");
+          renderCatalog();
+        }
+      });
+
+      btnLayoutGrid.addEventListener("click", () => {
+        if (currentLayout !== "grid") {
+          currentLayout = "grid";
+          btnLayoutGrid.classList.add("active");
+          btnLayoutList.classList.remove("active");
+          renderCatalog();
+        }
+      });
+
+      // View toggle buttons
+      btnToggleAll.addEventListener("click", () => setViewFilter("all"));
+      btnToggleAvailable.addEventListener("click", () => setViewFilter("available"));
+
+      // Dropdown toggle
+      btnMenuDropdown.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = menuDropdownPanel.classList.toggle("open");
+        btnMenuDropdown.classList.toggle("active", isOpen);
+        btnMenuDropdown.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      // Click outside to close dropdown
+      document.addEventListener("click", (e) => {
+        if (!menuDropdownPanel.contains(e.target) && !btnMenuDropdown.contains(e.target)) {
+          closeDropdown();
+        }
+      });
+    }
+
+    // Run
+    init();
+  </script>
+</body>
+</html>

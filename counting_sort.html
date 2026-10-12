@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counting Sort Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+
+      /* Slide colors for keys 0 to 4 (faithful to UCLouvain slide) */
+      --key-0: #e5a93b; /* Gold / Yellow */
+      --key-0-bg: rgba(229, 169, 59, 0.22);
+      --key-0-border: #e5a93b;
+      --key-0-text: #fef08a;
+
+      --key-1: #d45d9e; /* Magenta / Pink */
+      --key-1-bg: rgba(212, 93, 158, 0.22);
+      --key-1-border: #d45d9e;
+      --key-1-text: #fbcfe8;
+
+      --key-2: #7cbf45; /* Lime Green */
+      --key-2-bg: rgba(124, 191, 69, 0.22);
+      --key-2-border: #7cbf45;
+      --key-2-text: #d9f99d;
+
+      --key-3: #e96a53; /* Coral Salmon */
+      --key-3-bg: rgba(233, 106, 83, 0.22);
+      --key-3-border: #e96a53;
+      --key-3-text: #fed7aa;
+
+      --key-4: #2f6d2f; /* Forest Green */
+      --key-4-bg: rgba(47, 109, 47, 0.32);
+      --key-4-border: #4ade80;
+      --key-4-text: #bbf7d0;
+
+      --bar-blue: #3b82f6;
+      --bar-blue-light: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button.btn-action {
+      background: #0f172a;
+      border-color: #334869;
+    }
+
+    button.btn-action:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+    }
+
+    /* Phase Progress Stepper */
+    .phase-stepper-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #151f32;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .phase-pill .pill-number {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: #24344d;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.7rem;
+    }
+
+    .phase-pill:hover {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    .phase-pill.active {
+      background: #1e3a8a;
+      color: #bfdbfe;
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .phase-pill.active .pill-number {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .phase-pill.completed {
+      color: #94a3b8;
+    }
+
+    .phase-pill.completed .pill-number {
+      background: #10b981;
+      color: #fff;
+    }
+
+    /* Main Container Layout */
+    .app-main {
+      display: grid;
+      grid-template-columns: 480px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1150px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Column: Code & State */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Java Code Viewer */
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 510px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.12rem 0.6rem;
+      border-left: 3px solid transparent;
+      transition: background-color 0.15s, border-color 0.15s;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.22);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-row.in-phase {
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.75rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-number { color: #fca5a5; }
+
+    /* State Inspector Card */
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 75px;
+      margin-bottom: 0.85rem;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.5rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: monospace;
+    }
+
+    /* Right Column: Interactive Visualizations */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Array Display Containers */
+    .cells-container {
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.85rem 0.65rem;
+      overflow-x: auto;
+      align-items: flex-end;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      min-height: 90px;
+    }
+
+    .array-cell-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      min-width: 48px;
+      max-width: 72px;
+      position: relative;
+    }
+
+    .cell-index-badge {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .pair-card {
+      width: 100%;
+      height: 52px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      user-select: none;
+    }
+
+    .pair-card.empty {
+      background: #090e1b;
+      border: 2px dashed #223249;
+      color: #475569;
+    }
+
+    .pair-inner {
+      display: flex;
+      align-items: baseline;
+      gap: 0.15rem;
+      font-size: 0.92rem;
+    }
+
+    .pair-key-val {
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    .pair-sat-val {
+      font-size: 0.72rem;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.05rem 0.25rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Key Colors */
+    .key-0 { background: var(--key-0-bg); border-color: var(--key-0-border); color: var(--key-0-text); }
+    .key-1 { background: var(--key-1-bg); border-color: var(--key-1-border); color: var(--key-1-text); }
+    .key-2 { background: var(--key-2-bg); border-color: var(--key-2-border); color: var(--key-2-text); }
+    .key-3 { background: var(--key-3-bg); border-color: var(--key-3-border); color: var(--key-3-text); }
+    .key-4 { background: var(--key-4-bg); border-color: var(--key-4-border); color: var(--key-4-text); }
+
+    .pair-card.source-highlight {
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0 0 16px var(--accent-blue);
+      border-color: var(--accent-blue) !important;
+      z-index: 10;
+    }
+
+    .pair-card.target-highlight {
+      transform: translateY(-6px) scale(1.08);
+      box-shadow: 0 0 16px var(--accent-emerald);
+      border-color: var(--accent-emerald) !important;
+      z-index: 10;
+    }
+
+    .pointer-arrow-box {
+      font-size: 0.72rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: #38bdf8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 22px;
+      line-height: 1;
+    }
+
+    /* Count Array Card */
+    .count-grid {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 0.5rem;
+      background: var(--bg-card-inner);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .count-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      flex: 1;
+      min-width: 65px;
+      max-width: 110px;
+    }
+
+    .count-unit-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .color-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .swatch-0 { background-color: var(--key-0); }
+    .swatch-1 { background-color: var(--key-1); }
+    .swatch-2 { background-color: var(--key-2); }
+    .swatch-3 { background-color: var(--key-3); }
+    .swatch-4 { background-color: var(--key-4); }
+
+    .count-box-value {
+      width: 100%;
+      height: 48px;
+      border-radius: 8px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      font-weight: 900;
+      font-family: monospace;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .count-box-value.highlight-count {
+      transform: scale(1.12);
+      box-shadow: 0 0 16px var(--accent-amber);
+      border-color: var(--accent-amber) !important;
+      z-index: 5;
+    }
+
+    .count-unit-footer {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* THE CRITICAL SLIDE VISUALIZATION CARD */
+    .slide-partition-card {
+      background: linear-gradient(180deg, #162238 0%, #0e1726 100%);
+      border: 2px solid #284065;
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+
+    .slide-badge-tag {
+      background: #0284c7;
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 5px rgba(2, 132, 199, 0.4);
+    }
+
+    .stage-diagram-container {
+      background: #070c17;
+      border: 1px solid #1a2940;
+      border-radius: 10px;
+      padding: 1.25rem 1rem 2rem 1rem;
+      margin-top: 0.75rem;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    /* Blue Output Slots Grid */
+    .output-grid-row {
+      display: flex;
+      gap: 0.35rem;
+      width: 100%;
+      min-width: 620px;
+    }
+
+    .output-slot-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      min-width: 44px;
+    }
+
+    .output-slot-box {
+      width: 100%;
+      height: 52px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 2px solid var(--bar-blue);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-weight: bold;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .output-slot-box.pending-target {
+      box-shadow: 0 0 16px var(--accent-blue);
+      border-color: var(--accent-blue) !important;
+      background: rgba(56, 189, 248, 0.32);
+      transform: scale(1.05);
+      z-index: 10;
+    }
+
+    /* Colored Segmented Partition Bar (directly mirroring slide) */
+    .continuous-partition-bar {
+      margin-top: 0.6rem;
+      width: 100%;
+      min-width: 620px;
+      display: flex;
+      height: 42px;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 2px solid #334869;
+      background: #0b1220;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .partition-segment {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      position: relative;
+      border-right: 2px solid rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .partition-segment.seg-0 { background-color: var(--key-0); color: #000; text-shadow: none; }
+    .partition-segment.seg-1 { background-color: var(--key-1); }
+    .partition-segment.seg-2 { background-color: var(--key-2); color: #000; text-shadow: none; }
+    .partition-segment.seg-3 { background-color: var(--key-3); }
+    .partition-segment.seg-4 { background-color: var(--key-4); }
+
+    .partition-segment .seg-range {
+      font-size: 0.65rem;
+      opacity: 0.85;
+      font-weight: normal;
+    }
+
+    /* Dynamic SVG Arrows Layer matching the slide */
+    .slide-arrows-layer {
+      margin-top: 0.5rem;
+      width: 100%;
+      min-width: 620px;
+      position: relative;
+      min-height: 80px;
+    }
+
+    .boundary-arrow-widget {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .arrow-pointer-glyph {
+      font-size: 1.25rem;
+      line-height: 0.7;
+      font-weight: 900;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+    }
+
+    .arrow-badge-label {
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      font-family: monospace;
+      white-space: nowrap;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.25);
+      margin-top: 2px;
+      pointer-events: auto;
+    }
+
+    .arrow-0 { color: var(--key-0); }
+    .arrow-0 .arrow-badge-label { background: var(--key-0); color: #000; }
+    .arrow-1 { color: var(--key-1); }
+    .arrow-1 .arrow-badge-label { background: var(--key-1); color: #fff; }
+    .arrow-2 { color: var(--key-2); }
+    .arrow-2 .arrow-badge-label { background: var(--key-2); color: #000; }
+    .arrow-3 { color: var(--key-3); }
+    .arrow-3 .arrow-badge-label { background: var(--key-3); color: #fff; }
+    .arrow-4 { color: #4ade80; }
+    .arrow-4 .arrow-badge-label { background: var(--key-4); color: #fff; border-color: #4ade80; }
+
+    /* Sticky Playback Footer */
+    footer {
+      background: #0f172a;
+      border-top: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .playback-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .btn-step {
+      padding: 0.45rem 0.85rem;
+      font-weight: 700;
+      border-radius: 6px;
+    }
+
+    .scrubber-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      flex: 1;
+      max-width: 520px;
+    }
+
+    .slider-scrub {
+      flex: 1;
+      height: 6px;
+    }
+
+    .step-indicator-text {
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      min-width: 105px;
+      text-align: right;
+    }
+
+    /* Modal for Custom Input */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      width: 90%;
+      max-width: 550px;
+      padding: 1.5rem;
+      box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+      color: #fff;
+    }
+
+    .modal-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+
+    .modal-textarea {
+      width: 100%;
+      height: 100px;
+      background: #090e1b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Stability Callout Badge */
+    .stability-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Counting Sort Visualizer</h1>
+        <div class="header-subtitle">Interactive Step-by-Step Stable Sort for Arrays of Pairs <code>(a_i, b_i)</code></div>
+      </div>
+    </div>
+
+    <!-- Header Controls: Array Generator & Size -->
+    <div class="header-actions">
+      <div class="control-item">
+        <label for="sizeInput">Size n:</label>
+        <input type="range" id="sizeInput" min="4" max="14" value="10">
+        <span class="dynamic-val" id="sizeVal">10</span>
+      </div>
+
+      <button id="btnRandomize" title="Generate new random array">
+        <span>🎲</span> Random Array
+      </button>
+
+      <div class="control-item">
+        <label for="presetSelect">Preset:</label>
+        <select id="presetSelect">
+          <option value="slide" selected>Slide Example (n=10)</option>
+          <option value="stability">Stability Demo (Duplicates)</option>
+          <option value="random">Random Pairs</option>
+          <option value="reversed">Reversed Keys</option>
+          <option value="sorted">Already Sorted</option>
+        </select>
+      </div>
+
+      <button id="btnCustomModal" title="Edit custom pairs">
+        <span>✏️</span> Custom Input
+      </button>
+    </div>
+  </header>
+
+  <!-- Step Phase Bar -->
+  <div class="phase-stepper-bar">
+    <div class="phase-pill" data-step="1" id="pillPhase1"><span class="pill-number">1</span> Create count</div>
+    <div class="phase-pill" data-step="2" id="pillPhase2"><span class="pill-number">2</span> Frequency counts</div>
+    <div class="phase-pill" data-step="3" id="pillPhase3"><span class="pill-number">3</span> Cumulative sums</div>
+    <div class="phase-pill" data-step="4" id="pillPhase4"><span class="pill-number">4</span> Create output</div>
+    <div class="phase-pill" data-step="5" id="pillPhase5"><span class="pill-number">5</span> Place elements (Right-to-Left)</div>
+    <div class="phase-pill" data-step="6" id="pillPhase6"><span class="pill-number">6</span> Copy back</div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- Left Column: Java Code & State Inspector -->
+    <div class="left-column">
+      
+      <!-- Code View Card -->
+      <div class="card" style="padding-bottom: 0.5rem;">
+        <div class="card-header-line">
+          <span>Java Algorithm</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">Range = 5 (keys 0 to 4)</span>
+        </div>
+        <div class="code-editor-box" id="codeEditorBox">
+          <!-- Populated by JavaScript with exact slide code -->
+        </div>
+      </div>
+
+      <!-- Execution Inspector Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution State</span>
+          <span class="stability-pill" id="stabilityPill">Stable Sort</span>
+        </div>
+
+        <div class="explanation-banner" id="stepExplanation">
+          Ready to run. Click <strong>Next Step</strong>, <strong>Play</strong>, or use <strong>Spacebar</strong> to begin.
+        </div>
+
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">i (index)</div>
+            <div class="v-val" id="varI">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">a_i (key)</div>
+            <div class="v-val" id="varA">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">b_i (sat)</div>
+            <div class="v-val" id="varB">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">count[a_i]</div>
+            <div class="v-val" id="varCountVal">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Interactive Visualizations -->
+    <div class="right-column">
+
+      <!-- 1. Input Array arr -->
+      <div class="card">
+        <div class="section-title-bar">
+          <div class="section-title">
+            <span>Input Array <code>arr[][]</code></span>
+            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Pairs: <code>[key, satellite]</code>)</span>
+          </div>
+          <div class="section-desc">n elements with keys in {0, 1, 2, 3, 4}</div>
+        </div>
+        <div class="cells-container" id="inputCellsContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- 2. Count Array count -->
+      <div class="card">
+        <div class="section-title-bar">
+          <div class="section-title">
+            <span>Count Array <code>count[]</code></span>
+            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(range = 5)</span>
+          </div>
+          <div class="section-desc">Frequencies in Step 2; Cumulative sums in Step 3</div>
+        </div>
+        <div class="count-grid" id="countGrid">
+          <!-- Populated dynamically for keys 0..4 -->
+        </div>
+      </div>
+
+      <!-- 3. THE SLIDE VISUALIZATION: Output Array & Colored Partition Bar -->
+      <div class="card slide-partition-card">
+        <div class="section-title-bar" style="margin-bottom: 0.25rem;">
+          <div>
+            <span class="section-title" style="color: #60a5fa;">
+              <span>Output Array &amp; Partition Bar</span>
+            </span>
+            <div class="section-desc">
+              Visualizes <code>output[]</code>, partition intervals, and dynamic counter boundaries <code>count[0..4]</code>
+            </div>
+          </div>
+          <span class="slide-badge-tag">Slide Diagram Representation</span>
+        </div>
+
+        <div class="stage-diagram-container">
+          <!-- Top Row: Output Array Slots -->
+          <div style="font-size: 0.75rem; font-weight: 800; color: #93c5fd; margin-bottom: 0.35rem; display: flex; justify-content: space-between;">
+            <span><code>output[0 .. n-1]</code> (Sorted Pairs Destination)</span>
+            <span id="outputStatusNote" style="font-size: 0.72rem; color: #38bdf8; font-weight: normal;">Step 4 creates array, Step 5 fills it right-to-left</span>
+          </div>
+          <div class="output-grid-row" id="outputGridRow">
+            <!-- Output slots generated dynamically -->
+          </div>
+
+          <!-- Middle Row: Continuous Colored Partition Bar -->
+          <div style="font-size: 0.75rem; font-weight: 800; color: #cbd5e1; margin-top: 0.85rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between;">
+            <span>Partition Segments (by key):</span>
+            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">Segment width = frequency of each key</span>
+          </div>
+          <div class="continuous-partition-bar" id="continuousPartitionBar">
+            <!-- Color segments generated dynamically -->
+          </div>
+
+          <!-- Bottom Row: Dynamic Counter Pointers Matching Slide -->
+          <div class="slide-arrows-layer" id="slideArrowsLayer">
+            <!-- Dynamic arrow widgets count[0..4] -->
+          </div>
+        </div>
+
+        <!-- Legend and Insight on Why Stability Holds -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.85rem; padding-top: 0.5rem; border-top: 1px solid #23354e; font-size: 0.75rem; color: var(--text-muted);">
+          <div style="display:flex; align-items:center; gap:0.35rem;"><span class="color-swatch swatch-0"></span> Key 0</div>
+          <div style="display:flex; align-items:center; gap:0.35rem;"><span class="color-swatch swatch-1"></span> Key 1</div>
+          <div style="display:flex; align-items:center; gap:0.35rem;"><span class="color-swatch swatch-2"></span> Key 2</div>
+          <div style="display:flex; align-items:center; gap:0.35rem;"><span class="color-swatch swatch-3"></span> Key 3</div>
+          <div style="display:flex; align-items:center; gap:0.35rem;"><span class="color-swatch swatch-4"></span> Key 4</div>
+          <div style="margin-left: auto; color: #38bdf8;">
+            💡 <em>In Step 5: target slot is <code>count[a_i] - 1</code>. Then <code>count[a_i]--</code> shifts the arrow left!</em>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Sticky Footer Controls -->
+  <footer>
+    <div class="playback-buttons">
+      <button id="btnReset" class="btn-step btn-action" title="Reset to initial state (Home)">⏮ Reset</button>
+      <button id="btnPrev" class="btn-step btn-action" title="Previous micro-step (Left Arrow)">◀ Prev</button>
+      <button id="btnPlay" class="btn-step btn-primary" title="Play / Pause (Spacebar)">▶ Play</button>
+      <button id="btnNext" class="btn-step btn-primary" title="Next micro-step (Right Arrow)">Next ▶</button>
+      <button id="btnNextIteration" class="btn-step btn-action" title="Next loop iteration (N)">Iteration ⏭</button>
+    </div>
+
+    <!-- Scrubber Slider -->
+    <div class="scrubber-wrapper">
+      <input type="range" id="scrubber" class="slider-scrub" min="0" max="0" value="0">
+      <div class="step-indicator-text" id="stepIndicatorText">Step 0 / 0</div>
+    </div>
+
+    <!-- Speed Control -->
+    <div class="control-item">
+      <label for="speedSelect">Speed:</label>
+      <select id="speedSelect">
+        <option value="1500">0.5×</option>
+        <option value="900" selected>1×</option>
+        <option value="450">2×</option>
+        <option value="200">4×</option>
+      </select>
+    </div>
+  </footer>
+
+  <!-- Modal for Custom Input Array -->
+  <div class="modal-backdrop" id="customModal">
+    <div class="modal-dialog">
+      <div class="modal-title">Custom Array of Pairs</div>
+      <div class="modal-subtitle">
+        Enter comma-separated pairs <code>(a, b)</code> where <code>a</code> is the key (0 to 4) and <code>b</code> is the secondary label (number or letter).
+      </div>
+      <textarea id="customInputText" class="modal-textarea" placeholder="(3, 1), (1, 2), (4, 3), (1, 4), (0, 5), (3, 6), (2, 7), (1, 8), (4, 9), (0, 10)"></textarea>
+      <div class="modal-footer">
+        <button id="btnModalCancel">Cancel</button>
+        <button id="btnModalApply" class="btn-primary">Apply &amp; Visualize</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Counting Sort Visualizer Engine
+     * Faithfully models the Java code from the UCLouvain LINFO1121 slide.
+     */
+
+    const JAVA_CODE = [
+      { num: 1, text: "public static void countingSort(int[][] arr) {" },
+      { num: 2, text: "    int n = arr.length;" },
+      { num: 3, text: "    int range = 5; // Since a_i can take values from 0 to 4" },
+      { num: 4, text: "" },
+      { num: 5, text: "    // Step 1: Create a count array to store the frequency of each a_i" },
+      { num: 6, text: "    int[] count = new int[range];" },
+      { num: 7, text: "" },
+      { num: 8, text: "    // Step 2: Count occurrences of each a_i" },
+      { num: 9, text: "    for (int i = 0; i < n; i++) {" },
+      { num: 10, text: "        count[arr[i][0]]++;" },
+      { num: 11, text: "    }" },
+      { num: 12, text: "" },
+      { num: 13, text: "    // Step 3: Modify count array to store cumulative sums" },
+      { num: 14, text: "    for (int i = 1; i < range; i++) {" },
+      { num: 15, text: "        count[i] += count[i - 1];" },
+      { num: 16, text: "    }" },
+      { num: 17, text: "" },
+      { num: 18, text: "    // Step 4: Create an output array to store sorted pairs" },
+      { num: 19, text: "    int[][] output = new int[n][2];" },
+      { num: 20, text: "" },
+      { num: 21, text: "    // Step 5: Place the elements in the sorted order in the output array" },
+      { num: 22, text: "    // Traverse the input array from right to left to maintain stable sorting" },
+      { num: 23, text: "    for (int i = n - 1; i >= 0; i--) {" },
+      { num: 24, text: "        int a_i = arr[i][0];" },
+      { num: 25, text: "        int b_i = arr[i][1];" },
+      { num: 26, text: "        output[count[a_i] - 1] = new int[]{a_i, b_i};" },
+      { num: 27, text: "        count[a_i]--;" },
+      { num: 28, text: "    }" },
+      { num: 29, text: "" },
+      { num: 30, text: "    // Step 6: Copy the sorted pairs back to the original array" },
+      { num: 31, text: "    for (int i = 0; i < n; i++) {" },
+      { num: 32, text: "        arr[i] = output[i];" },
+      { num: 33, text: "    }" },
+      { num: 34, text: "}" }
+    ];
+
+    // State Variables
+    let rawPairs = [];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 900;
+
+    // Presets
+    const PRESETS = {
+      // Matches the slide graphic: 2 gold, 3 magenta, 1 lime, 2 coral, 2 dark green
+      slide: [
+        [3, 1], [1, 2], [4, 3], [1, 4], [0, 5],
+        [3, 6], [2, 7], [1, 8], [4, 9], [0, 10]
+      ],
+      // Stability demonstration: multiple identical keys with distinct satellite labels
+      stability: [
+        [2, "A"], [1, "A"], [3, "A"], [2, "B"],
+        [0, "A"], [1, "B"], [2, "C"], [0, "B"]
+      ],
+      reversed: [
+        [4, 1], [4, 2], [3, 3], [3, 4], [2, 5],
+        [2, 6], [1, 7], [1, 8], [0, 9], [0, 10]
+      ],
+      sorted: [
+        [0, 1], [0, 2], [1, 3], [1, 4], [2, 5],
+        [3, 6], [3, 7], [4, 8], [4, 9], [4, 10]
+      ]
+    };
+
+    /**
+     * Generate random array of pairs
+     */
+    function generateRandomPairs(size) {
+      const pairs = [];
+      for (let i = 0; i < size; i++) {
+        const key = Math.floor(Math.random() * 5); // 0 to 4
+        pairs.push([key, i + 1]);
+      }
+      return pairs;
+    }
+
+    /**
+     * Parse custom input string like "(3, 1), (1, 2)"
+     */
+    function parseCustomInput(str) {
+      const pairs = [];
+      const clean = str.trim();
+      const regex = /\(?\s*([0-4])\s*[,:\s]\s*([a-zA-Z0-9_#]+)\s*\)?/g;
+      let match;
+      while ((match = regex.exec(clean)) !== null) {
+        pairs.push([parseInt(match[1]), match[2]]);
+      }
+      return pairs;
+    }
+
+    /**
+     * Pre-computes all simulation steps deterministically.
+     */
+    function buildSimulation(initialPairs) {
+      const steps = [];
+      const n = initialPairs.length;
+      const range = 5;
+
+      const initialArr = initialPairs.map((p, idx) => ({
+        key: p[0],
+        sat: p[1],
+        id: `pair-${idx}`,
+        origIdx: idx
+      }));
+
+      let arr = initialArr.map(item => ({ ...item }));
+      let count = new Array(range).fill(0);
+      let output = new Array(n).fill(null);
+      let cumulativeSnapshot = null;
+
+      function addStep({
+        line,
+        phase,
+        descr,
+        vars = {},
+        activeSource = null,
+        activeTarget = null,
+        activeCount = null,
+        action = null
+      }) {
+        steps.push({
+          line,
+          phase,
+          descr,
+          vars: {
+            i: vars.i !== undefined ? vars.i : null,
+            a: vars.a !== undefined ? vars.a : null,
+            b: vars.b !== undefined ? vars.b : null,
+            countVal: vars.countVal !== undefined ? vars.countVal : null,
+            targetSlot: vars.targetSlot !== undefined ? vars.targetSlot : null
+          },
+          arr: arr.map(x => x ? { ...x } : null),
+          count: [...count],
+          countSnapshot: cumulativeSnapshot ? [...cumulativeSnapshot] : null,
+          output: output.map(x => x ? { ...x } : null),
+          activeSource,
+          activeTarget,
+          activeCount,
+          action
+        });
+      }
+
+      // Step 0: Initial call
+      addStep({
+        line: 2,
+        phase: 1,
+        descr: `Method called: <code>countingSort(arr)</code> with array of size <strong>n = ${n}</strong>. Range is <strong>5</strong> (keys 0 to 4).`,
+        vars: { i: "—" }
+      });
+
+      // Step 1: Create count array
+      addStep({
+        line: 6,
+        phase: 1,
+        descr: `<strong>Step 1:</strong> Allocate <code>count = new int[5]</code> initialized with zeros: <code>[0, 0, 0, 0, 0]</code>.`,
+        vars: { i: "—" }
+      });
+
+      // Step 2: Frequency counts
+      for (let i = 0; i < n; i++) {
+        const item = arr[i];
+        const key = item.key;
+
+        // Loop check
+        addStep({
+          line: 9,
+          phase: 2,
+          descr: `<strong>Step 2:</strong> Loop at <code>i = ${i}</code>. Inspecting element <code>arr[${i}] = (${key}, ${item.sat})</code>.`,
+          vars: { i, a: key, b: item.sat },
+          activeSource: i,
+          activeCount: key
+        });
+
+        // count[arr[i][0]]++
+        count[key]++;
+        addStep({
+          line: 10,
+          phase: 2,
+          descr: `Increment counter for key <strong>${key}</strong>: <code>count[${key}]++</code> becomes <strong>${count[key]}</strong>.`,
+          vars: { i, a: key, b: item.sat, countVal: count[key] },
+          activeSource: i,
+          activeCount: key,
+          action: 'increment'
+        });
+      }
+
+      addStep({
+        line: 11,
+        phase: 2,
+        descr: `Completed Step 2! Frequencies: [${count.map((c, k) => `Key ${k}: ${c}`).join(', ')}].`,
+        vars: { i: n }
+      });
+
+      // Step 3: Cumulative sums
+      for (let i = 1; i < range; i++) {
+        addStep({
+          line: 14,
+          phase: 3,
+          descr: `<strong>Step 3:</strong> Accumulating frequencies. Loop at <code>i = ${i}</code>.`,
+          vars: { i },
+          activeCount: i
+        });
+
+        const prev = count[i - 1];
+        const oldVal = count[i];
+        count[i] += prev;
+
+        addStep({
+          line: 15,
+          phase: 3,
+          descr: `<code>count[${i}] += count[${i - 1}]</code>: ${oldVal} + ${prev} = <strong>${count[i]}</strong>. ` +
+                 `There are ${count[i]} elements with key ≤ ${i}.`,
+          vars: { i, countVal: count[i] },
+          activeCount: i,
+          action: 'accumulate'
+        });
+      }
+
+      cumulativeSnapshot = [...count];
+
+      addStep({
+        line: 16,
+        phase: 3,
+        descr: `Completed Step 3! Cumulative counts: <code>[${count.join(', ')}]</code>. ` +
+               `Notice: each <code>count[k]</code> marks the <em>upper boundary index + 1</em> of key <code>k</code>'s segment!`,
+        vars: { i: range }
+      });
+
+      // Step 4: Allocate output array
+      addStep({
+        line: 19,
+        phase: 4,
+        descr: `<strong>Step 4:</strong> Allocate <code>output = new int[${n}][2]</code>. ` +
+               `Look at the Partition Bar below: the cumulative counts define exact allocated segments for each key!`,
+        vars: {}
+      });
+
+      // Step 5: Place elements from right to left
+      for (let i = n - 1; i >= 0; i--) {
+        const item = arr[i];
+        const a_i = item.key;
+        const b_i = item.sat;
+
+        // Loop header
+        addStep({
+          line: 23,
+          phase: 5,
+          descr: `<strong>Step 5:</strong> Right-to-left traverse at <code>i = ${i}</code>. Inspecting pair <code>arr[${i}] = (${a_i}, ${b_i})</code>.`,
+          vars: { i, a: a_i, b: b_i, countVal: count[a_i] },
+          activeSource: i,
+          activeCount: a_i
+        });
+
+        // Read variables
+        addStep({
+          line: 25,
+          phase: 5,
+          descr: `Read pair keys: <code>a_i = ${a_i}</code>, <code>b_i = ${b_i}</code>. ` +
+                 `Current counter is <code>count[${a_i}] = ${count[a_i]}</code>. Target write slot: <code>count[${a_i}] - 1 = ${count[a_i] - 1}</code>.`,
+          vars: { i, a: a_i, b: b_i, countVal: count[a_i] },
+          activeSource: i,
+          activeCount: a_i
+        });
+
+        // Line 26: place into output
+        const destSlot = count[a_i] - 1;
+        output[destSlot] = { ...item };
+
+        addStep({
+          line: 26,
+          phase: 5,
+          descr: `<strong>Placement:</strong> Place <code>(${a_i}, ${b_i})</code> into <code>output[count[${a_i}] - 1]</code> (slot <strong>${destSlot}</strong>). ` +
+                 `<br><span style="color:#6ee7b7">★ Stability:</span> Right-to-left traversal places this element at the rightmost available slot of key ${a_i}'s zone!`,
+          vars: { i, a: a_i, b: b_i, countVal: count[a_i], targetSlot: destSlot },
+          activeSource: i,
+          activeTarget: destSlot,
+          activeCount: a_i,
+          action: 'place'
+        });
+
+        // Line 27: decrement count
+        count[a_i]--;
+        addStep({
+          line: 27,
+          phase: 5,
+          descr: `<strong>Decrement counter:</strong> <code>count[${a_i}]--</code> decrements to <strong>${count[a_i]}</strong>. ` +
+                 `The boundary arrow for key <strong>${a_i}</strong> shifts left! Next occurrence of key ${a_i} will go to slot <strong>${count[a_i] - 1}</strong>.`,
+          vars: { i, a: a_i, b: b_i, countVal: count[a_i], targetSlot: destSlot },
+          activeTarget: destSlot,
+          activeCount: a_i,
+          action: 'decrement'
+        });
+      }
+
+      // Step 6: Copy back
+      for (let i = 0; i < n; i++) {
+        addStep({
+          line: 31,
+          phase: 6,
+          descr: `<strong>Step 6:</strong> Copy sorted pairs back to <code>arr</code>. Loop at <code>i = ${i}</code>.`,
+          vars: { i },
+          activeTarget: i
+        });
+
+        arr[i] = { ...output[i] };
+        addStep({
+          line: 32,
+          phase: 6,
+          descr: `<code>arr[${i}] = output[${i}]</code>: Copied pair <code>(${arr[i].key}, ${arr[i].sat})</code> back.`,
+          vars: { i, a: arr[i].key, b: arr[i].sat },
+          activeSource: i,
+          activeTarget: i,
+          action: 'copy'
+        });
+      }
+
+      // Final step
+      addStep({
+        line: 34,
+        phase: 6,
+        descr: `🎉 <strong>Counting Sort Complete!</strong> The array of pairs is stably sorted in <strong>O(n + range)</strong> time.`,
+        vars: { i: n }
+      });
+
+      return steps;
+    }
+
+    /**
+     * Code View Initialization
+     */
+    function initCodeView() {
+      const container = document.getElementById('codeEditorBox');
+      container.innerHTML = '';
+
+      JAVA_CODE.forEach(lineObj => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'code-row';
+        lineDiv.id = `codeRow-${lineObj.num}`;
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'code-line-num';
+        numSpan.textContent = lineObj.num;
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'code-line-content';
+        textSpan.innerHTML = formatCodeSyntax(lineObj.text);
+
+        lineDiv.appendChild(numSpan);
+        lineDiv.appendChild(textSpan);
+        container.appendChild(lineDiv);
+      });
+    }
+
+    function formatCodeSyntax(code) {
+      if (!code) return "&nbsp;";
+      let s = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      if (s.includes("//")) {
+        const idx = s.indexOf("//");
+        const before = s.substring(0, idx);
+        const comment = s.substring(idx);
+        return formatCodeSyntax(before) + `<span class="c-comment">${comment}</span>`;
+      }
+
+      const keywords = ["public", "static", "void", "int", "new", "for"];
+      keywords.forEach(kw => {
+        const reg = new RegExp(`\\b${kw}\\b`, 'g');
+        s = s.replace(reg, `<span class="c-keyword">${kw}</span>`);
+      });
+
+      s = s.replace(/\b(\d+)\b/g, `<span class="c-number">$1</span>`);
+      return s;
+    }
+
+    /**
+     * Render State at Index
+     */
+    function renderState(index) {
+      if (index < 0 || index >= simulationSteps.length) return;
+      currentStepIndex = index;
+      const state = simulationSteps[index];
+
+      // Scrubber & Step counter
+      document.getElementById('scrubber').value = index;
+      document.getElementById('stepIndicatorText').textContent = `Step ${index + 1} / ${simulationSteps.length}`;
+
+      // Highlight Code Row
+      document.querySelectorAll('.code-row').forEach(el => el.classList.remove('active'));
+      const activeRow = document.getElementById(`codeRow-${state.line}`);
+      if (activeRow) {
+        activeRow.classList.add('active');
+        activeRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Update Phase Pills
+      for (let p = 1; p <= 6; p++) {
+        const pill = document.getElementById(`pillPhase${p}`);
+        if (!pill) continue;
+        pill.classList.remove('active', 'completed');
+        if (state.phase === p) {
+          pill.classList.add('active');
+        } else if (state.phase > p) {
+          pill.classList.add('completed');
+        }
+      }
+
+      // Inspector & Explanation
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('varI').textContent = state.vars.i !== null ? state.vars.i : '—';
+      document.getElementById('varA').textContent = state.vars.a !== null ? state.vars.a : '—';
+      document.getElementById('varB').textContent = state.vars.b !== null ? state.vars.b : '—';
+      document.getElementById('varCountVal').textContent = state.vars.countVal !== null ? state.vars.countVal : '—';
+
+      // Render Arrays
+      renderInputArray(state);
+      renderCountArray(state);
+      renderPartitionAndOutput(state);
+    }
+
+    /**
+     * Render Input Array
+     */
+    function renderInputArray(state) {
+      const container = document.getElementById('inputCellsContainer');
+      container.innerHTML = '';
+      const n = state.arr.length;
+
+      for (let i = 0; i < n; i++) {
+        const item = state.arr[i];
+        const unit = document.createElement('div');
+        unit.className = 'array-cell-unit';
+
+        const idx = document.createElement('div');
+        idx.className = 'cell-index-badge';
+        idx.textContent = `[${i}]`;
+
+        const card = document.createElement('div');
+        card.className = 'pair-card';
+        if (item) {
+          card.classList.add(`key-${item.key}`);
+          card.innerHTML = `
+            <div class="pair-inner">
+              <span class="pair-key-val">${item.key}</span>,
+              <span class="pair-sat-val">${item.sat}</span>
+            </div>
+          `;
+        } else {
+          card.classList.add('empty');
+          card.textContent = '—';
+        }
+
+        if (state.activeSource === i) {
+          card.classList.add('source-highlight');
+        }
+
+        const pointer = document.createElement('div');
+        pointer.className = 'pointer-arrow-box';
+        if (state.vars.i === i) {
+          pointer.innerHTML = `▲<br>i`;
+        }
+
+        unit.appendChild(idx);
+        unit.appendChild(card);
+        unit.appendChild(pointer);
+        container.appendChild(unit);
+      }
+    }
+
+    /**
+     * Render Count Array count[0..4]
+     */
+    function renderCountArray(state) {
+      const container = document.getElementById('countGrid');
+      container.innerHTML = '';
+
+      for (let k = 0; k < 5; k++) {
+        const unit = document.createElement('div');
+        unit.className = 'count-unit';
+
+        const header = document.createElement('div');
+        header.className = 'count-unit-header';
+        header.innerHTML = `<span class="color-swatch swatch-${k}"></span> count[${k}]`;
+
+        const box = document.createElement('div');
+        box.className = 'count-box-value';
+        box.textContent = state.count[k];
+
+        if (state.activeCount === k) {
+          box.classList.add('highlight-count');
+        }
+
+        const footer = document.createElement('div');
+        footer.className = 'count-unit-footer';
+        if (state.phase <= 2) {
+          footer.textContent = `freq of key ${k}`;
+        } else if (state.phase === 3) {
+          footer.textContent = `≤ ${k} cumulative`;
+        } else {
+          footer.textContent = `boundary: ${state.count[k]}`;
+        }
+
+        unit.appendChild(header);
+        unit.appendChild(box);
+        unit.appendChild(footer);
+        container.appendChild(unit);
+      }
+    }
+
+    /**
+     * Render Output Array & Slide Partition Representation
+     */
+    function renderPartitionAndOutput(state) {
+      const n = state.output.length;
+      const gridRow = document.getElementById('outputGridRow');
+      const partitionBar = document.getElementById('continuousPartitionBar');
+      const arrowsLayer = document.getElementById('slideArrowsLayer');
+
+      gridRow.innerHTML = '';
+      partitionBar.innerHTML = '';
+      arrowsLayer.innerHTML = '';
+
+      // Determine cumulative frequencies (for partition segment widths)
+      let cum = state.countSnapshot;
+      if (!cum) {
+        const freq = [0, 0, 0, 0, 0];
+        rawPairs.forEach(p => freq[p[0]]++);
+        cum = [freq[0]];
+        for (let k = 1; k < 5; k++) cum[k] = cum[k - 1] + freq[k];
+      }
+
+      // 1. Output Slots (Blue cells)
+      for (let j = 0; j < n; j++) {
+        const col = document.createElement('div');
+        col.className = 'output-slot-col';
+
+        const idx = document.createElement('div');
+        idx.className = 'cell-index-badge';
+        idx.textContent = `[${j}]`;
+
+        const box = document.createElement('div');
+        box.className = 'output-slot-box';
+
+        const item = state.output[j];
+        if (item) {
+          box.classList.add(`key-${item.key}`);
+          box.innerHTML = `
+            <div class="pair-inner">
+              <span class="pair-key-val">${item.key}</span>,
+              <span class="pair-sat-val">${item.sat}</span>
+            </div>
+          `;
+        } else {
+          box.textContent = state.phase < 4 ? 'not alloc' : '';
+          box.style.color = '#475569';
+          box.style.fontSize = '0.7rem';
+        }
+
+        if (state.activeTarget === j) {
+          box.classList.add('pending-target');
+        }
+
+        col.appendChild(idx);
+        col.appendChild(box);
+        gridRow.appendChild(col);
+      }
+
+      // 2. Colored Partition Bar
+      // Divides the bar proportionally among keys 0 to 4
+      for (let k = 0; k < 5; k++) {
+        const start = k === 0 ? 0 : cum[k - 1];
+        const end = cum[k];
+        const countForKey = end - start;
+
+        const seg = document.createElement('div');
+        seg.className = `partition-segment seg-${k}`;
+
+        if (countForKey > 0) {
+          seg.style.flex = `${countForKey}`;
+          seg.innerHTML = `
+            <span>Key ${k}</span>
+            <span class="seg-range">[${start}..${end - 1}]</span>
+          `;
+          seg.title = `Key ${k} zone: slots ${start} to ${end - 1} (${countForKey} elements)`;
+        } else {
+          seg.style.flex = '0.0001';
+          seg.style.display = 'none';
+        }
+        partitionBar.appendChild(seg);
+      }
+
+      // 3. Dynamic Boundary Arrows Matching Slide (Step 4 & Step 5)
+      // In the slide, each arrow points to the division boundary: count[k] / n
+      if (state.phase >= 4) {
+        // Track vertical offsets to avoid text overlapping if multiple pointers converge
+        const slotOccupancy = {};
+
+        for (let k = 0; k < 5; k++) {
+          const currentCountVal = state.count[k];
+          const initialForKey = (k === 0 ? cum[0] : cum[k] - cum[k - 1]);
+          if (initialForKey === 0) continue; // No elements with this key
+
+          // Calculate horizontal percentage:
+          // count[k] is the right boundary position (in slots).
+          // 0 is the far left, n is the far right (100%).
+          const pct = Math.max(0, Math.min(100, (currentCountVal / n) * 100));
+
+          // Compute slot index for collision avoidance
+          const slotBucket = Math.round(currentCountVal);
+          const level = slotOccupancy[slotBucket] || 0;
+          slotOccupancy[slotBucket] = level + 1;
+
+          const widget = document.createElement('div');
+          widget.className = `boundary-arrow-widget arrow-${k}`;
+          widget.style.left = `${pct}%`;
+          widget.style.top = `${level * 28}px`;
+
+          // If count[k] is at its lower bound (all elements placed), show completed status
+          const startBound = k === 0 ? 0 : cum[k - 1];
+          const isDone = currentCountVal === startBound;
+
+          widget.innerHTML = `
+            <div class="arrow-pointer-glyph">▲</div>
+            <div class="arrow-badge-label" style="${isDone ? 'opacity:0.6;' : ''}">
+              count[${k}] = ${currentCountVal}${isDone ? ' (full)' : ''}
+            </div>
+          `;
+
+          if (state.activeCount === k) {
+            widget.style.zIndex = '30';
+            widget.querySelector('.arrow-badge-label').style.boxShadow = '0 0 12px #fff';
+          }
+
+          arrowsLayer.appendChild(widget);
+        }
+      }
+    }
+
+    /**
+     * Simulation Playback Engine
+     */
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function stepNextIteration() {
+      pause();
+      const curr = simulationSteps[currentStepIndex];
+      const currI = curr.vars.i;
+      const currPhase = curr.phase;
+
+      // Find the next step where i has changed or phase has changed
+      for (let idx = currentStepIndex + 1; idx < simulationSteps.length; idx++) {
+        const s = simulationSteps[idx];
+        if (s.phase !== currPhase || (s.vars.i !== currI && s.vars.i !== null)) {
+          renderState(idx);
+          return;
+        }
+      }
+      renderState(simulationSteps.length - 1);
+    }
+
+    function resetSimulation() {
+      pause();
+      renderState(0);
+    }
+
+    function jumpToPhase(p) {
+      pause();
+      const idx = simulationSteps.findIndex(s => s.phase === p);
+      if (idx !== -1) {
+        renderState(idx);
+      }
+    }
+
+    /**
+     * Load New Pairs Array
+     */
+    function loadPairs(pairs) {
+      pause();
+      rawPairs = pairs.map(p => [parseInt(p[0]), p[1]]);
+      simulationSteps = buildSimulation(rawPairs);
+
+      const scrubber = document.getElementById('scrubber');
+      scrubber.min = 0;
+      scrubber.max = simulationSteps.length - 1;
+      scrubber.value = 0;
+
+      document.getElementById('sizeInput').value = rawPairs.length;
+      document.getElementById('sizeVal').textContent = rawPairs.length;
+
+      renderState(0);
+    }
+
+    /**
+     * Event Listeners & UI Binding
+     */
+    function setupEventListeners() {
+      // Playback
+      document.getElementById('btnPlay').addEventListener('click', togglePlay);
+      document.getElementById('btnNext').addEventListener('click', stepNext);
+      document.getElementById('btnPrev').addEventListener('click', stepPrev);
+      document.getElementById('btnNextIteration').addEventListener('click', stepNextIteration);
+      document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+      // Scrubber
+      document.getElementById('scrubber').addEventListener('input', (e) => {
+        pause();
+        renderState(parseInt(e.target.value));
+      });
+
+      // Speed
+      document.getElementById('speedSelect').addEventListener('change', (e) => {
+        playSpeed = parseInt(e.target.value);
+        if (isPlaying) {
+          pause();
+          play();
+        }
+      });
+
+      // Phase Pills Jump
+      for (let p = 1; p <= 6; p++) {
+        const pill = document.getElementById(`pillPhase${p}`);
+        if (pill) {
+          pill.addEventListener('click', () => jumpToPhase(p));
+        }
+      }
+
+      // Randomize Button
+      document.getElementById('btnRandomize').addEventListener('click', () => {
+        const size = parseInt(document.getElementById('sizeInput').value);
+        loadPairs(generateRandomPairs(size));
+        document.getElementById('presetSelect').value = 'random';
+      });
+
+      // Size Slider
+      document.getElementById('sizeInput').addEventListener('input', (e) => {
+        document.getElementById('sizeVal').textContent = e.target.value;
+      });
+
+      document.getElementById('sizeInput').addEventListener('change', (e) => {
+        const val = parseInt(e.target.value);
+        loadPairs(generateRandomPairs(val));
+        document.getElementById('presetSelect').value = 'random';
+      });
+
+      // Presets
+      document.getElementById('presetSelect').addEventListener('change', (e) => {
+        const presetKey = e.target.value;
+        if (presetKey === 'random') {
+          const size = parseInt(document.getElementById('sizeInput').value);
+          loadPairs(generateRandomPairs(size));
+        } else if (PRESETS[presetKey]) {
+          loadPairs(PRESETS[presetKey]);
+        }
+      });
+
+      // Custom Input Modal
+      const modal = document.getElementById('customModal');
+      document.getElementById('btnCustomModal').addEventListener('click', () => {
+        const currentStr = rawPairs.map(p => `(${p[0]}, ${p[1]})`).join(', ');
+        document.getElementById('customInputText').value = currentStr;
+        modal.classList.add('is-open');
+      });
+
+      document.getElementById('btnModalCancel').addEventListener('click', () => {
+        modal.classList.remove('is-open');
+      });
+
+      document.getElementById('btnModalApply').addEventListener('click', () => {
+        const text = document.getElementById('customInputText').value;
+        const parsed = parseCustomInput(text);
+        if (parsed.length >= 2) {
+          modal.classList.remove('is-open');
+          loadPairs(parsed);
+        } else {
+          alert("Please enter at least 2 pairs with keys from 0 to 4. Example: (3, 1), (1, 2), (0, 3)");
+        }
+      });
+
+      // Keyboard Shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (modal.classList.contains('is-open')) return;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          togglePlay();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          stepNext();
+        } else if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          stepPrev();
+        } else if (e.code === 'KeyN') {
+          e.preventDefault();
+          stepNextIteration();
+        } else if (e.code === 'Home' || e.code === 'KeyR') {
+          e.preventDefault();
+          resetSimulation();
+        }
+      });
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initCodeView();
+      setupEventListeners();
+      loadPairs(PRESETS.slide);
+    });
+  </script>
+</body>
+</html>

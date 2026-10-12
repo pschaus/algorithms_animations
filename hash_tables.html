@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hash Tables Visualizer (Chaining & Linear Probing) — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-pills-bar {
+      display: flex;
+      gap: 0.35rem;
+      background: #151f32;
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Hash Computation Panel */
+    .hash-math-panel {
+      background: #070d19;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .hash-math-line {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .hash-math-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      min-width: 90px;
+    }
+
+    .hash-math-value {
+      color: #38bdf8;
+      font-weight: 800;
+    }
+
+    /* Stream Chips */
+    .stream-chips {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .key-chip {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-weight: 800;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .key-chip.current {
+      background: #1e3a8a;
+      border-color: #38bdf8;
+      color: #fff;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .key-chip.done {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #34d399;
+    }
+
+    /* Visualizer Table Containers */
+    .table-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 480px;
+      overflow-x: auto;
+    }
+
+    /* Separate Chaining Visual Elements */
+    .chaining-bucket-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .bucket-idx-box {
+      width: 48px;
+      height: 38px;
+      background: #151f32;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--accent-blue);
+      flex-shrink: 0;
+    }
+
+    .bucket-idx-box.active-bucket {
+      background: #b45309;
+      border-color: #fbbf24;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    }
+
+    .chain-nodes-container {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .chain-node {
+      background: #1e293b;
+      border: 1.5px solid #334869;
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .chain-node.inspecting {
+      border-color: #fbbf24;
+      background: #451a03;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+    }
+
+    .chain-node.new-inserted {
+      border-color: var(--accent-emerald);
+      background: #064e3b;
+      color: #a7f3d0;
+      animation: pulseNode 0.5s ease;
+    }
+
+    @keyframes pulseNode {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .node-key {
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .node-val {
+      font-size: 0.72rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.05rem 0.25rem;
+      border-radius: 4px;
+      color: #94a3b8;
+    }
+
+    .chain-arrow {
+      color: #64748b;
+      font-size: 0.75rem;
+    }
+
+    .chain-null {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #475569;
+      font-style: italic;
+    }
+
+    /* Linear Probing Visual Elements */
+    .probing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .probing-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .slot-idx {
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .slot-box {
+      width: 100%;
+      height: 52px;
+      background: #151f32;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .slot-box.empty {
+      border-style: dashed;
+      color: #475569;
+      font-size: 0.75rem;
+    }
+
+    .slot-box.occupied {
+      background: #1e293b;
+      border-color: #334869;
+    }
+
+    .slot-box.probe-collision {
+      background: #4c0519;
+      border-color: #f43f5e;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+    }
+
+    .slot-box.probe-target {
+      background: #064e3b;
+      border-color: #10b981;
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    }
+
+    .slot-key-text {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    .slot-val-text {
+      font-size: 0.7rem;
+      color: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Hash Tables Visualizer</h1>
+        <div class="header-subtitle">Separate Chaining vs Linear Probing collision resolution</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="mode-pills-bar">
+        <button class="mode-btn active" id="btnModeChaining">Separate Chaining</button>
+        <button class="mode-btn" id="btnModeProbing">Linear Probing</button>
+      </div>
+
+      <div class="control-item">
+        <label>Preset:</label>
+        <select id="presetSelect">
+          <option value="sedgewick">Sedgewick Classic (S E A R C H E X A M P L E)</option>
+          <option value="clusters">Clustering Demo (A, B, C, D, E, F)</option>
+          <option value="duplicates">Duplicate Keys Update</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span id="codePanelTitle">Separate Chaining Symbol Table (Java)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step & Variables</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Select collision resolution strategy and press Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Key</div>
+            <div class="v-val" id="valKey">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">hash(key) % M</div>
+            <div class="v-val" id="valHash">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Probes / Comp.</div>
+            <div class="v-val" id="valProbes">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Load Factor (&alpha;)</div>
+            <div class="v-val" id="valAlpha">0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Hash Computation Details</span>
+        </div>
+        <div class="hash-math-panel">
+          <div class="hash-math-line">
+            <span class="hash-math-label">Formula:</span>
+            <span style="color:#f8fafc;">(key.hashCode() &amp; 0x7fffffff) % M</span>
+          </div>
+          <div class="hash-math-line">
+            <span class="hash-math-label">Raw HashCode:</span>
+            <span class="hash-math-value" id="mathRawHash">—</span>
+          </div>
+          <div class="hash-math-line">
+            <span class="hash-math-label">Positive Hash:</span>
+            <span class="hash-math-value" id="mathPosHash">—</span>
+          </div>
+          <div class="hash-math-line">
+            <span class="hash-math-label">Bucket Index:</span>
+            <span class="hash-math-value" id="mathBucketIndex" style="color:var(--accent-amber);">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Input Sequence Stream</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="streamCounter">0 / 12</span>
+        </div>
+        <div class="stream-chips" id="streamChips"></div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card" style="flex:1;">
+        <div class="card-header-line">
+          <span id="canvasHeaderTitle">Separate Chaining Buckets (M = 5)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="canvasSubtitle">Average list length &alpha; = N / M</span>
+        </div>
+        <div class="table-container" id="hashTableCanvas"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Presets
+    const PRESETS = {
+      sedgewick: [
+        { k: "S", v: 0 }, { k: "E", v: 1 }, { k: "A", v: 2 },
+        { k: "R", v: 3 }, { k: "C", v: 4 }, { k: "H", v: 5 },
+        { k: "E", v: 6 }, { k: "X", v: 7 }, { k: "A", v: 8 },
+        { k: "M", v: 9 }, { k: "P", v: 10 }, { k: "L", v: 11 }, { k: "E", v: 12 }
+      ],
+      clusters: [
+        { k: "A", v: 1 }, { k: "F", v: 2 }, { k: "K", v: 3 },
+        { k: "P", v: 4 }, { k: "U", v: 5 }, { k: "Z", v: 6 }
+      ],
+      duplicates: [
+        { k: "UCL", v: 10 }, { k: "INFO", v: 20 }, { k: "UCL", v: 99 },
+        { k: "ALGO", v: 30 }, { k: "INFO", v: 55 }
+      ]
+    };
+
+    let activeMode = 'chaining'; // 'chaining' or 'probing'
+    let currentInput = [...PRESETS.sedgewick];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // Code Snippets
+    const CODE_SNIPPETS = {
+      chaining: [
+        { line: 1, text: "private int hash(Key key) {" },
+        { line: 2, text: "    return (key.hashCode() & 0x7fffffff) % M;" },
+        { line: 3, text: "}" },
+        { line: 4, text: "public void put(Key key, Value val) {" },
+        { line: 5, text: "    int i = hash(key);" },
+        { line: 6, text: "    for (Node x = st[i]; x != null; x = x.next) {" },
+        { line: 7, text: "        if (key.equals(x.key)) { x.val = val; return; }" },
+        { line: 8, text: "    }" },
+        { line: 9, text: "    st[i] = new Node(key, val, st[i]); // prepend" },
+        { line: 10, text: "    n++;" },
+        { line: 11, text: "}" }
+      ],
+      probing: [
+        { line: 1, text: "private int hash(Key key) {" },
+        { line: 2, text: "    return (key.hashCode() & 0x7fffffff) % M;" },
+        { line: 3, text: "}" },
+        { line: 4, text: "public void put(Key key, Value val) {" },
+        { line: 5, text: "    int i;" },
+        { line: 6, text: "    for (i = hash(key); keys[i] != null; i = (i + 1) % M) {" },
+        { line: 7, text: "        if (keys[i].equals(key)) { vals[i] = val; return; }" },
+        { line: 8, text: "    }" },
+        { line: 9, text: "    keys[i] = key; vals[i] = val;" },
+        { line: 10, text: "    n++;" },
+        { line: 11, text: "}" }
+      ]
+    };
+
+    function renderCodeEditor() {
+      const container = document.getElementById('codeEditor');
+      container.innerHTML = '';
+      const snippet = CODE_SNIPPETS[activeMode];
+      snippet.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'code-row';
+        row.setAttribute('data-line', item.line);
+        row.innerHTML = `<span class="code-line-num">${item.line}</span><span class="code-line-content">${escapeHtml(item.text)}</span>`;
+        container.appendChild(row);
+      });
+      document.getElementById('codePanelTitle').textContent =
+        activeMode === 'chaining' ? 'Separate Chaining Symbol Table (Java)' : 'Linear Probing Symbol Table (Java)';
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Java-like String hash code
+    function javaHashCode(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+      }
+      return h;
+    }
+
+    function computeHash(key, M) {
+      const raw = javaHashCode(key);
+      const pos = raw & 0x7fffffff;
+      const bucket = pos % M;
+      return { raw, pos, bucket };
+    }
+
+    // --- Simulation Builder ---
+    function buildSimulation() {
+      const steps = [];
+      const M = activeMode === 'chaining' ? 5 : 11;
+      let N = 0;
+
+      // Table representation
+      let stChaining = Array.from({ length: M }, () => []);
+      let probingKeys = Array.from({ length: M }, () => null);
+      let probingVals = Array.from({ length: M }, () => null);
+
+      function addStep({ line, descr, key, val, hashInfo, activeBucket = null, inspectingNode = null, probeCollisions = [], probeTarget = null, itemIndex }) {
+        steps.push({
+          line,
+          descr,
+          key,
+          val,
+          hashInfo,
+          activeBucket,
+          inspectingNode,
+          probeCollisions: [...probeCollisions],
+          probeTarget,
+          itemIndex,
+          N,
+          M,
+          alpha: (N / M).toFixed(2),
+          chainingState: stChaining.map(bucket => bucket.map(item => ({ ...item }))),
+          probingKeys: [...probingKeys],
+          probingVals: [...probingVals]
+        });
+      }
+
+      addStep({
+        line: 1,
+        descr: `Initialized ${activeMode === 'chaining' ? 'Separate Chaining table with M = 5 buckets' : 'Linear Probing table with M = 11 slots'}.`,
+        key: null, val: null, hashInfo: null, itemIndex: -1
+      });
+
+      for (let itemIdx = 0; itemIdx < currentInput.length; itemIdx++) {
+        const item = currentInput[itemIdx];
+        const { k, v } = item;
+        const hashInfo = computeHash(k, M);
+
+        addStep({
+          line: 4,
+          descr: `<strong>put("${k}", ${v})</strong>: Inserting key "${k}" with value ${v}.`,
+          key: k, val: v, hashInfo, itemIndex: itemIdx
+        });
+
+        addStep({
+          line: 5,
+          descr: `Computed bucket hash: <code>hash("${k}") = ${hashInfo.bucket}</code>.`,
+          key: k, val: v, hashInfo, activeBucket: hashInfo.bucket, itemIndex: itemIdx
+        });
+
+        if (activeMode === 'chaining') {
+          const bucket = stChaining[hashInfo.bucket];
+          let found = false;
+
+          for (let nodeIdx = 0; nodeIdx < bucket.length; nodeIdx++) {
+            const curr = bucket[nodeIdx];
+            addStep({
+              line: 6,
+              descr: `Scanning linked list at bucket ${hashInfo.bucket}. Comparing key "${k}" with "${curr.key}".`,
+              key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+              inspectingNode: { bucket: hashInfo.bucket, idx: nodeIdx },
+              itemIndex: itemIdx
+            });
+
+            if (curr.key === k) {
+              curr.val = v;
+              found = true;
+              addStep({
+                line: 7,
+                descr: `Key "${k}" already exists in bucket ${hashInfo.bucket}! Updated value to <strong>${v}</strong>.`,
+                key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+                inspectingNode: { bucket: hashInfo.bucket, idx: nodeIdx },
+                itemIndex: itemIdx
+              });
+              break;
+            }
+          }
+
+          if (!found) {
+            bucket.unshift({ key: k, val: v });
+            N++;
+            addStep({
+              line: 9,
+              descr: `Key not found in list. Prepended new node <code>("${k}", ${v})</code> at head of bucket ${hashInfo.bucket}. Table size N = ${N}.`,
+              key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+              probeTarget: { bucket: hashInfo.bucket, idx: 0 },
+              itemIndex: itemIdx
+            });
+          }
+
+        } else if (activeMode === 'probing') {
+          let i = hashInfo.bucket;
+          const collisions = [];
+          let found = false;
+
+          while (probingKeys[i] !== null) {
+            collisions.push(i);
+            addStep({
+              line: 6,
+              descr: `Slot ${i} is occupied by key "${probingKeys[i]}". Checking equality.`,
+              key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+              probeCollisions: collisions, itemIndex: itemIdx
+            });
+
+            if (probingKeys[i] === k) {
+              probingVals[i] = v;
+              found = true;
+              addStep({
+                line: 7,
+                descr: `Key "${k}" matched at slot ${i}! Updated value to <strong>${v}</strong>.`,
+                key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+                probeTarget: i, itemIndex: itemIdx
+              });
+              break;
+            }
+
+            i = (i + 1) % M;
+            addStep({
+              line: 6,
+              descr: `Collision! Probing next linear slot: <code>i = (i + 1) % ${M} = ${i}</code>.`,
+              key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+              probeCollisions: collisions, itemIndex: itemIdx
+            });
+          }
+
+          if (!found) {
+            probingKeys[i] = k;
+            probingVals[i] = v;
+            N++;
+            addStep({
+              line: 9,
+              descr: `Found open slot at index <strong>${i}</strong>! Stored key "${k}" and value ${v}. Table size N = ${N}.`,
+              key: k, val: v, hashInfo, activeBucket: hashInfo.bucket,
+              probeCollisions: collisions, probeTarget: i, itemIndex: itemIdx
+            });
+          }
+        }
+      }
+
+      addStep({
+        line: 1,
+        descr: `All input keys processed! Final load factor &alpha; = ${(N / M).toFixed(2)}.`,
+        key: null, val: null, hashInfo: null, itemIndex: currentInput.length - 1
+      });
+
+      return steps;
+    }
+
+    // --- Render State ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valKey').textContent = state.key ? `"${state.key}"` : '—';
+      document.getElementById('valHash').textContent = state.hashInfo ? state.hashInfo.bucket : '—';
+      document.getElementById('valProbes').textContent =
+        activeMode === 'chaining'
+          ? (state.inspectingNode ? 1 : 0)
+          : (state.probeCollisions ? state.probeCollisions.length : 0);
+      document.getElementById('valAlpha').textContent = state.alpha;
+
+      // Hash Math Panel
+      if (state.hashInfo) {
+        document.getElementById('mathRawHash').textContent = state.hashInfo.raw;
+        document.getElementById('mathPosHash').textContent = state.hashInfo.pos;
+        document.getElementById('mathBucketIndex').textContent = `${state.hashInfo.pos} % ${state.M} = ${state.hashInfo.bucket}`;
+      } else {
+        document.getElementById('mathRawHash').textContent = '—';
+        document.getElementById('mathPosHash').textContent = '—';
+        document.getElementById('mathBucketIndex').textContent = '—';
+      }
+
+      // Stream chips
+      renderStreamChips(state.itemIndex);
+
+      // Render Canvas
+      if (activeMode === 'chaining') {
+        renderChainingCanvas(state);
+      } else {
+        renderProbingCanvas(state);
+      }
+    }
+
+    function renderStreamChips(activeIdx) {
+      const container = document.getElementById('streamChips');
+      container.innerHTML = '';
+      currentInput.forEach((item, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'key-chip';
+        if (idx === activeIdx) chip.classList.add('current');
+        else if (idx < activeIdx) chip.classList.add('done');
+        chip.textContent = `${item.k}:${item.v}`;
+        container.appendChild(chip);
+      });
+      document.getElementById('streamCounter').textContent = `${Math.min(activeIdx + 1, currentInput.length)} / ${currentInput.length}`;
+    }
+
+    // Render Chaining Canvas
+    function renderChainingCanvas(state) {
+      const container = document.getElementById('hashTableCanvas');
+      container.innerHTML = '';
+
+      for (let b = 0; b < state.M; b++) {
+        const row = document.createElement('div');
+        row.className = 'chaining-bucket-row';
+
+        const bucketBox = document.createElement('div');
+        bucketBox.className = 'bucket-idx-box';
+        if (state.activeBucket === b) bucketBox.classList.add('active-bucket');
+        bucketBox.textContent = `[${b}]`;
+        row.appendChild(bucketBox);
+
+        const nodesWrap = document.createElement('div');
+        nodesWrap.className = 'chain-nodes-container';
+
+        const nodes = state.chainingState[b];
+        if (nodes.length === 0) {
+          const nullText = document.createElement('span');
+          nullText.className = 'chain-null';
+          nullText.textContent = 'null';
+          nodesWrap.appendChild(nullText);
+        } else {
+          nodes.forEach((node, nIdx) => {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'chain-node';
+
+            if (state.inspectingNode && state.inspectingNode.bucket === b && state.inspectingNode.idx === nIdx) {
+              nodeDiv.classList.add('inspecting');
+            }
+            if (state.probeTarget && state.probeTarget.bucket === b && state.probeTarget.idx === nIdx) {
+              nodeDiv.classList.add('new-inserted');
+            }
+
+            nodeDiv.innerHTML = `
+              <span class="node-key">${node.key}</span>:
+              <span class="node-val">${node.val}</span>
+            `;
+            nodesWrap.appendChild(nodeDiv);
+
+            const arrow = document.createElement('span');
+            arrow.className = 'chain-arrow';
+            arrow.textContent = '➔';
+            nodesWrap.appendChild(arrow);
+          });
+
+          const nullEnd = document.createElement('span');
+          nullEnd.className = 'chain-null';
+          nullEnd.textContent = 'null';
+          nodesWrap.appendChild(nullEnd);
+        }
+
+        row.appendChild(nodesWrap);
+        container.appendChild(row);
+      }
+    }
+
+    // Render Linear Probing Canvas
+    function renderProbingCanvas(state) {
+      const container = document.getElementById('hashTableCanvas');
+      container.innerHTML = '';
+
+      const grid = document.createElement('div');
+      grid.className = 'probing-grid';
+
+      for (let i = 0; i < state.M; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'probing-slot';
+
+        const idxLabel = document.createElement('div');
+        idxLabel.className = 'slot-idx';
+        idxLabel.textContent = `[${i}]`;
+
+        const box = document.createElement('div');
+        box.className = 'slot-box';
+
+        const key = state.probingKeys[i];
+        const val = state.probingVals[i];
+
+        if (key === null) {
+          box.classList.add('empty');
+          box.textContent = 'empty';
+        } else {
+          box.classList.add('occupied');
+          box.innerHTML = `
+            <span class="slot-key-text">${key}</span>
+            <span class="slot-val-text">val: ${val}</span>
+          `;
+        }
+
+        if (state.probeCollisions && state.probeCollisions.includes(i)) {
+          box.classList.add('probe-collision');
+        }
+        if (state.probeTarget === i) {
+          box.classList.add('probe-target');
+        }
+
+        slot.appendChild(idxLabel);
+        slot.appendChild(box);
+        grid.appendChild(slot);
+      }
+
+      container.appendChild(grid);
+    }
+
+    // --- Playback Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      renderCodeEditor();
+      simulationSteps = buildSimulation();
+      renderState(0);
+    }
+
+    // Mode Toggle
+    document.getElementById('btnModeChaining').addEventListener('click', () => {
+      setMode('chaining');
+    });
+    document.getElementById('btnModeProbing').addEventListener('click', () => {
+      setMode('probing');
+    });
+
+    function setMode(mode) {
+      activeMode = mode;
+      document.getElementById('btnModeChaining').classList.toggle('active', mode === 'chaining');
+      document.getElementById('btnModeProbing').classList.toggle('active', mode === 'probing');
+      document.getElementById('canvasHeaderTitle').textContent =
+        mode === 'chaining' ? 'Separate Chaining Buckets (M = 5)' : 'Linear Probing Array Slots (M = 11)';
+      document.getElementById('canvasSubtitle').textContent =
+        mode === 'chaining' ? 'Average list length α = N / M' : 'Open addressing with cluster detection';
+      resetSimulation();
+    }
+
+    // Preset
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      currentInput = [...PRESETS[e.target.value]];
+      resetSimulation();
+    });
+
+    // Speed Slider
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    // Event Handlers
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>

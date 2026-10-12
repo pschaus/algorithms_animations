@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knuth-Morris-Pratt (KMP) DFA Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .phase-stepper-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #151f32;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .phase-pill.active {
+      background: #1e3a8a;
+      color: #bfdbfe;
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1750px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      padding: 0.5rem 0;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.1rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 65px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+    }
+
+    /* Strings Display Card */
+    .text-search-display {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      overflow-x: auto;
+    }
+
+    .string-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .string-label {
+      width: 70px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: var(--accent-blue);
+      flex-shrink: 0;
+    }
+
+    .char-cell {
+      width: 32px;
+      height: 38px;
+      background: #151f32;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .char-idx {
+      font-size: 0.6rem;
+      color: #64748b;
+      margin-top: -3px;
+    }
+
+    .char-cell.active-i {
+      border-color: #fbbf24;
+      background: #b45309;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+      transform: translateY(-3px) scale(1.08);
+      z-index: 5;
+    }
+
+    .char-cell.matched {
+      border-color: var(--accent-emerald);
+      background: #064e3b;
+      color: #a7f3d0;
+    }
+
+    /* DFA Transition Matrix Table */
+    .dfa-matrix-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .dfa-table-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow-x: auto;
+      padding: 0.5rem;
+    }
+
+    table.dfa-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    table.dfa-table th, table.dfa-table td {
+      padding: 0.4rem 0.5rem;
+      border: 1px solid #1e293b;
+      min-width: 38px;
+    }
+
+    table.dfa-table th {
+      background: #111a2e;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    table.dfa-table th.char-header {
+      background: #1e293b;
+      color: var(--accent-blue);
+      font-weight: 800;
+    }
+
+    table.dfa-table td.dfa-cell {
+      background: #0f172a;
+      color: #cbd5e1;
+      transition: all 0.2s;
+    }
+
+    table.dfa-table td.dfa-cell.active-transition {
+      background: #b45309;
+      color: #fff;
+      font-weight: 900;
+      border-color: #fbbf24;
+      box-shadow: inset 0 0 8px rgba(251, 191, 36, 0.6);
+    }
+
+    table.dfa-table td.dfa-cell.forward-match {
+      background: #064e3b;
+      color: #a7f3d0;
+      font-weight: 800;
+    }
+
+    /* DFA State Diagram SVG */
+    .dfa-svg-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin-top: 0.75rem;
+      height: 180px;
+    }
+
+    svg.dfa-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .dfa-state-circle {
+      fill: #151f32;
+      stroke: #475569;
+      stroke-width: 2.5;
+      transition: all 0.25s;
+    }
+
+    .dfa-state-circle.active-state {
+      fill: #1e3a8a;
+      stroke: #38bdf8;
+      stroke-width: 4;
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+    }
+
+    .dfa-state-circle.accept-state {
+      stroke: #10b981;
+      stroke-width: 3.5;
+    }
+
+    .dfa-state-text {
+      fill: #fff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 13px;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Knuth-Morris-Pratt (KMP) Search</h1>
+        <div class="header-subtitle">Substring search using Deterministic Finite Automaton (no text backup)</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label>Preset:</label>
+        <select id="presetSelect">
+          <option value="sedgewick">Sedgewick Classic (Pat: ABRA, Txt: A B R A C A D A B R A)</option>
+          <option value="repetitive">Repetitive Pattern (Pat: AAAB, Txt: AAAAAAAB)</option>
+          <option value="uclouvain">Lecture Match (Pat: BABAC, Txt: BABABABAC)</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="850">
+        <span class="dynamic-val" id="speedVal">850ms</span>
+      </div>
+
+      <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+      <button id="btnNext" title="Next Step">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation">↺ Reset</button>
+    </div>
+  </header>
+
+  <div class="phase-stepper-bar">
+    <div class="phase-pill" id="pillPhase1">
+      <span>Phase 1: DFA Construction (Restart State X)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase2">
+      <span>Phase 2: Text Search (Forward Pointer i, State j)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase3">
+      <span>Completed / Match Result</span>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>KMP DFA Search (Java)</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Sedgewick & Wayne</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-comment">// DFA Construction</span></span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">dfa[pat.charAt(<span class="c-comment">0</span>)][<span class="c-comment">0</span>] = <span class="c-comment">1</span>;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content"><span class="c-keyword">for</span> (<span class="c-type">int</span> X = <span class="c-comment">0</span>, j = <span class="c-comment">1</span>; j &lt; M; j++) {</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">for</span> (<span class="c-type">int</span> c = <span class="c-comment">0</span>; c &lt; R; c++)</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">        dfa[c][j] = dfa[c][X]; <span class="c-comment">// Copy mismatch</span></span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    dfa[pat.charAt(j)][j] = j + <span class="c-comment">1</span>; <span class="c-comment">// Match</span></span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">    X = dfa[pat.charAt(j)][X]; <span class="c-comment">// Update X</span></span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">}</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content"><span class="c-comment">// Text Search: No text backup!</span></span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content"><span class="c-keyword">for</span> (i = <span class="c-comment">0</span>, j = <span class="c-comment">0</span>; i &lt; N &amp;&amp; j &lt; M; i++)</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">    j = dfa[txt.charAt(i)][j];</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content"><span class="c-keyword">if</span> (j == M) <span class="c-keyword">return</span> i - M; <span class="c-comment">// Found</span></span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content"><span class="c-keyword">else</span>        <span class="c-keyword">return</span> N;     <span class="c-comment">// Not found</span></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution State & Variables</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Welcome to KMP Visualizer. Click Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Text i</div>
+            <div class="v-val" id="valI">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">State j</div>
+            <div class="v-val" id="valJ">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Shadow X</div>
+            <div class="v-val" id="valX">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Result</div>
+            <div class="v-val" id="valResult" style="font-size:0.85rem;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>KMP Theoretical Guarantee</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-blue);">No Backup in Text:</strong> Text pointer $i$ never decreases ($i++$). Ideal for streaming input where buffering is prohibitive.</p>
+          <p style="margin-top:0.4rem;"><strong style="color:var(--accent-emerald);">Linear Time:</strong> Search executes at most $N$ character examinations. Constructing the DFA takes $O(M \cdot R)$ time and space.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>Text & Pattern Matching State</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="matchStatusLabel">Matching progress</span>
+        </div>
+        <div class="text-search-display">
+          <div class="string-row">
+            <div class="string-label">Text (txt):</div>
+            <div id="textRow" style="display:flex; gap:0.25rem;"></div>
+          </div>
+          <div class="string-row">
+            <div class="string-label">Pattern:</div>
+            <div id="patternRow" style="display:flex; gap:0.25rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dfa-matrix-card">
+        <div class="card-header-line">
+          <span>DFA Transition Matrix: dfa[char][state]</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Rows = Alphabet | Cols = States 0..M</span>
+        </div>
+        <div class="dfa-table-container">
+          <table class="dfa-table" id="dfaTable"></table>
+        </div>
+
+        <div class="dfa-svg-box">
+          <svg class="dfa-svg" id="dfaSvg" viewBox="0 0 650 140"></svg>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Presets
+    const PRESETS = {
+      sedgewick: {
+        pat: "ABRA",
+        txt: "ABRACADABRA"
+      },
+      repetitive: {
+        pat: "AAAB",
+        txt: "AAAAAAAB"
+      },
+      uclouvain: {
+        pat: "BABAC",
+        txt: "BABABABAC"
+      }
+    };
+
+    let currentPreset = PRESETS.sedgewick;
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 850;
+
+    // --- Simulation Step Builder ---
+    function buildSimulation(pat, txt) {
+      const steps = [];
+      const M = pat.length;
+      const N = txt.length;
+
+      // Extract unique characters in pattern and text
+      const alphabetSet = new Set((pat + txt).split(''));
+      const alphabet = Array.from(alphabetSet).sort();
+      const R = alphabet.length;
+
+      // Initialize DFA matrix R x M
+      const dfa = {};
+      alphabet.forEach(c => {
+        dfa[c] = new Array(M).fill(0);
+      });
+
+      function addStep({ line, phase, descr, i = null, j = 0, X = 0, activeChar = null, activeDfaCell = null, matchIndex = null }) {
+        // Deep copy DFA
+        const dfaCopy = {};
+        alphabet.forEach(c => {
+          dfaCopy[c] = [...dfa[c]];
+        });
+
+        steps.push({
+          line,
+          phase,
+          descr,
+          i,
+          j,
+          X,
+          activeChar,
+          activeDfaCell,
+          matchIndex,
+          pat,
+          txt,
+          alphabet,
+          dfa: dfaCopy
+        });
+      }
+
+      // --- Phase 1: DFA Construction ---
+      addStep({
+        line: 1,
+        phase: 1,
+        descr: `Constructing DFA for pattern <strong>"${pat}"</strong> (M = ${M}). Alphabet: [${alphabet.join(', ')}].`,
+        X: 0, j: 0
+      });
+
+      // dfa[pat.charAt(0)][0] = 1
+      dfa[pat.charAt(0)][0] = 1;
+      addStep({
+        line: 2,
+        phase: 1,
+        descr: `Base state: <code>dfa['${pat.charAt(0)}'][0] = 1</code>. Matching first char '${pat.charAt(0)}' advances state from 0 to 1.`,
+        activeDfaCell: { char: pat.charAt(0), state: 0 },
+        X: 0, j: 0
+      });
+
+      let X = 0;
+      for (let j = 1; j < M; j++) {
+        addStep({
+          line: 3,
+          phase: 1,
+          descr: `Building DFA column for state <strong>j = ${j}</strong>. Current restart shadow state is <strong>X = ${X}</strong>.`,
+          X, j
+        });
+
+        // Copy mismatch cases
+        for (let c of alphabet) {
+          dfa[c][j] = dfa[c][X];
+        }
+        addStep({
+          line: 5,
+          phase: 1,
+          descr: `Copied mismatch transitions from shadow state X = ${X} into column j = ${j}.`,
+          X, j
+        });
+
+        // Set match case
+        const matchChar = pat.charAt(j);
+        dfa[matchChar][j] = j + 1;
+        addStep({
+          line: 6,
+          phase: 1,
+          descr: `Match transition: <code>dfa['${matchChar}'][${j}] = ${j + 1}</code>. Reading '${matchChar}' advances state to ${j + 1}.`,
+          activeDfaCell: { char: matchChar, state: j },
+          X, j
+        });
+
+        // Update X
+        X = dfa[matchChar][X];
+        addStep({
+          line: 7,
+          phase: 1,
+          descr: `Updated restart shadow state: <code>X = dfa['${matchChar}'][${steps[steps.length - 1].X}] = ${X}</code>.`,
+          X, j
+        });
+      }
+
+      addStep({
+        line: 8,
+        phase: 1,
+        descr: `DFA construction complete! All transition rules established. Now starting text search.`,
+        X, j: 0
+      });
+
+      // --- Phase 2: Text Search ---
+      let searchI = 0;
+      let searchJ = 0;
+
+      while (searchI < N && searchJ < M) {
+        const textChar = txt.charAt(searchI);
+        const nextJ = dfa[textChar] !== undefined ? dfa[textChar][searchJ] : 0;
+
+        addStep({
+          line: 10,
+          phase: 2,
+          descr: `Text index <code>i = ${searchI}</code> ('${textChar}'), Automaton state <code>j = ${searchJ}</code>. Lookup <code>dfa['${textChar}'][${searchJ}]</code>.`,
+          i: searchI,
+          j: searchJ,
+          activeChar: textChar,
+          activeDfaCell: { char: textChar, state: searchJ },
+          X
+        });
+
+        const isAdvance = nextJ > searchJ;
+        searchJ = nextJ;
+        searchI++;
+
+        addStep({
+          line: 11,
+          phase: 2,
+          descr: isAdvance
+            ? `Character '${textChar}' matched! State transitioned forward from ${steps[steps.length - 1].j} to <strong>${searchJ}</strong>.`
+            : `Mismatch on '${textChar}'. Reverted state to <strong>${searchJ}</strong> without moving text pointer backwards!`,
+          i: searchI - 1,
+          j: searchJ,
+          activeChar: textChar,
+          activeDfaCell: { char: textChar, state: steps[steps.length - 1].j },
+          X
+        });
+      }
+
+      if (searchJ === M) {
+        const matchStart = searchI - M;
+        addStep({
+          line: 12,
+          phase: 3,
+          descr: `<strong>Pattern Found!</strong> Reached accept state <code>j = ${M}</code> at text index <strong>${matchStart}</strong>.`,
+          i: searchI - 1,
+          j: M,
+          matchIndex: matchStart,
+          X
+        });
+      } else {
+        addStep({
+          line: 13,
+          phase: 3,
+          descr: `End of text reached without reaching accept state M. Pattern not found.`,
+          i: N,
+          j: searchJ,
+          matchIndex: -1,
+          X
+        });
+      }
+
+      return steps;
+    }
+
+    // --- Render Functions ---
+    function renderState(idx) {
+      if (idx < 0 || idx >= simulationSteps.length) return;
+      currentStepIndex = idx;
+      const state = simulationSteps[idx];
+
+      // Code line
+      document.querySelectorAll('.code-row').forEach(row => {
+        row.classList.remove('active');
+        if (parseInt(row.getAttribute('data-line')) === state.line) {
+          row.classList.add('active');
+        }
+      });
+
+      // Phase Pills
+      const p1 = document.getElementById('pillPhase1');
+      const p2 = document.getElementById('pillPhase2');
+      const p3 = document.getElementById('pillPhase3');
+      p1.className = 'phase-pill' + (state.phase === 1 ? ' active' : '');
+      p2.className = 'phase-pill' + (state.phase === 2 ? ' active' : '');
+      p3.className = 'phase-pill' + (state.phase === 3 ? ' active' : '');
+
+      // Explanation & Variables
+      document.getElementById('stepExplanation').innerHTML = state.descr;
+      document.getElementById('valI').textContent = state.i !== null ? state.i : '—';
+      document.getElementById('valJ').textContent = state.j;
+      document.getElementById('valX').textContent = state.X;
+      document.getElementById('valResult').textContent =
+        state.matchIndex !== null
+          ? (state.matchIndex >= 0 ? `Found @ ${state.matchIndex}` : 'Not Found')
+          : 'Searching...';
+
+      // Strings View
+      renderStringsView(state);
+
+      // DFA Table
+      renderDfaTable(state);
+
+      // DFA State Machine Graph
+      renderDfaSvg(state);
+    }
+
+    function renderStringsView(state) {
+      const textRow = document.getElementById('textRow');
+      const patRow = document.getElementById('patternRow');
+      textRow.innerHTML = '';
+      patRow.innerHTML = '';
+
+      // Text Row
+      for (let idx = 0; idx < state.txt.length; idx++) {
+        const cell = document.createElement('div');
+        cell.className = 'char-cell';
+        if (idx === state.i) cell.classList.add('active-i');
+        if (state.matchIndex !== null && state.matchIndex >= 0 && idx >= state.matchIndex && idx < state.matchIndex + state.pat.length) {
+          cell.classList.add('matched');
+        }
+
+        cell.innerHTML = `<span>${state.txt.charAt(idx)}</span><span class="char-idx">${idx}</span>`;
+        textRow.appendChild(cell);
+      }
+
+      // Pattern Row
+      for (let pIdx = 0; pIdx < state.pat.length; pIdx++) {
+        const cell = document.createElement('div');
+        cell.className = 'char-cell';
+        if (pIdx < state.j) cell.classList.add('matched');
+        cell.innerHTML = `<span>${state.pat.charAt(pIdx)}</span><span class="char-idx">${pIdx}</span>`;
+        patRow.appendChild(cell);
+      }
+
+      document.getElementById('matchStatusLabel').textContent =
+        state.phase === 1 ? 'DFA Construction Phase' : `Matching state: j = ${state.j} / ${state.pat.length}`;
+    }
+
+    function renderDfaTable(state) {
+      const table = document.getElementById('dfaTable');
+      table.innerHTML = '';
+
+      // Header: State indices 0 to M-1
+      const thead = document.createElement('thead');
+      const trHead = document.createElement('tr');
+      const thChar = document.createElement('th');
+      thChar.textContent = 'char';
+      trHead.appendChild(thChar);
+
+      for (let j = 0; j < state.pat.length; j++) {
+        const th = document.createElement('th');
+        th.textContent = `j=${j}`;
+        trHead.appendChild(th);
+      }
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      // Body: One row per alphabet character
+      const tbody = document.createElement('tbody');
+      state.alphabet.forEach(c => {
+        const tr = document.createElement('tr');
+        const thC = document.createElement('th');
+        thC.className = 'char-header';
+        thC.textContent = c;
+        tr.appendChild(thC);
+
+        for (let j = 0; j < state.pat.length; j++) {
+          const td = document.createElement('td');
+          td.className = 'dfa-cell';
+          const val = state.dfa[c][j];
+          td.textContent = val;
+
+          if (state.activeDfaCell && state.activeDfaCell.char === c && state.activeDfaCell.state === j) {
+            td.classList.add('active-transition');
+          } else if (val === j + 1 && state.pat.charAt(j) === c) {
+            td.classList.add('forward-match');
+          }
+
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+    }
+
+    function renderDfaSvg(state) {
+      const svg = document.getElementById('dfaSvg');
+      svg.innerHTML = '';
+      const M = state.pat.length;
+      const width = 640;
+      const spacing = width / (M + 1);
+
+      // Draw states circles 0 to M
+      for (let s = 0; s <= M; s++) {
+        const cx = spacing * (s + 0.5);
+        const cy = 70;
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', 18);
+
+        let cls = 'dfa-state-circle';
+        if (s === state.j) cls += ' active-state';
+        if (s === M) cls += ' accept-state';
+        circle.setAttribute('class', cls);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', cx);
+        text.setAttribute('y', cy);
+        text.setAttribute('class', 'dfa-state-text');
+        text.textContent = s;
+
+        g.appendChild(circle);
+        g.appendChild(text);
+
+        // Forward match label
+        if (s < M) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', cx + 18);
+          line.setAttribute('y1', cy);
+          line.setAttribute('x2', cx + spacing - 18);
+          line.setAttribute('y2', cy);
+          line.setAttribute('stroke', '#10b981');
+          line.setAttribute('stroke-width', 2);
+          svg.appendChild(line);
+
+          const charLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          charLabel.setAttribute('x', cx + spacing / 2);
+          charLabel.setAttribute('y', cy - 8);
+          charLabel.setAttribute('fill', '#34d399');
+          charLabel.setAttribute('font-family', 'monospace');
+          charLabel.setAttribute('font-size', '11px');
+          charLabel.setAttribute('text-anchor', 'middle');
+          charLabel.textContent = state.pat.charAt(s);
+          svg.appendChild(charLabel);
+        }
+
+        svg.appendChild(g);
+      }
+    }
+
+    // --- Playback Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        renderState(0);
+      }
+      isPlaying = true;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '❚❚ Pause';
+      btn.classList.remove('btn-primary');
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          renderState(currentStepIndex + 1);
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      const btn = document.getElementById('btnPlay');
+      btn.textContent = '▶ Play';
+      btn.classList.add('btn-primary');
+    }
+
+    function togglePlay() {
+      if (isPlaying) pause();
+      else play();
+    }
+
+    function stepNext() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        renderState(currentStepIndex + 1);
+      }
+    }
+
+    function stepPrev() {
+      pause();
+      if (currentStepIndex > 0) {
+        renderState(currentStepIndex - 1);
+      }
+    }
+
+    function resetSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentPreset.pat, currentPreset.txt);
+      renderState(0);
+    }
+
+    document.getElementById('btnPlay').addEventListener('click', togglePlay);
+    document.getElementById('btnNext').addEventListener('click', stepNext);
+    document.getElementById('btnPrev').addEventListener('click', stepPrev);
+    document.getElementById('btnReset').addEventListener('click', resetSimulation);
+
+    document.getElementById('presetSelect').addEventListener('change', (e) => {
+      currentPreset = PRESETS[e.target.value];
+      resetSimulation();
+    });
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    speedSlider.addEventListener('input', (e) => {
+      playSpeed = parseInt(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      resetSimulation();
+    });
+  </script>
+</body>
+</html>
