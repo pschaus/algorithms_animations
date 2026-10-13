@@ -353,20 +353,20 @@
 
     .edge-line {
       stroke: #334869;
-      stroke-width: 2;
+      stroke-width: 2.5;
       marker-end: url(#arrow-normal);
       transition: stroke 0.25s, stroke-width 0.25s;
     }
 
     .edge-line.relaxing {
       stroke: #fbbf24;
-      stroke-width: 4;
+      stroke-width: 3.5;
       marker-end: url(#arrow-relax);
     }
 
     .edge-line.spt-edge {
       stroke: #10b981;
-      stroke-width: 4;
+      stroke-width: 3.5;
       marker-end: url(#arrow-spt);
       filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
     }
@@ -611,14 +611,14 @@
         <div class="graph-canvas-container">
           <svg class="graph-svg" id="graphSvg" viewBox="0 0 760 420">
             <defs>
-              <marker id="arrow-normal" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#475569" />
+              <marker id="arrow-normal" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#475569" />
               </marker>
-              <marker id="arrow-relax" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#fbbf24" />
+              <marker id="arrow-relax" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#fbbf24" />
               </marker>
-              <marker id="arrow-spt" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#10b981" />
+              <marker id="arrow-spt" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#10b981" />
               </marker>
             </defs>
           </svg>
@@ -867,11 +867,24 @@
         const uPos = pos[e.u];
         const vPos = pos[e.v];
 
+        const dx = vPos.x - uPos.x;
+        const dy = vPos.y - uPos.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        const nodeRadius = 19;
+        const arrowLen = 9.5;
+
+        const x1 = uPos.x + ux * nodeRadius;
+        const y1 = uPos.y + uy * nodeRadius;
+        const x2 = vPos.x - ux * (nodeRadius + arrowLen);
+        const y2 = vPos.y - uy * (nodeRadius + arrowLen);
+
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', uPos.x);
-        line.setAttribute('y1', uPos.y);
-        line.setAttribute('x2', vPos.x);
-        line.setAttribute('y2', vPos.y);
+        line.setAttribute('x1', x1.toFixed(1));
+        line.setAttribute('y1', y1.toFixed(1));
+        line.setAttribute('x2', x2.toFixed(1));
+        line.setAttribute('y2', y2.toFixed(1));
 
         let cls = 'edge-line';
         const isSpt = state.edgeTo[e.v] && state.edgeTo[e.v].u === e.u && state.edgeTo[e.v].v === e.v;

@@ -136,6 +136,7 @@ When assigning `category` and `categoryName`, use the following standard course 
 | `part4` | `Part 4: Hash & Strings` | Hash Tables (Separate Chaining, Linear Probing), Tries, TST, Substring Search (KMP, Boyer-Moore, Rabin-Karp) |
 | `part5` | `Part 5: Priority Queues` | Binary Heaps (Min/Max), Huffman Compression, LZW Compression |
 | `part6` | `Part 6: Graphs` | DFS, BFS, Topological Sort, Strongly Connected Components, MST (Prim, Kruskal), Shortest Paths (Dijkstra, Bellman-Ford) |
+| `part7` | `Part 7: Linear Programming & Optimization` | Simplex Algorithm (Tableau & 2D Geometry), Bland's Rule, Duality & Shadow Prices, Max-Flow (Ford-Fulkerson, Edmonds-Karp), Minimum-Cost Flow (Successive Shortest Path) |
 
 ---
 

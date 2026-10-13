@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ford-Fulkerson Max-Flow & Min-Cut Visualizer — LINFO1121 & LINFO2266</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Toggle Buttons Group */
+    .view-toggle-group {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .view-toggle-btn {
+      border-radius: 0;
+      border: none;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      background: #151f32;
+      color: var(--text-dim);
+    }
+
+    .view-toggle-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Stepper Controls Bar */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .phase-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--accent-amber);
+    }
+
+    .phase-badge.optimal {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    /* Step Explanation Box */
+    .step-expl-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      line-height: 1.45;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Graph Canvas / SVG Container */
+    .graph-viewport {
+      position: relative;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-height: 480px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg#flowGraphSvg {
+      width: 100%;
+      height: 480px;
+      display: block;
+      user-select: none;
+    }
+
+    .graph-legend {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .legend-pill {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .metric-pill {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: monospace;
+      margin-top: 0.15rem;
+    }
+
+    .metric-value.highlight {
+      color: var(--accent-emerald);
+    }
+
+    /* Min-Cut Panel */
+    .cut-panel {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .cut-partition-box {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .cut-part-col {
+      flex: 1;
+      background: #1e293b;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .cut-part-title {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+
+    .cut-part-col.part-a {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .cut-part-col.part-a .cut-part-title {
+      color: var(--accent-emerald);
+    }
+
+    .cut-part-col.part-b {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .cut-part-col.part-b .cut-part-title {
+      color: var(--accent-blue);
+    }
+
+    .node-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+
+    .node-tag {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 0.15rem 0.45rem;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: #fff;
+    }
+
+    /* History Table */
+    .history-table-container {
+      overflow-y: auto;
+      max-height: 180px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    table.history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      font-family: monospace;
+      text-align: left;
+    }
+
+    table.history-table th {
+      background: #131d31;
+      padding: 0.35rem 0.5rem;
+      color: var(--text-dim);
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.history-table td {
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+    }
+
+    table.history-table tr.active-hist {
+      background: rgba(56, 189, 248, 0.12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Pseudocode */
+    .code-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .code-line.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      font-weight: 700;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .kw { color: #f43f5e; font-weight: 700; }
+    .fn { color: #38bdf8; }
+    .cm { color: #475569; font-style: italic; }
+    .vr { color: #f59e0b; }
+    .num { color: #10b981; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121 / LINFO2266</span>
+      <div>
+        <h1>Ford-Fulkerson Max-Flow & Min-Cut</h1>
+        <div class="header-subtitle">Augmenting Paths • Residual Networks • Edmonds-Karp • Capacity Scaling • Max-Flow Min-Cut Theorem</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Selection -->
+      <div class="control-item">
+        <label for="presetSelect">Network:</label>
+        <select id="presetSelect">
+          <option value="standard6">Classic 6-Node Network (6 nodes, 9 arcs)</option>
+          <option value="sedgewick">Sedgewick tinyFN (Classic 6 nodes, 8 arcs)</option>
+          <option value="diamond">Pathological Diamond (DFS vs Edmonds-Karp)</option>
+          <option value="matching">Bipartite Maximum Matching (Workers → Jobs)</option>
+          <option value="bridge">Bridge Cut Network (2 components with choke)</option>
+        </select>
+      </div>
+
+      <!-- Search Strategy -->
+      <div class="control-item">
+        <label for="strategySelect">Search:</label>
+        <select id="strategySelect">
+          <option value="bfs">Edmonds-Karp (BFS: Shortest Hops)</option>
+          <option value="dfs">Ford-Fulkerson (DFS: Deepest Path)</option>
+          <option value="scaling">Capacity Scaling (Δ-scaling)</option>
+        </select>
+      </div>
+
+      <!-- Animation Speed -->
+      <div class="control-item">
+        <label for="speedRange">Speed:</label>
+        <input type="range" id="speedRange" min="200" max="2500" step="100" value="1000">
+        <span class="dynamic-val" id="speedVal">1.0s</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+
+    <!-- Left Column: Flow & Residual Graph View -->
+    <div class="left-column">
+
+      <!-- Execution Stepper Controls -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Stepper</span>
+          <span class="phase-badge" id="phaseBadge">Step 0 / 0</span>
+        </div>
+
+        <div class="playback-bar">
+          <div class="btn-group">
+            <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+            <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+            <button id="btnNext" title="Next Step">Next ⏭</button>
+            <button id="btnReset" title="Reset Simulation">↺ Reset</button>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="view-toggle-group">
+            <button class="view-toggle-btn active" id="btnViewFlow">Flow G</button>
+            <button class="view-toggle-btn" id="btnViewResidual">Residual G<sub>f</sub></button>
+            <button class="view-toggle-btn" id="btnViewDual">Dual Overlay</button>
+          </div>
+
+          <span id="stepCounter" style="font-size: 0.8rem; color: var(--text-dim); font-family: monospace;">Augmentation 0</span>
+        </div>
+
+        <!-- Explanation text -->
+        <div class="step-expl-box" id="stepExplanation" style="margin-top: 0.75rem;">
+          Select a network preset and search strategy to begin the Max-Flow computation.
+        </div>
+      </div>
+
+      <!-- Graph Viewport (SVG) -->
+      <div class="card" style="padding: 0.75rem;">
+        <div class="card-header-line" style="margin-bottom: 0.4rem;">
+          <span id="viewportTitle">Flow Network G: [flow / capacity]</span>
+          <span id="cutStatusText" style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700;">In Progress</span>
+        </div>
+
+        <div class="graph-viewport">
+          <svg id="flowGraphSvg" viewBox="0 0 850 480">
+            <!-- Dynamic SVG elements rendered here -->
+          </svg>
+
+          <!-- Graph Legend -->
+          <div class="graph-legend">
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #10b981;"></div>
+              <span>Source Node <em>s</em></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f43f5e;"></div>
+              <span>Sink Node <em>t</em></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #38bdf8;"></div>
+              <span>Augmenting Path / Active Flow</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f59e0b;"></div>
+              <span>Bottleneck Arc (δ) / Saturated (f = c)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #c084fc; border: 1px dashed #c084fc;"></div>
+              <span>Backward Residual Arc (G<sub>f</sub> Flow Refund)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow Conservation Table -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Flow Conservation & Node Equilibrium Audit</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">∑ Inflow = ∑ Outflow (∀ v ∉ {s, t})</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="history-table" id="conservationTable">
+            <thead>
+              <tr>
+                <th>Node</th>
+                <th>Role</th>
+                <th>Total Inflow</th>
+                <th>Total Outflow</th>
+                <th>Net Balance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="conservationTbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Metrics, Min-Cut Duality, Augmentation History & Pseudocode -->
+    <div class="right-column">
+
+      <!-- Metrics Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Flow & Cut Metrics</span>
+          <span id="flowValueBadge" style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 700;">v(f) = 0</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-pill">
+            <div class="metric-label">Max Flow v(f)</div>
+            <div class="metric-value highlight" id="metricMaxFlow">0.0</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Min-Cut Cap</div>
+            <div class="metric-value" id="metricMinCut">?</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Augmentations</div>
+            <div class="metric-value" id="metricAugCount">0</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Saturated Arcs</div>
+            <div class="metric-value" id="metricSaturated">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Min-Cut Partition Box (Max-Flow Min-Cut Theorem) -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Max-Flow Min-Cut Verification</span>
+          <span style="font-size: 0.72rem; color: var(--accent-blue); font-weight: 700;">Theorem cap(A, B) = v(f)</span>
+        </div>
+
+        <div class="cut-panel">
+          <div id="minCutExplText">
+            When no augmenting path exists in G<sub>f</sub>, the set of vertices reachable from <em>s</em> forms set A. The cut boundary (A, B) certifies optimality.
+          </div>
+
+          <div class="cut-partition-box">
+            <div class="cut-part-col part-a">
+              <div class="cut-part-title">Source Set A (s ∈ A)</div>
+              <div class="node-tag-list" id="nodesSetA">
+                <span class="node-tag">s</span>
+              </div>
+            </div>
+            <div class="cut-part-col part-b">
+              <div class="cut-part-title">Sink Set B (t ∈ B)</div>
+              <div class="node-tag-list" id="nodesSetB">
+                <span class="node-tag">t</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.65rem; font-size: 0.78rem;" id="cutEdgesList">
+            <strong>Cut Crossing Arcs (A → B):</strong> <span id="cutArcsText">None yet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Augmentation History Table -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Augmenting Path History</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);" id="pathCountHeader">0 Paths</span>
+        </div>
+
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Augmenting Path</th>
+                <th>Bottleneck δ</th>
+                <th>Net Flow v(f)</th>
+              </tr>
+            </thead>
+            <tbody id="historyTbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pseudocode -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Ford-Fulkerson Algorithm (Java)</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">FordFulkerson.java</span>
+        </div>
+
+        <div class="code-box">
+          <span class="code-line" id="ffLine1"><span class="kw">double</span> value = <span class="num">0.0</span>;</span>
+          <span class="code-line" id="ffLine2"><span class="kw">while</span> (<span class="fn">hasAugmentingPath</span>(G, s, t)) {</span>
+          <span class="code-line" id="ffLine3">&nbsp;&nbsp;<span class="cm">// Find bottleneck residual capacity along path</span></span>
+          <span class="code-line" id="ffLine4">&nbsp;&nbsp;<span class="kw">double</span> bottle = <span class="fn">computeBottleneck</span>(edgeTo, s, t);</span>
+          <span class="code-line" id="ffLine5">&nbsp;&nbsp;<span class="cm">// Augment flow (forward += bottle, backward -= bottle)</span></span>
+          <span class="code-line" id="ffLine6">&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> v = t; v != s; v = edgeTo[v].<span class="fn">other</span>(v)) {</span>
+          <span class="code-line" id="ffLine7">&nbsp;&nbsp;&nbsp;&nbsp;edgeTo[v].<span class="fn">addResidualFlowTo</span>(v, bottle);</span>
+          <span class="code-line" id="ffLine8">&nbsp;&nbsp;}</span>
+          <span class="code-line" id="ffLine9">&nbsp;&nbsp;value += bottle;</span>
+          <span class="code-line" id="ffLine10">}</span>
+          <span class="code-line" id="ffLine11"><span class="cm">// Optimality: reachability in G_f gives min-cut (A, B)</span></span>
+          <span class="code-line" id="ffLine12"><span class="kw">return</span> value;</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // GRAPH PRESETS & TOPOLOGIES
+    // =========================================================================
+    const NETWORKS = {
+      standard6: {
+        title: "Classic 6-Node Flow Network (Figures 7.1 & 7.3)",
+        V: 6,
+        s: 0,
+        t: 5,
+        edges: [
+          { u: 0, v: 1, c: 7 },
+          { u: 0, v: 2, c: 5 },
+          { u: 1, v: 2, c: 2 },
+          { u: 1, v: 3, c: 4 },
+          { u: 1, v: 4, c: 3 },
+          { u: 2, v: 4, c: 8 },
+          { u: 3, v: 2, c: 2 },
+          { u: 3, v: 5, c: 6 },
+          { u: 4, v: 5, c: 7 }
+        ],
+        positions: [
+          { x: 100, y: 240, label: "0 (s)" },
+          { x: 280, y: 120, label: "1" },
+          { x: 280, y: 360, label: "2" },
+          { x: 550, y: 120, label: "3" },
+          { x: 550, y: 360, label: "4" },
+          { x: 740, y: 240, label: "5 (t)" }
+        ]
+      },
+      sedgewick: {
+        title: "Sedgewick tinyFN (Algorithms 4th ed.)",
+        V: 6,
+        s: 0,
+        t: 5,
+        edges: [
+          { u: 0, v: 1, c: 10 },
+          { u: 0, v: 2, c: 5 },
+          { u: 2, v: 1, c: 4 },
+          { u: 1, v: 3, c: 9 },
+          { u: 1, v: 4, c: 4 },
+          { u: 2, v: 4, c: 8 },
+          { u: 3, v: 5, c: 10 },
+          { u: 4, v: 3, c: 6 },
+          { u: 4, v: 5, c: 10 }
+        ],
+        positions: [
+          { x: 90,  y: 240, label: "0 (s)" },
+          { x: 300, y: 110, label: "1" },
+          { x: 300, y: 370, label: "2" },
+          { x: 540, y: 110, label: "3" },
+          { x: 540, y: 370, label: "4" },
+          { x: 750, y: 240, label: "5 (t)" }
+        ]
+      },
+      diamond: {
+        title: "Pathological 4-Node Diamond (DFS Worst-Case vs Edmonds-Karp)",
+        V: 4,
+        s: 0,
+        t: 3,
+        edges: [
+          { u: 0, v: 1, c: 100 },
+          { u: 0, v: 2, c: 100 },
+          { u: 1, v: 2, c: 1 },
+          { u: 1, v: 3, c: 100 },
+          { u: 2, v: 3, c: 100 }
+        ],
+        positions: [
+          { x: 120, y: 240, label: "0 (s)" },
+          { x: 420, y: 100, label: "1 (u)" },
+          { x: 420, y: 380, label: "2 (v)" },
+          { x: 720, y: 240, label: "3 (t)" }
+        ]
+      },
+      matching: {
+        title: "Bipartite Maximum Matching (Workers → Tasks)",
+        V: 8,
+        s: 0,
+        t: 7,
+        edges: [
+          { u: 0, v: 1, c: 1 },
+          { u: 0, v: 2, c: 1 },
+          { u: 0, v: 3, c: 1 },
+          { u: 1, v: 4, c: 1 },
+          { u: 1, v: 5, c: 1 },
+          { u: 2, v: 4, c: 1 },
+          { u: 2, v: 6, c: 1 },
+          { u: 3, v: 5, c: 1 },
+          { u: 3, v: 6, c: 1 },
+          { u: 4, v: 7, c: 1 },
+          { u: 5, v: 7, c: 1 },
+          { u: 6, v: 7, c: 1 }
+        ],
+        positions: [
+          { x: 80,  y: 240, label: "s" },
+          { x: 280, y: 120, label: "W₁" },
+          { x: 280, y: 240, label: "W₂" },
+          { x: 280, y: 360, label: "W₃" },
+          { x: 560, y: 120, label: "J₁" },
+          { x: 560, y: 240, label: "J₂" },
+          { x: 560, y: 360, label: "J₃" },
+          { x: 760, y: 240, label: "t" }
+        ]
+      },
+      bridge: {
+        title: "Bridge Bottleneck Network (2 Dense Clusters)",
+        V: 6,
+        s: 0,
+        t: 5,
+        edges: [
+          { u: 0, v: 1, c: 12 },
+          { u: 0, v: 2, c: 14 },
+          { u: 1, v: 2, c: 5 },
+          { u: 1, v: 3, c: 6 },  // Bottleneck Bridge 1
+          { u: 2, v: 4, c: 7 },  // Bottleneck Bridge 2
+          { u: 3, v: 4, c: 4 },
+          { u: 3, v: 5, c: 10 },
+          { u: 4, v: 5, c: 15 }
+        ],
+        positions: [
+          { x: 90,  y: 240, label: "0 (s)" },
+          { x: 280, y: 130, label: "1" },
+          { x: 280, y: 350, label: "2" },
+          { x: 560, y: 130, label: "3" },
+          { x: 560, y: 350, label: "4" },
+          { x: 750, y: 240, label: "5 (t)" }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // STATE & REFS
+    // =========================================================================
+    let currentNetworkKey = "standard6";
+    let currentStrategy = "bfs"; // "bfs", "dfs", "scaling"
+    let currentViewMode = "flow"; // "flow", "residual", "dual"
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 1000;
+
+    // DOM Elements
+    const presetSelect = document.getElementById("presetSelect");
+    const strategySelect = document.getElementById("strategySelect");
+    const speedRange = document.getElementById("speedRange");
+    const speedVal = document.getElementById("speedVal");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+    const btnViewFlow = document.getElementById("btnViewFlow");
+    const btnViewResidual = document.getElementById("btnViewResidual");
+    const btnViewDual = document.getElementById("btnViewDual");
+    const phaseBadge = document.getElementById("phaseBadge");
+    const stepCounter = document.getElementById("stepCounter");
+    const stepExplanation = document.getElementById("stepExplanation");
+    const flowGraphSvg = document.getElementById("flowGraphSvg");
+    const viewportTitle = document.getElementById("viewportTitle");
+    const cutStatusText = document.getElementById("cutStatusText");
+    const metricMaxFlow = document.getElementById("metricMaxFlow");
+    const metricMinCut = document.getElementById("metricMinCut");
+    const metricAugCount = document.getElementById("metricAugCount");
+    const metricSaturated = document.getElementById("metricSaturated");
+    const flowValueBadge = document.getElementById("flowValueBadge");
+    const nodesSetA = document.getElementById("nodesSetA");
+    const nodesSetB = document.getElementById("nodesSetB");
+    const cutArcsText = document.getElementById("cutArcsText");
+    const minCutExplText = document.getElementById("minCutExplText");
+    const historyTbody = document.getElementById("historyTbody");
+    const pathCountHeader = document.getElementById("pathCountHeader");
+    const conservationTbody = document.getElementById("conservationTbody");
+
+    // =========================================================================
+    // SIMULATION ENGINE: FORWARD & BACKWARD RESIDUAL AUGMENTATION
+    // =========================================================================
+    function cloneEdges(edges) {
+      return edges.map(e => ({ ...e }));
+    }
+
+    function buildMaxFlowSimulation(net, strategy) {
+      const steps = [];
+      const V = net.V;
+      const s = net.s;
+      const t = net.t;
+
+      // Edges with flow initialized to 0
+      const edges = net.edges.map((e, idx) => ({
+        id: idx,
+        u: e.u,
+        v: e.v,
+        c: e.c,
+        f: 0
+      }));
+
+      // Adjacency for residual graph
+      // Each edge e in original network creates two directional views:
+      // forward: u -> v with residual cap (c - f)
+      // backward: v -> u with residual cap f
+      function getResidualEdges(currentEdges, minDelta = 0) {
+        const adj = Array.from({ length: V }, () => []);
+        currentEdges.forEach(e => {
+          // Forward arc
+          const fwdRes = e.c - e.f;
+          if (fwdRes > minDelta) {
+            adj[e.u].push({ edge: e, from: e.u, to: e.v, isForward: true, resCap: fwdRes });
+          }
+          // Backward arc
+          const bwdRes = e.f;
+          if (bwdRes > minDelta) {
+            adj[e.v].push({ edge: e, from: e.v, to: e.u, isForward: false, resCap: bwdRes });
+          }
+        });
+        return adj;
+      }
+
+      // Initial Step
+      steps.push({
+        phase: "Initial Zero Flow",
+        phaseClass: "",
+        codeLine: 1,
+        edges: cloneEdges(edges),
+        activePath: null,
+        bottleneck: 0,
+        bottleneckEdge: null,
+        flowValue: 0,
+        augCount: 0,
+        history: [],
+        setA: [s],
+        setB: Array.from({ length: V - 1 }, (_, i) => (i >= s ? i + 1 : i)),
+        isOptimal: false,
+        explanation: `Initialized empty flow in network with ${V} vertices and ${edges.length} edges. Source is ${net.positions[s].label}, sink is ${net.positions[t].label}.`
+      });
+
+      let netFlow = 0;
+      let augCount = 0;
+      const history = [];
+
+      // Capacity scaling initial Delta
+      let maxCap = Math.max(...edges.map(e => e.c));
+      let Delta = 1;
+      while (Delta * 2 <= maxCap) Delta *= 2;
+
+      while (true) {
+        let pathResult = null;
+
+        if (strategy === "scaling") {
+          // Scaling: find path with residual capacity >= Delta
+          while (Delta >= 1) {
+            const adj = getResidualEdges(edges, Delta - 1e-9);
+            pathResult = findPathBFS(V, s, t, adj);
+            if (pathResult) break;
+            Delta = Math.floor(Delta / 2);
+          }
+        } else if (strategy === "dfs") {
+          // DFS: deepest path
+          const adj = getResidualEdges(edges, 0);
+          pathResult = findPathDFS(V, s, t, adj);
+        } else {
+          // Edmonds-Karp BFS: shortest path in number of hops
+          const adj = getResidualEdges(edges, 0);
+          pathResult = findPathBFS(V, s, t, adj);
+        }
+
+        // If no augmenting path found -> OPTIMALITY REACHED
+        if (!pathResult) {
+          // Compute reachable set A from s in G_f
+          const adj = getResidualEdges(edges, 0);
+          const visited = new Array(V).fill(false);
+          const queue = [s];
+          visited[s] = true;
+          while (queue.length > 0) {
+            const u = queue.shift();
+            adj[u].forEach(item => {
+              if (!visited[item.to] && item.resCap > 1e-9) {
+                visited[item.to] = true;
+                queue.push(item.to);
+              }
+            });
+          }
+
+          const setA = [];
+          const setB = [];
+          for (let v = 0; v < V; v++) {
+            if (visited[v]) setA.push(v);
+            else setB.push(v);
+          }
+
+          steps.push({
+            phase: "Optimal Max-Flow / Min-Cut Certified",
+            phaseClass: "optimal",
+            codeLine: 11,
+            edges: cloneEdges(edges),
+            activePath: null,
+            bottleneck: 0,
+            bottleneckEdge: null,
+            flowValue: netFlow,
+            augCount: augCount,
+            history: [...history],
+            setA,
+            setB,
+            isOptimal: true,
+            explanation: `Optimal Maximum Flow certified! No augmenting path exists in residual graph G_f. Net flow throughput is v(f) = ${netFlow}. Cut (A, B) capacity exactly matches v(f) = ${netFlow}.`
+          });
+          break;
+        }
+
+        // Augmenting Path Found
+        const { path, bottleneck, bottleneckEdge } = pathResult;
+        augCount++;
+
+        const pathStr = path.map(p => p.from).concat([t]).map(v => net.positions[v].label.split(' ')[0]).join(" → ");
+
+        // Step: Highlight Path & Bottleneck
+        steps.push({
+          phase: `Path ${augCount} Discovered`,
+          phaseClass: "",
+          codeLine: 4,
+          edges: cloneEdges(edges),
+          activePath: path,
+          bottleneck: bottleneck,
+          bottleneckEdge: bottleneckEdge,
+          flowValue: netFlow,
+          augCount: augCount,
+          history: [...history],
+          setA: [s],
+          setB: [],
+          isOptimal: false,
+          explanation: `Found augmenting path [${pathStr}] with bottleneck capacity δ = ${bottleneck}. Limiting bottleneck arc is (${net.positions[bottleneckEdge.from].label.split(' ')[0]} → ${net.positions[bottleneckEdge.to].label.split(' ')[0]}).`
+        });
+
+        // Augment flow on path
+        path.forEach(item => {
+          const e = edges[item.edge.id];
+          if (item.isForward) {
+            e.f += bottleneck;
+          } else {
+            // Backward edge: cancel/redirect flow
+            e.f -= bottleneck;
+          }
+        });
+
+        netFlow += bottleneck;
+        history.push({
+          index: augCount,
+          pathStr,
+          bottle: bottleneck,
+          netFlow: netFlow
+        });
+
+        // Step: Flow Augmented
+        steps.push({
+          phase: `Augmentation ${augCount} Applied`,
+          phaseClass: "",
+          codeLine: 8,
+          edges: cloneEdges(edges),
+          activePath: path,
+          bottleneck: bottleneck,
+          bottleneckEdge: bottleneckEdge,
+          flowValue: netFlow,
+          augCount: augCount,
+          history: [...history],
+          setA: [s],
+          setB: [],
+          isOptimal: false,
+          explanation: `Pushed δ = ${bottleneck} units of flow along path. Net flow increased to v(f) = ${netFlow}. Updated forward and backward capacities in G_f.`
+        });
+      }
+
+      return steps;
+    }
+
+    // BFS Path Search (Edmonds-Karp)
+    function findPathBFS(V, s, t, adj) {
+      const edgeTo = new Array(V).fill(null);
+      const visited = new Array(V).fill(false);
+      const queue = [s];
+      visited[s] = true;
+
+      while (queue.length > 0) {
+        const u = queue.shift();
+        if (u === t) break;
+
+        for (const item of adj[u]) {
+          const w = item.to;
+          if (!visited[w]) {
+            visited[w] = true;
+            edgeTo[w] = item;
+            queue.push(w);
+          }
+        }
+      }
+
+      if (!visited[t]) return null;
+
+      // Reconstruct path
+      const path = [];
+      let bottle = Infinity;
+      let bottleItem = null;
+
+      let curr = t;
+      while (curr !== s) {
+        const item = edgeTo[curr];
+        path.unshift(item);
+        if (item.resCap < bottle) {
+          bottle = item.resCap;
+          bottleItem = item;
+        }
+        curr = item.from;
+      }
+
+      return { path, bottleneck: bottle, bottleneckEdge: bottleItem };
+    }
+
+    // DFS Path Search (Ford-Fulkerson)
+    function findPathDFS(V, s, t, adj) {
+      const edgeTo = new Array(V).fill(null);
+      const visited = new Array(V).fill(false);
+
+      function dfs(u) {
+        visited[u] = true;
+        if (u === t) return true;
+
+        for (const item of adj[u]) {
+          const w = item.to;
+          if (!visited[w]) {
+            edgeTo[w] = item;
+            if (dfs(w)) return true;
+          }
+        }
+        return false;
+      }
+
+      if (!dfs(s)) return null;
+
+      const path = [];
+      let bottle = Infinity;
+      let bottleItem = null;
+
+      let curr = t;
+      while (curr !== s) {
+        const item = edgeTo[curr];
+        path.unshift(item);
+        if (item.resCap < bottle) {
+          bottle = item.resCap;
+          bottleItem = item;
+        }
+        curr = item.from;
+      }
+
+      return { path, bottleneck: bottle, bottleneckEdge: bottleItem };
+    }
+
+    // =========================================================================
+    // RENDERING & SVG GRAPH VISUALIZATION
+    // =========================================================================
+    function renderStep(step) {
+      if (!step) return;
+
+      const net = NETWORKS[currentNetworkKey];
+
+      // Update Phase Badge & Step Counter
+      phaseBadge.textContent = step.phase;
+      phaseBadge.className = `phase-badge ${step.phaseClass}`;
+      stepCounter.textContent = `Augmentation ${step.augCount} (Step ${currentStepIndex + 1}/${simulationSteps.length})`;
+      stepExplanation.innerHTML = step.explanation;
+
+      // Highlight Pseudocode Line
+      for (let i = 1; i <= 12; i++) {
+        const lineEl = document.getElementById(`ffLine${i}`);
+        if (lineEl) {
+          if (i === step.codeLine) lineEl.classList.add("active");
+          else lineEl.classList.remove("active");
+        }
+      }
+
+      // Update Metrics
+      metricMaxFlow.textContent = step.flowValue.toFixed(1);
+      flowValueBadge.textContent = `v(f) = ${step.flowValue.toFixed(1)}`;
+      metricAugCount.textContent = step.augCount;
+
+      const saturatedCount = step.edges.filter(e => Math.abs(e.c - e.f) < 1e-6).length;
+      metricSaturated.textContent = saturatedCount;
+
+      // Min-Cut verification
+      if (step.isOptimal) {
+        cutStatusText.textContent = "● Max-Flow Min-Cut Certified!";
+        cutStatusText.style.color = "var(--accent-emerald)";
+
+        // Compute cut capacity
+        let cutCap = 0;
+        const setASet = new Set(step.setA);
+        const crossingArcs = [];
+
+        net.edges.forEach(e => {
+          if (setASet.has(e.u) && !setASet.has(e.v)) {
+            cutCap += e.c;
+            crossingArcs.push(`${net.positions[e.u].label.split(' ')[0]} → ${net.positions[e.v].label.split(' ')[0]} (c=${e.c})`);
+          }
+        });
+
+        metricMinCut.textContent = cutCap.toFixed(1);
+        minCutExplText.innerHTML = `<strong>Strong Duality Confirmed!</strong> Maximum flow <em>v(f) = ${step.flowValue.toFixed(1)}</em> equals Minimum Cut capacity <em>cap(A, B) = ${cutCap.toFixed(1)}</em>.`;
+
+        nodesSetA.innerHTML = step.setA.map(v => `<span class="node-tag">${net.positions[v].label}</span>`).join("");
+        nodesSetB.innerHTML = step.setB.map(v => `<span class="node-tag">${net.positions[v].label}</span>`).join("");
+        cutArcsText.textContent = crossingArcs.join(", ") || "None";
+      } else {
+        cutStatusText.textContent = "○ Searching Augmenting Paths";
+        cutStatusText.style.color = "var(--accent-amber)";
+        metricMinCut.textContent = "?";
+        minCutExplText.innerHTML = "Currently seeking augmenting paths from source to sink in the residual graph.";
+        nodesSetA.innerHTML = `<span class="node-tag">${net.positions[net.s].label}</span>`;
+        nodesSetB.innerHTML = `<span class="node-tag">${net.positions[net.t].label}</span>`;
+        cutArcsText.textContent = "Calculated upon algorithm termination";
+      }
+
+      // Update History Table
+      renderHistoryTable(step.history);
+
+      // Update Conservation Table
+      renderConservationTable(net, step.edges);
+
+      // Render Graph SVG
+      renderGraphSvg(net, step);
+    }
+
+    function renderHistoryTable(history) {
+      if (!history || history.length === 0) {
+        historyTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-dim); padding: 1rem;">No augmentations yet</td></tr>`;
+        pathCountHeader.textContent = "0 Paths";
+        return;
+      }
+
+      pathCountHeader.textContent = `${history.length} Path${history.length > 1 ? 's' : ''}`;
+      historyTbody.innerHTML = history.map((item, idx) => `
+        <tr class="${idx === history.length - 1 ? 'active-hist' : ''}">
+          <td>#${item.index}</td>
+          <td style="color: var(--accent-blue); font-weight: 700;">${item.pathStr}</td>
+          <td style="color: var(--accent-amber); font-weight: 700;">+${item.bottle}</td>
+          <td style="color: var(--accent-emerald); font-weight: 700;">${item.netFlow}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderConservationTable(net, currentEdges) {
+      const V = net.V;
+      const inflow = new Array(V).fill(0);
+      const outflow = new Array(V).fill(0);
+
+      currentEdges.forEach(e => {
+        outflow[e.u] += e.f;
+        inflow[e.v] += e.f;
+      });
+
+      let html = "";
+      for (let v = 0; v < V; v++) {
+        const isSource = v === net.s;
+        const isSink = v === net.t;
+        const netBal = inflow[v] - outflow[v];
+        const label = net.positions[v].label;
+
+        let roleStr = "Intermediate";
+        let roleColor = "var(--text-muted)";
+        let statusStr = "Balanced (In = Out)";
+        let statusColor = "var(--accent-emerald)";
+
+        if (isSource) {
+          roleStr = "Source s";
+          roleColor = "var(--accent-emerald)";
+          statusStr = `Net Egress: ${outflow[v]}`;
+          statusColor = "var(--accent-blue)";
+        } else if (isSink) {
+          roleStr = "Sink t";
+          roleColor = "var(--accent-rose)";
+          statusStr = `Net Ingress: ${inflow[v]}`;
+          statusColor = "var(--accent-rose)";
+        } else if (Math.abs(netBal) > 1e-6) {
+          statusStr = "Violation!";
+          statusColor = "var(--accent-rose)";
+        }
+
+        html += `
+          <tr>
+            <td><strong>${label}</strong></td>
+            <td style="color: ${roleColor}; font-weight: 700;">${roleStr}</td>
+            <td>${inflow[v].toFixed(1)}</td>
+            <td>${outflow[v].toFixed(1)}</td>
+            <td>${netBal.toFixed(1)}</td>
+            <td style="color: ${statusColor}; font-weight: 700;">${statusStr}</td>
+          </tr>
+        `;
+      }
+      conservationTbody.innerHTML = html;
+    }
+
+    // Render Directed Graph SVG
+    function renderGraphSvg(net, step) {
+      const activePathEdges = new Set();
+      if (step.activePath) {
+        step.activePath.forEach(item => {
+          activePathEdges.add(`${item.from}->${item.to}`);
+        });
+      }
+
+      const bottleFrom = step.bottleneckEdge ? step.bottleneckEdge.from : null;
+      const bottleTo = step.bottleneckEdge ? step.bottleneckEdge.to : null;
+
+      let svgHtml = `
+        <defs>
+          <!-- Arrowheads: userSpaceOnUse, tip at x=9.5, base at x=0 -->
+          <marker id="arrow-gray" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#64748b" />
+          </marker>
+          <marker id="arrow-blue" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#38bdf8" />
+          </marker>
+          <marker id="arrow-amber" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#f59e0b" />
+          </marker>
+          <marker id="arrow-purple" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#c084fc" />
+          </marker>
+          <marker id="arrow-cut" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#f43f5e" />
+          </marker>
+        </defs>
+      `;
+
+      // Draw Cut Background Partition when optimal
+      if (step.isOptimal && step.setA && step.setA.length > 0) {
+        const posA = step.setA.map(v => net.positions[v]);
+        const posB = step.setB.map(v => net.positions[v]);
+
+        const minXA = Math.min(...posA.map(p => p.x)) - 40;
+        const maxXA = Math.max(...posA.map(p => p.x)) + 40;
+        const minYA = Math.min(...posA.map(p => p.y)) - 40;
+        const maxYA = Math.max(...posA.map(p => p.y)) + 40;
+
+        const minXB = Math.min(...posB.map(p => p.x)) - 40;
+        const maxXB = Math.max(...posB.map(p => p.x)) + 40;
+        const minYB = Math.min(...posB.map(p => p.y)) - 40;
+        const maxYB = Math.max(...posB.map(p => p.y)) + 40;
+
+        svgHtml += `
+          <!-- Cut Set A Envelope -->
+          <rect x="${minXA}" y="${minYA}" width="${maxXA - minXA}" height="${maxYA - minYA}" rx="20"
+                fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.3)" stroke-width="1.5" stroke-dasharray="6,4" />
+          <text x="${minXA + 10}" y="${minYA + 18}" fill="#10b981" font-size="11" font-weight="bold">Cut Set A (Source Partition)</text>
+
+          <!-- Cut Set B Envelope -->
+          <rect x="${minXB}" y="${minYB}" width="${maxXB - minXB}" height="${maxYB - minYB}" rx="20"
+                fill="rgba(56, 189, 248, 0.08)" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5" stroke-dasharray="6,4" />
+          <text x="${minXB + 10}" y="${minYB + 18}" fill="#38bdf8" font-size="11" font-weight="bold">Cut Set B (Sink Partition)</text>
+        `;
+      }
+
+      // Draw Edges
+      step.edges.forEach(e => {
+        const p1 = net.positions[e.u];
+        const p2 = net.positions[e.v];
+        const isSaturated = Math.abs(e.c - e.f) < 1e-6 && e.f > 0;
+        const isForwardActive = activePathEdges.has(`${e.u}->${e.v}`);
+        const isBackwardActive = activePathEdges.has(`${e.v}->${e.u}`);
+        const isBottleneck = (bottleFrom === e.u && bottleTo === e.v) || (bottleFrom === e.v && bottleTo === e.u);
+
+        // Check if edge crosses the optimal min-cut (u in A, v in B)
+        const isCutCrossing = step.isOptimal && step.setA.includes(e.u) && step.setB.includes(e.v);
+
+        // Calculate control point for curved arcs if reverse edge exists
+        const hasReverse = step.edges.some(other => other.u === e.v && other.v === e.u);
+        const curveOffset = hasReverse ? 26 : 0;
+        const arrowLen = 9.5;
+        const nodeRadius = 20;
+
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+
+        const mx = (p1.x + p2.x) / 2 + nx * curveOffset;
+        const my = (p1.y + p2.y) / 2 + ny * curveOffset;
+
+        // Path trimmed mathematically so arrow tip lands precisely on node circle
+        let dPath = "";
+        if (curveOffset !== 0) {
+          const d1x = mx - p1.x;
+          const d1y = my - p1.y;
+          const dist1 = Math.hypot(d1x, d1y) || 1;
+          const sx = p1.x + (d1x / dist1) * nodeRadius;
+          const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+          const d2x = p2.x - mx;
+          const d2y = p2.y - my;
+          const dist2 = Math.hypot(d2x, d2y) || 1;
+          const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+          const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        } else {
+          const ux = dx / dist;
+          const uy = dy / dist;
+          const sx = p1.x + ux * nodeRadius;
+          const sy = p1.y + uy * nodeRadius;
+          const ex = p2.x - ux * (nodeRadius + arrowLen);
+          const ey = p2.y - uy * (nodeRadius + arrowLen);
+
+          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        }
+
+        // Color & marker logic - Consistent 2.5px base, 3.5px for active/bottleneck
+        let strokeColor = "#334869";
+        let markerId = "arrow-gray";
+        let strokeWidth = 2.5;
+
+        if (isCutCrossing) {
+          strokeColor = "#f43f5e";
+          markerId = "arrow-cut";
+          strokeWidth = 3.5;
+        } else if (isBottleneck) {
+          strokeColor = "#f59e0b";
+          markerId = "arrow-amber";
+          strokeWidth = 3.5;
+        } else if (isForwardActive) {
+          strokeColor = "#38bdf8";
+          markerId = "arrow-blue";
+          strokeWidth = 3.5;
+        } else if (isSaturated) {
+          strokeColor = "#f59e0b";
+          markerId = "arrow-amber";
+          strokeWidth = 2.5;
+        }
+
+        // Draw Edge Pipe / Flow
+        if (currentViewMode === "flow" || currentViewMode === "dual") {
+          svgHtml += `
+            <path d="${dPath}" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" marker-end="url(#${markerId})" />
+          `;
+
+          // Label: flow / cap
+          const labelX = (curveOffset !== 0) ? mx : (p1.x + p2.x) / 2 + nx * 14;
+          const labelY = (curveOffset !== 0) ? my : (p1.y + p2.y) / 2 + ny * 14;
+
+          const labelBgColor = isBottleneck ? "#f59e0b" : (isSaturated ? "#d97706" : "#0f172a");
+          const labelTextColor = isBottleneck || isSaturated ? "#000" : "#f8fafc";
+
+          svgHtml += `
+            <g transform="translate(${labelX}, ${labelY})">
+              <rect x="-24" y="-10" width="48" height="20" rx="4" fill="${labelBgColor}" stroke="${strokeColor}" stroke-width="1.2" opacity="0.95" />
+              <text x="0" y="4" fill="${labelTextColor}" font-size="10" font-family="monospace" font-weight="bold" text-anchor="middle">
+                ${e.f}/${e.c}
+              </text>
+            </g>
+          `;
+        }
+
+        // In Residual Mode or Dual View, also render residual arcs
+        if (currentViewMode === "residual" || currentViewMode === "dual") {
+          const resFwd = e.c - e.f;
+          const resBwd = e.f;
+
+          // Forward residual arc (if resFwd > 0)
+          if (resFwd > 0 && currentViewMode === "residual") {
+            svgHtml += `
+              <path d="${dPath}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+              <g transform="translate(${mx}, ${my - 12})">
+                <rect x="-18" y="-8" width="36" height="16" rx="3" fill="#13241b" stroke="#10b981" stroke-width="1" />
+                <text x="0" y="4" fill="#10b981" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  +${resFwd}
+                </text>
+              </g>
+            `;
+          }
+
+          // Backward residual arc (if resBwd > 0: flow refund!)
+          if (resBwd > 0) {
+            const bwdMx = (p1.x + p2.x) / 2 - nx * (curveOffset !== 0 ? curveOffset : 24);
+            const bwdMy = (p1.y + p2.y) / 2 - ny * (curveOffset !== 0 ? curveOffset : 24);
+
+            const bd1x = bwdMx - p2.x;
+            const bd1y = bwdMy - p2.y;
+            const bdist1 = Math.hypot(bd1x, bd1y) || 1;
+            const bsx = p2.x + (bd1x / bdist1) * nodeRadius;
+            const bsy = p2.y + (bd1y / bdist1) * nodeRadius;
+
+            const bd2x = p1.x - bwdMx;
+            const bd2y = p1.y - bwdMy;
+            const bdist2 = Math.hypot(bd2x, bd2y) || 1;
+            const bex = p1.x - (bd2x / bdist2) * (nodeRadius + arrowLen);
+            const bey = p1.y - (bd2y / bdist2) * (nodeRadius + arrowLen);
+
+            const dBwd = `M ${bsx.toFixed(1)} ${bsy.toFixed(1)} Q ${bwdMx.toFixed(1)} ${bwdMy.toFixed(1)} ${bex.toFixed(1)} ${bey.toFixed(1)}`;
+
+            svgHtml += `
+              <path d="${dBwd}" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="4,4" marker-end="url(#arrow-purple)" />
+              <g transform="translate(${bwdMx}, ${bwdMy})">
+                <rect x="-18" y="-8" width="36" height="16" rx="3" fill="#241331" stroke="#c084fc" stroke-width="1" />
+                <text x="0" y="4" fill="#c084fc" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  ↶${resBwd}
+                </text>
+              </g>
+            `;
+          }
+        }
+      });
+
+      // Draw Vertices
+      for (let v = 0; v < net.V; v++) {
+        const pos = net.positions[v];
+        const isSource = v === net.s;
+        const isSink = v === net.t;
+        const isCutA = step.isOptimal && step.setA.includes(v);
+
+        let fillCol = "#1e293b";
+        let strokeCol = "#38bdf8";
+        let radius = 20;
+
+        if (isSource) {
+          fillCol = "#064e3b";
+          strokeCol = "#10b981";
+          radius = 20;
+        } else if (isSink) {
+          fillCol = "#4c0519";
+          strokeCol = "#f43f5e";
+          radius = 20;
+        } else if (isCutA) {
+          fillCol = "#0f2f26";
+          strokeCol = "#10b981";
+        }
+
+        svgHtml += `
+          <g transform="translate(${pos.x}, ${pos.y})">
+            <!-- Node Circle -->
+            <circle cx="0" cy="0" r="${radius}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="2.5" />
+            <!-- Node Label -->
+            <text x="0" y="4" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">
+              ${pos.label.split(' ')[0]}
+            </text>
+            <!-- Badge for s / t -->
+            ${isSource ? `<text x="0" y="-26" fill="#10b981" font-size="11" font-weight="800" text-anchor="middle">SOURCE (s)</text>` : ''}
+            ${isSink ? `<text x="0" y="-26" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">SINK (t)</text>` : ''}
+          </g>
+        `;
+      }
+
+      flowGraphSvg.innerHTML = svgHtml;
+    }
+
+    // =========================================================================
+    // CONTROLS & PLAYBACK ENGINE
+    // =========================================================================
+    function stepNext() {
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderStep(simulationSteps[currentStepIndex]);
+      } else {
+        pause();
+      }
+      updateNavButtons();
+    }
+
+    function stepPrev() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderStep(simulationSteps[currentStepIndex]);
+      }
+      updateNavButtons();
+    }
+
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        currentStepIndex = 0;
+      }
+      isPlaying = true;
+      btnPlay.textContent = "⏸ Pause";
+      btnPlay.classList.remove("btn-primary");
+      btnPlay.style.background = "#d97706";
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          stepNext();
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      if (!isPlaying) return;
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      btnPlay.textContent = "▶ Play";
+      btnPlay.classList.add("btn-primary");
+      btnPlay.style.background = "";
+    }
+
+    function resetSimulation() {
+      pause();
+      currentStepIndex = 0;
+      const net = NETWORKS[currentNetworkKey];
+      simulationSteps = buildMaxFlowSimulation(net, currentStrategy);
+      renderStep(simulationSteps[0]);
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      btnPrev.disabled = currentStepIndex === 0;
+      btnNext.disabled = currentStepIndex >= simulationSteps.length - 1;
+    }
+
+    // Event Listeners
+    btnNext.addEventListener("click", () => { pause(); stepNext(); });
+    btnPrev.addEventListener("click", () => { pause(); stepPrev(); });
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause();
+      else play();
+    });
+    btnReset.addEventListener("click", resetSimulation);
+
+    presetSelect.addEventListener("change", (e) => {
+      currentNetworkKey = e.target.value;
+      resetSimulation();
+    });
+
+    strategySelect.addEventListener("change", (e) => {
+      currentStrategy = e.target.value;
+      resetSimulation();
+    });
+
+    speedRange.addEventListener("input", (e) => {
+      playSpeed = parseInt(e.target.value, 10);
+      speedVal.textContent = (playSpeed / 1000).toFixed(1) + "s";
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    // View Toggles
+    btnViewFlow.addEventListener("click", () => {
+      currentViewMode = "flow";
+      btnViewFlow.classList.add("active");
+      btnViewResidual.classList.remove("active");
+      btnViewDual.classList.remove("active");
+      viewportTitle.textContent = "Flow Network G: [flow / capacity]";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    btnViewResidual.addEventListener("click", () => {
+      currentViewMode = "residual";
+      btnViewFlow.classList.remove("active");
+      btnViewResidual.classList.add("active");
+      btnViewDual.classList.remove("active");
+      viewportTitle.textContent = "Residual Network G_f: [Forward +c_f | Backward ↶f]";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    btnViewDual.addEventListener("click", () => {
+      currentViewMode = "dual";
+      btnViewFlow.classList.remove("active");
+      btnViewResidual.classList.remove("active");
+      btnViewDual.classList.add("active");
+      viewportTitle.textContent = "Dual Overlay: Flow G with Residual Arcs";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    // Init
+    resetSimulation();
+  </script>
+</body>
+</html>

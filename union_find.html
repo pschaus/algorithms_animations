@@ -405,7 +405,7 @@
 
     .uf-edge.active {
       stroke: #fbbf24;
-      stroke-width: 4;
+      stroke-width: 3.5;
       marker-end: url(#arrowhead-active);
     }
 
@@ -656,11 +656,11 @@
         <div class="forest-canvas-container">
           <svg class="uf-svg" id="ufSvg" viewBox="0 0 760 380">
             <defs>
-              <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#64748b" />
+              <marker id="arrowhead" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#64748b" />
               </marker>
-              <marker id="arrowhead-active" markerWidth="8" markerHeight="6" refX="22" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#fbbf24" />
+              <marker id="arrowhead-active" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+                <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#fbbf24" />
               </marker>
             </defs>
           </svg>
@@ -1106,7 +1106,7 @@
       document.getElementById('valCount').textContent = state.count;
       document.getElementById('valCost').textContent = state.totalAccesses;
       document.getElementById('valConnected').textContent =
-        state.isConnected === null ? '—' : (state.isConnected ? 'OUI (Cycle)' : 'NON (Union)');
+        state.isConnected === null ? '—' : (state.isConnected ? 'YES (Cycle)' : 'NO (Union)');
       document.getElementById('valConnected').style.color =
         state.isConnected === true ? 'var(--accent-rose)' : (state.isConnected === false ? 'var(--accent-emerald)' : 'var(--accent-blue)');
 
@@ -1154,11 +1154,24 @@
       for (let i = 0; i < 10; i++) {
         const p = state.id[i];
         if (p !== i && pos[i] && pos[p]) {
+          const dx = pos[p].x - pos[i].x;
+          const dy = pos[p].y - pos[i].y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const ux = dx / dist;
+          const uy = dy / dist;
+          const nodeRadius = 18;
+          const arrowLen = 9.5;
+
+          const x1 = pos[i].x + ux * nodeRadius;
+          const y1 = pos[i].y + uy * nodeRadius;
+          const x2 = pos[p].x - ux * (nodeRadius + arrowLen);
+          const y2 = pos[p].y - uy * (nodeRadius + arrowLen);
+
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-          line.setAttribute('x1', pos[i].x);
-          line.setAttribute('y1', pos[i].y);
-          line.setAttribute('x2', pos[p].x);
-          line.setAttribute('y2', pos[p].y);
+          line.setAttribute('x1', x1.toFixed(1));
+          line.setAttribute('y1', y1.toFixed(1));
+          line.setAttribute('x2', x2.toFixed(1));
+          line.setAttribute('y2', y2.toFixed(1));
 
           let cls = 'uf-edge';
           if (state.activeEdge && state.activeEdge[0] === i && state.activeEdge[1] === p) {

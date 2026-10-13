@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merge Sort (Arrays) Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+      --accent-cyan: #06b6d4;
+
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #60a5fa;
+    }
+
+    /* Sub-header: Version Switcher Bar */
+    .version-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .version-switch-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      padding: 0.25rem 0.35rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-version-toggle {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-version-toggle:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-version-toggle.active-split {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-version-toggle.active-shared {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+    }
+
+    .version-tag-pill {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .version-tag-pill.split {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--accent-blue);
+    }
+
+    .version-tag-pill.shared {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+    }
+
+    .version-explanation-chip {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .version-explanation-chip strong {
+      color: #fff;
+    }
+
+    /* Phase Stepper Bar */
+    .phase-bar {
+      background: #0d1527;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      background: #151f32;
+      border: 1px solid var(--border-color);
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .phase-pill.active {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    .phase-pill.completed {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Main Grid Layout */
+    .app-main {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 470px 1fr;
+      gap: 1.25rem;
+      max-width: 1760px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1180px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Code Editor Box */
+    .code-editor-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.77rem;
+      line-height: 1.48;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+      max-height: 440px;
+      overflow-y: auto;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.12rem 0.75rem;
+      transition: background 0.15s ease;
+    }
+
+    .code-row.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .code-row.active.active-shared {
+      background: rgba(245, 158, 11, 0.18);
+      border-left: 3px solid var(--accent-amber);
+    }
+
+    .code-line-num {
+      width: 26px;
+      color: #475569;
+      user-select: none;
+      text-align: right;
+      padding-right: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #cbd5e1;
+      white-space: pre;
+    }
+
+    .c-keyword { color: #f43f5e; font-weight: 600; }
+    .c-func { color: #38bdf8; font-weight: 600; }
+    .c-type { color: #fbbf24; }
+    .c-comment { color: #64748b; font-style: italic; }
+
+    /* Explanation Banner */
+    .explanation-banner {
+      background: var(--bg-card-inner);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    .explanation-banner.banner-shared {
+      border-left-color: var(--accent-amber);
+    }
+
+    .badge-alloc {
+      display: inline-block;
+      margin-top: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(244, 63, 94, 0.18);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      font-family: var(--font-mono);
+    }
+
+    .badge-gc {
+      display: inline-block;
+      margin-top: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      font-family: var(--font-mono);
+    }
+
+    /* Variables Grid */
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .variable-cell .v-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-top: 0.15rem;
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Visualizer Canvas Area */
+    .viz-canvas-card {
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-label .tag {
+      background: #1e293b;
+      color: var(--accent-blue);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    /* Array Display Containers */
+    .array-container-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .array-strip {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.5rem 0.25rem 0.75rem;
+      min-height: 96px;
+    }
+
+    .cell-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      min-width: 44px;
+      flex: 1;
+      max-width: 62px;
+      position: relative;
+    }
+
+    .cell-idx {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .cell-box {
+      width: 100%;
+      height: 48px;
+      background: #1e293b;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      user-select: none;
+    }
+
+    .cell-box sub {
+      font-size: 0.65em;
+      color: var(--accent-purple);
+      margin-left: 1px;
+    }
+
+    .cell-box.empty {
+      background: rgba(15, 23, 42, 0.6);
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      color: #475569;
+    }
+
+    .cell-box.highlight-in-range {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .cell-box.highlight-in-range-shared {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .cell-box.active-compare {
+      background: #b45309 !important;
+      border-color: #fbbf24 !important;
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
+      z-index: 5;
+    }
+
+    .cell-box.active-copy {
+      background: #0284c7 !important;
+      border-color: #38bdf8 !important;
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+      z-index: 5;
+    }
+
+    .cell-box.active-write {
+      background: #059669 !important;
+      border-color: #34d399 !important;
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
+      z-index: 5;
+    }
+
+    .cell-box.sorted-final {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #a7f3d0;
+    }
+
+    /* Pointer Badges */
+    .cell-pointer-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      white-space: nowrap;
+      position: absolute;
+      top: -24px;
+      animation: pointerBounce 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10;
+    }
+
+    @keyframes pointerBounce {
+      0% { transform: translateY(-4px) scale(0.85); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .pointer-lo { background: var(--accent-blue); color: #000; }
+    .pointer-mid { background: var(--accent-purple); color: #000; }
+    .pointer-hi { background: var(--accent-amber); color: #000; }
+    .pointer-i { background: var(--accent-cyan); color: #000; }
+    .pointer-j { background: var(--accent-amber); color: #000; }
+    .pointer-k { background: var(--accent-emerald); color: #000; }
+    .pointer-leftIdx { background: var(--accent-blue); color: #000; }
+    .pointer-rightIdx { background: var(--accent-amber); color: #000; }
+    .pointer-resultIdx { background: var(--accent-emerald); color: #000; }
+
+    /* Subarrays Grid for Version 1 (Split) */
+    .split-subarrays-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .split-subarrays-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Comparison Box */
+    .comparison-banner {
+      background: #111a2e;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .comp-expression {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comp-result-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .comp-result-pill.true {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .comp-result-pill.false {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+
+    /* Call Stack & Tree Grid */
+    .tree-stack-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 950px) {
+      .tree-stack-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Recursion Tree Container */
+    .recursion-tree-container {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      min-height: 160px;
+      max-height: 220px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tree-level {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .tree-node {
+      background: #1e293b;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      cursor: default;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .tree-node.active {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      transform: scale(1.05);
+    }
+
+    .tree-node.active-shared {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      transform: scale(1.05);
+    }
+
+    .tree-node.sorted {
+      border-color: var(--accent-emerald);
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    /* Call Stack List */
+    .stack-frames-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .stack-frame-item {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+
+    .stack-frame-item.current {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .stack-frame-item.current.frame-shared {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    /* Cumulative Stats Bar */
+    .stats-footer-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      text-align: center;
+    }
+
+    @media (max-width: 800px) {
+      .stats-footer-bar {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .stat-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-val {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    /* Custom Input Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-box h3 {
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+    }
+
+    .modal-box p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+
+    .modal-box input {
+      width: 100%;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+    }
+
+    .modal-box input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Merge Sort (Array) Visualizer</h1>
+        <div class="header-subtitle">Educational Comparison: Split Subarrays (New Allocations) vs Shared Auxiliary Array (Sedgewick)</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Selector -->
+      <div class="control-item">
+        <label for="presetSelect">Preset:</label>
+        <select id="presetSelect">
+          <option value="default">Default Mixed [38, 27, 43, 3, 9, 82, 10]</option>
+          <option value="eight">Power of 2 [54, 26, 93, 17, 77, 31, 44, 55]</option>
+          <option value="reverse">Reversed [80, 70, 60, 50, 40, 30, 20, 10]</option>
+          <option value="sorted">Already Sorted [10, 20, 30, 40, 50, 60, 70, 80]</option>
+          <option value="duplicates">With Duplicates [30, 10, 20, 30, 40, 20, 10] (Stability)</option>
+        </select>
+      </div>
+
+      <button id="btnCustomModal" title="Enter Custom Array">✏️ Custom</button>
+
+      <div class="control-item">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="150" max="1800" step="50" value="700">
+        <span class="dynamic-val" id="speedVal">700ms</span>
+      </div>
+
+      <button id="btnSoundToggle" title="Toggle Sound">🔊</button>
+      <button id="btnPrev" title="Previous Step (Left Arrow)">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause (Space)">▶ Play</button>
+      <button id="btnNext" title="Next Step (Right Arrow)">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation (R)">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Version Switcher Sub-header -->
+  <div class="version-bar">
+    <div class="version-switch-group">
+      <button class="btn-version-toggle active-split" id="btnVersionSplit" title="Switch to Split Subarrays (New Allocations)">
+        <span>🔹 Version 1: Split Subarrays</span>
+        <span class="version-tag-pill split">new int[mid]</span>
+      </button>
+      <button class="btn-version-toggle" id="btnVersionShared" title="Switch to Shared Auxiliary Buffer (Sedgewick & Wayne)">
+        <span>🔸 Version 2: Shared Buffer</span>
+        <span class="version-tag-pill shared">aux[N] once</span>
+      </button>
+    </div>
+
+    <div class="version-explanation-chip" id="versionExplanationChip">
+      <span>Active Model: <strong>Split Subarrays</strong> &bull; Allocates new <code>left[]</code> and <code>right[]</code> on every recursive call ($O(N \log N)$ total element allocations).</span>
+    </div>
+  </div>
+
+  <!-- Phase Stepper -->
+  <div class="phase-bar" id="phaseBarContainer">
+    <!-- Populated dynamically based on active version -->
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <!-- Left Column: Source Code & Execution State -->
+    <div class="left-column">
+      <!-- Java Source Code Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span id="codeFilename">MergeSortSplit.java</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);" id="codeRefLabel">Direct Subarray Allocation</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <!-- Dynamically populated with active Java code -->
+        </div>
+      </div>
+
+      <!-- Execution State Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step &amp; State</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue);" id="stepCounterBadge">Step 0 / 0</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Ready to run Merge Sort. Press Play or Next to step through.
+        </div>
+        <div class="variables-grid" id="variablesGrid">
+          <!-- Dynamically populated with active variables -->
+        </div>
+      </div>
+
+      <!-- Educational Comparison & Invariants Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Memory &amp; Stability Invariants</span>
+          <span style="font-size:0.75rem; color:var(--accent-emerald);">LINFO1121 Key Concepts</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-blue);">Heap Allocation vs Shared Buffer:</strong>
+            In <em>Version 1</em>, allocating <code>new int[mid]</code> and <code>new int[len-mid]</code> inside every recursive call creates $O(N \log N)$ total allocated integers on the Java heap, causing high garbage collection pressure. In <em>Version 2</em> (Sedgewick), allocating a single shared <code>int[] aux = new int[N]</code> upfront reuses the same memory buffer across all recursive levels with zero reallocation overhead.
+          </p>
+          <p style="margin-top:0.5rem;"><strong style="color:var(--accent-amber);">Common Exam Trap:</strong>
+            Allocating <code>aux = new int[hi - lo + 1]</code> or <code>aux = new int[N]</code> <em>inside</em> the <code>merge()</code> function is a severe mistake! It combines the overhead of repeated allocations with the complexity of index offsets.
+          </p>
+          <p style="margin-top:0.5rem;"><strong style="color:var(--accent-emerald);">Stability Invariant:</strong>
+            Merge Sort is stable if and only if equal elements from the left subarray are merged before equal elements from the right subarray.
+            <br>
+            <span id="stabilityNoteText">Notice: In <code>left[leftIndex] &lt; right[rightIndex]</code>, ties fall into <code>else</code>, taking the right element first and <strong>inverting stability</strong>! Use <code>&le;</code> to preserve stability.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Visualizer Canvas -->
+    <div class="right-column">
+      <div class="card viz-canvas-card">
+        <div class="card-header-line">
+          <span id="canvasTitle">Interactive Array Memory Canvas</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;" id="activeSubproblemTitle">Full Array [0..6]</span>
+        </div>
+
+        <!-- 1. Global Array Strip -->
+        <div>
+          <div class="section-label">
+            <span>Primary Array: <code id="lblPrimaryArrayName">values[]</code></span>
+            <span class="tag" id="lblGlobalSubarrayRange">Active: [0..6]</span>
+          </div>
+          <div class="array-container-box">
+            <div class="array-strip" id="globalArrayStrip">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Version Specific Visuals -->
+        <!-- 2A. For Version 1: Split Subarrays (left[] and right[]) -->
+        <div id="splitSubarraysSection">
+          <div class="section-label">
+            <span>Allocated Subarrays in Heap Memory</span>
+            <span class="tag" id="lblHeapAllocBadge">2 Arrays Allocated</span>
+          </div>
+          <div class="split-subarrays-grid">
+            <!-- Left Subarray -->
+            <div class="array-container-box">
+              <div style="font-size:0.75rem; color:var(--accent-blue); font-weight:700; margin-bottom:0.25rem;">
+                left[] &bull; size: <span id="lblLeftSize">0</span>
+              </div>
+              <div class="array-strip" id="leftArrayStrip"></div>
+            </div>
+            <!-- Right Subarray -->
+            <div class="array-container-box">
+              <div style="font-size:0.75rem; color:var(--accent-amber); font-weight:700; margin-bottom:0.25rem;">
+                right[] &bull; size: <span id="lblRightSize">0</span>
+              </div>
+              <div class="array-strip" id="rightArrayStrip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2B. For Version 2: Shared Auxiliary Array aux[] -->
+        <div id="sharedAuxSection" style="display:none;">
+          <div class="section-label">
+            <span>Shared Auxiliary Buffer: <code>aux[]</code></span>
+            <span class="tag" style="color:var(--accent-amber);">Single Allocation (Reused)</span>
+          </div>
+          <div class="array-container-box">
+            <div class="array-strip" id="sharedAuxArrayStrip"></div>
+          </div>
+        </div>
+
+        <!-- 3. Comparison & Decision Banner -->
+        <div class="comparison-banner" id="comparisonBanner" style="display:none;">
+          <div>
+            <span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Active Comparison:</span>
+            <div class="comp-expression" id="compExprText">—</div>
+          </div>
+          <div id="compDecisionText" style="color:var(--text-main); font-size:0.82rem;">—</div>
+          <div class="comp-result-pill true" id="compResultBadge">TRUE</div>
+        </div>
+
+        <!-- 4. Recursion Tree & Call Stack -->
+        <div class="tree-stack-grid">
+          <!-- Recursion Tree -->
+          <div>
+            <div class="section-label">
+              <span>Recursion Tree (Divide &amp; Conquer)</span>
+              <span class="tag" id="lblTreeDepth">Depth: 0</span>
+            </div>
+            <div class="recursion-tree-container" id="recursionTreeContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Call Stack -->
+          <div>
+            <div class="section-label">
+              <span>Recursion Call Stack</span>
+              <span class="tag" id="lblStackFramesCount">Frames: 1</span>
+            </div>
+            <div class="stack-frames-list" id="callStackList">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Cumulative Statistics Footer Bar -->
+        <div class="stats-footer-bar">
+          <div class="stat-cell">
+            <span class="stat-label">Comparisons</span>
+            <span class="stat-val" id="statComparisons" style="color:var(--accent-amber);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Array Copies / Writes</span>
+            <span class="stat-val" id="statWrites" style="color:var(--accent-blue);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Heap Arrays Allocated</span>
+            <span class="stat-val" id="statAllocArrays" style="color:var(--accent-rose);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Heap Elements Allocated</span>
+            <span class="stat-val" id="statAllocElements" style="color:var(--accent-purple);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Max Call Depth</span>
+            <span class="stat-val" id="statMaxDepth" style="color:var(--accent-cyan);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Time Complexity</span>
+            <span class="stat-val" style="color:var(--accent-emerald);">O(N log N)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Custom Array Input Modal -->
+  <div class="modal-overlay" id="customInputModal">
+    <div class="modal-box">
+      <h3>Enter Custom Array</h3>
+      <p>Enter 2 to 16 integers separated by commas or spaces. Duplicate integers will automatically be assigned subscript tags to test stability.</p>
+      <input type="text" id="customInputText" value="38, 27, 43, 3, 9, 82, 10" placeholder="e.g. 50, 20, 80, 10, 40, 70, 30, 60">
+      <div class="modal-actions">
+        <button id="btnCancelCustom">Cancel</button>
+        <button class="btn-primary" id="btnApplyCustom">Apply Array</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Implementation -->
+  <script>
+    // --- Data Presets ---
+    const PRESETS = {
+      default: [38, 27, 43, 3, 9, 82, 10],
+      eight: [54, 26, 93, 17, 77, 31, 44, 55],
+      reverse: [80, 70, 60, 50, 40, 30, 20, 10],
+      sorted: [10, 20, 30, 40, 50, 60, 70, 80],
+      duplicates: [30, 10, 20, 30, 40, 20, 10]
+    };
+
+    // --- Phases Definition ---
+    const PHASES_SPLIT = [
+      { id: 1, label: "1. Base Condition (len ≤ 1)" },
+      { id: 2, label: "2. Midpoint & Subarrays Allocation" },
+      { id: 3, label: "3. Copy into left[] & right[]" },
+      { id: 4, label: "4. Recurse (mergeSort)" },
+      { id: 5, label: "5. Two-Pointer Merge" },
+      { id: 6, label: "6. Sorted Subarray" }
+    ];
+
+    const PHASES_SHARED = [
+      { id: 1, label: "1. Allocate Shared aux[]" },
+      { id: 2, label: "2. Base Case & Midpoint" },
+      { id: 3, label: "3. Recurse Left & Right" },
+      { id: 4, label: "4. Copy to aux[lo..hi]" },
+      { id: 5, label: "5. Two-Pointer Merge (i, j → k)" },
+      { id: 6, label: "6. Fully Sorted" }
+    ];
+
+    // --- Java Code Snippets ---
+    const CODE_SPLIT = [
+      { num: 1, text: `<span class="c-keyword">public static void</span> <span class="c-func">mergeSort</span>(<span class="c-type">int</span>[] values) {` },
+      { num: 2, text: `    <span class="c-keyword">if</span> (values.length &lt;= 1) <span class="c-keyword">return</span>;` },
+      { num: 3, text: `` },
+      { num: 4, text: `    <span class="c-type">int</span> mid = values.length / 2;` },
+      { num: 5, text: `` },
+      { num: 6, text: `    <span class="c-type">int</span>[] left = <span class="c-keyword">new int</span>[mid];` },
+      { num: 7, text: `    <span class="c-type">int</span>[] right = <span class="c-keyword">new int</span>[values.length - mid];` },
+      { num: 8, text: `` },
+      { num: 9, text: `    <span class="c-comment">// copy values[0..mid-1] to left</span>` },
+      { num: 10, text: `    System.<span class="c-func">arraycopy</span>(values, 0, left, 0, mid);` },
+      { num: 11, text: `    <span class="c-comment">// copy values[mid..end] to right</span>` },
+      { num: 12, text: `    System.<span class="c-func">arraycopy</span>(values, mid, right, 0, values.length - mid);` },
+      { num: 13, text: `` },
+      { num: 14, text: `    <span class="c-comment">// sort left and right</span>` },
+      { num: 15, text: `    <span class="c-func">mergeSort</span>(left);` },
+      { num: 16, text: `    <span class="c-func">mergeSort</span>(right);` },
+      { num: 17, text: `` },
+      { num: 18, text: `    <span class="c-comment">// merge left and right back into values</span>` },
+      { num: 19, text: `    <span class="c-func">merge</span>(left, right, values);` },
+      { num: 20, text: `}` },
+      { num: 21, text: `` },
+      { num: 22, text: `<span class="c-keyword">private static void</span> <span class="c-func">merge</span>(<span class="c-type">int</span>[] left, <span class="c-type">int</span>[] right, <span class="c-type">int</span>[] result) {` },
+      { num: 23, text: `    <span class="c-type">int</span> index = 0, leftIndex = 0, rightIndex = 0;` },
+      { num: 24, text: `    <span class="c-keyword">while</span> (leftIndex != left.length || rightIndex != right.length) {` },
+      { num: 25, text: `        <span class="c-keyword">if</span> (rightIndex == right.length ||` },
+      { num: 26, text: `            (leftIndex != left.length &amp;&amp; left[leftIndex] &lt; right[rightIndex])) {` },
+      { num: 27, text: `            result[index] = left[leftIndex];` },
+      { num: 28, text: `            leftIndex++;` },
+      { num: 29, text: `        } <span class="c-keyword">else</span> {` },
+      { num: 30, text: `            result[index] = right[rightIndex];` },
+      { num: 31, text: `            rightIndex++;` },
+      { num: 32, text: `        }` },
+      { num: 33, text: `        index++;` },
+      { num: 34, text: `    }` },
+      { num: 35, text: `}` }
+    ];
+
+    const CODE_SHARED = [
+      { num: 1, text: `<span class="c-keyword">public static void</span> <span class="c-func">mergeSort</span>(<span class="c-type">int</span>[] a) {` },
+      { num: 2, text: `    <span class="c-type">int</span>[] aux = <span class="c-keyword">new int</span>[a.length]; <span class="c-comment">// allocate ONCE upfront</span>` },
+      { num: 3, text: `    <span class="c-func">sort</span>(a, aux, 0, a.length - 1);` },
+      { num: 4, text: `}` },
+      { num: 5, text: `` },
+      { num: 6, text: `<span class="c-keyword">private static void</span> <span class="c-func">sort</span>(<span class="c-type">int</span>[] a, <span class="c-type">int</span>[] aux, <span class="c-type">int</span> lo, <span class="c-type">int</span> hi) {` },
+      { num: 7, text: `    <span class="c-keyword">if</span> (hi &lt;= lo) <span class="c-keyword">return</span>;` },
+      { num: 8, text: `    <span class="c-type">int</span> mid = lo + (hi - lo) / 2;` },
+      { num: 9, text: `    <span class="c-func">sort</span>(a, aux, lo, mid);` },
+      { num: 10, text: `    <span class="c-func">sort</span>(a, aux, mid + 1, hi);` },
+      { num: 11, text: `    <span class="c-func">merge</span>(a, aux, lo, mid, hi);` },
+      { num: 12, text: `}` },
+      { num: 13, text: `` },
+      { num: 14, text: `<span class="c-keyword">private static void</span> <span class="c-func">merge</span>(<span class="c-type">int</span>[] a, <span class="c-type">int</span>[] aux, <span class="c-type">int</span> lo, <span class="c-type">int</span> mid, <span class="c-type">int</span> hi) {` },
+      { num: 15, text: `    <span class="c-comment">// Copy a[lo..hi] to aux[lo..hi]</span>` },
+      { num: 16, text: `    <span class="c-keyword">for</span> (<span class="c-type">int</span> k = lo; k &lt;= hi; k++)` },
+      { num: 17, text: `        aux[k] = a[k];` },
+      { num: 18, text: `` },
+      { num: 19, text: `    <span class="c-type">int</span> i = lo, j = mid + 1;` },
+      { num: 20, text: `    <span class="c-keyword">for</span> (<span class="c-type">int</span> k = lo; k &lt;= hi; k++) {` },
+      { num: 21, text: `        <span class="c-keyword">if</span>      (i &gt; mid)          a[k] = aux[j++];` },
+      { num: 22, text: `        <span class="c-keyword">else if</span> (j &gt; hi)           a[k] = aux[i++];` },
+      { num: 23, text: `        <span class="c-keyword">else if</span> (aux[j] &lt; aux[i])  a[k] = aux[j++];` },
+      { num: 24, text: `        <span class="c-keyword">else</span>                       a[k] = aux[i++];` },
+      { num: 25, text: `    }` },
+      { num: 26, text: `}` }
+    ];
+
+    // --- State Variables ---
+    let currentVersion = "split"; // "split" or "shared"
+    let currentRawData = [...PRESETS.default];
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 700;
+    let isSoundEnabled = true;
+    let audioCtx = null;
+
+    // --- DOM Elements ---
+    const btnVersionSplit = document.getElementById("btnVersionSplit");
+    const btnVersionShared = document.getElementById("btnVersionShared");
+    const versionExplanationChip = document.getElementById("versionExplanationChip");
+    const phaseBarContainer = document.getElementById("phaseBarContainer");
+    const codeFilename = document.getElementById("codeFilename");
+    const codeRefLabel = document.getElementById("codeRefLabel");
+    const codeEditor = document.getElementById("codeEditor");
+    const stepCounterBadge = document.getElementById("stepCounterBadge");
+    const stepExplanation = document.getElementById("stepExplanation");
+    const variablesGrid = document.getElementById("variablesGrid");
+    const stabilityNoteText = document.getElementById("stabilityNoteText");
+
+    const canvasTitle = document.getElementById("canvasTitle");
+    const activeSubproblemTitle = document.getElementById("activeSubproblemTitle");
+    const lblPrimaryArrayName = document.getElementById("lblPrimaryArrayName");
+    const lblGlobalSubarrayRange = document.getElementById("lblGlobalSubarrayRange");
+    const globalArrayStrip = document.getElementById("globalArrayStrip");
+
+    const splitSubarraysSection = document.getElementById("splitSubarraysSection");
+    const sharedAuxSection = document.getElementById("sharedAuxSection");
+    const leftArrayStrip = document.getElementById("leftArrayStrip");
+    const rightArrayStrip = document.getElementById("rightArrayStrip");
+    const sharedAuxArrayStrip = document.getElementById("sharedAuxArrayStrip");
+    const lblLeftSize = document.getElementById("lblLeftSize");
+    const lblRightSize = document.getElementById("lblRightSize");
+    const lblHeapAllocBadge = document.getElementById("lblHeapAllocBadge");
+
+    const comparisonBanner = document.getElementById("comparisonBanner");
+    const compExprText = document.getElementById("compExprText");
+    const compDecisionText = document.getElementById("compDecisionText");
+    const compResultBadge = document.getElementById("compResultBadge");
+
+    const recursionTreeContainer = document.getElementById("recursionTreeContainer");
+    const callStackList = document.getElementById("callStackList");
+    const lblTreeDepth = document.getElementById("lblTreeDepth");
+    const lblStackFramesCount = document.getElementById("lblStackFramesCount");
+
+    const statComparisons = document.getElementById("statComparisons");
+    const statWrites = document.getElementById("statWrites");
+    const statAllocArrays = document.getElementById("statAllocArrays");
+    const statAllocElements = document.getElementById("statAllocElements");
+    const statMaxDepth = document.getElementById("statMaxDepth");
+
+    const presetSelect = document.getElementById("presetSelect");
+    const speedSlider = document.getElementById("speedSlider");
+    const speedVal = document.getElementById("speedVal");
+    const btnSoundToggle = document.getElementById("btnSoundToggle");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+
+    const customInputModal = document.getElementById("customInputModal");
+    const btnCustomModal = document.getElementById("btnCustomModal");
+    const customInputText = document.getElementById("customInputText");
+    const btnCancelCustom = document.getElementById("btnCancelCustom");
+    const btnApplyCustom = document.getElementById("btnApplyCustom");
+
+    // --- Audio Feedback ---
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.08) {
+      if (!isSoundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playValueTone(val, duration = 0.12) {
+      const minVal = Math.min(...currentRawData);
+      const maxVal = Math.max(...currentRawData);
+      const ratio = maxVal === minVal ? 0.5 : (val - minVal) / (maxVal - minVal);
+      const freq = 220 + ratio * 480;
+      playTone(freq, 'triangle', duration, 0.09);
+    }
+
+    function playVictoryChime() {
+      if (!isSoundEnabled) return;
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+      notes.forEach((f, i) => {
+        setTimeout(() => playTone(f, 'sine', 0.25, 0.12), i * 90);
+      });
+    }
+
+    // --- Helper: Tag duplicate items for stability ---
+    function prepareTaggedItems(rawArr) {
+      const counts = {};
+      rawArr.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+      const seen = {};
+      return rawArr.map((v, idx) => {
+        if (counts[v] > 1) {
+          seen[v] = (seen[v] || 0) + 1;
+          const sub = String.fromCharCode(96 + seen[v]);
+          return { val: v, origIdx: idx, id: `el-${idx}`, tag: `${v}<sub>${sub}</sub>` };
+        }
+        return { val: v, origIdx: idx, id: `el-${idx}`, tag: `${v}` };
+      });
+    }
+
+    // --- SIMULATION GENERATOR 1: Split Subarrays (User's Code) ---
+    function buildSplitSimulation(rawArr) {
+      const steps = [];
+      let compCount = 0;
+      let writeCount = 0;
+      let allocArrays = 0;
+      let allocElements = 0;
+      let maxDepth = 0;
+
+      const taggedItems = prepareTaggedItems(rawArr);
+      let globalArray = [...taggedItems];
+      let callStack = [];
+      let treeMap = new Map();
+
+      function recordNode(path, lo, hi, items, parentPath = null) {
+        if (!treeMap.has(path)) {
+          treeMap.set(path, {
+            id: path,
+            parentPath,
+            lo,
+            hi,
+            items: [...items],
+            status: "pending"
+          });
+        }
+      }
+
+      function snapshot(line, phase, descr, op, extra = {}) {
+        const currentDepth = extra.depth !== undefined ? extra.depth : (callStack.length ? callStack[callStack.length - 1].depth : 0);
+        if (currentDepth > maxDepth) maxDepth = currentDepth;
+
+        // Tree nodes snapshot
+        const treeSnap = [];
+        treeMap.forEach(n => treeSnap.push({ ...n }));
+
+        steps.push({
+          version: "split",
+          line,
+          phase,
+          descr,
+          op,
+          stack: callStack.map(s => ({ ...s })),
+          globalArray: [...globalArray],
+          treeNodes: treeSnap,
+          comparisons: compCount,
+          arrayWrites: writeCount,
+          heapArraysAllocated: allocArrays,
+          heapElementsAllocated: allocElements,
+          maxDepth,
+          ...extra
+        });
+      }
+
+      recordNode("0", 0, rawArr.length - 1, taggedItems, null);
+
+      snapshot(1, 1, `Starting Merge Sort (Split Subarrays). Initial array has <strong>${rawArr.length}</strong> elements.`, "Init", {
+        valuesArr: [...taggedItems],
+        leftArr: [],
+        rightArr: [],
+        resultArr: [],
+        lo: 0,
+        hi: rawArr.length - 1,
+        path: "0",
+        depth: 0
+      });
+
+      function mergeSort(arr, globalOffset, path, depth, parentPath) {
+        recordNode(path, globalOffset, globalOffset + arr.length - 1, arr, parentPath);
+        const node = treeMap.get(path);
+        node.status = "active";
+
+        const callName = `mergeSort([${arr.map(x => x.val).join(',')}])`;
+        callStack.push({ name: callName, path, depth, lo: globalOffset, hi: globalOffset + arr.length - 1 });
+
+        snapshot(1, 1, `Entering <code>mergeSort(values)</code> with size <strong>${arr.length}</strong>. Subarray [${globalOffset}..${globalOffset + arr.length - 1}].`, "Call", {
+          valuesArr: [...arr],
+          leftArr: [],
+          rightArr: [],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          path,
+          depth
+        });
+
+        snapshot(2, 1, `Checking base condition: <code>values.length (${arr.length}) &lt;= 1</code>.`, "Check Base", {
+          valuesArr: [...arr],
+          leftArr: [],
+          rightArr: [],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          path,
+          depth
+        });
+
+        if (arr.length <= 1) {
+          node.status = "sorted";
+          snapshot(2, 1, `Base case met: array of size ${arr.length} is trivially sorted. Returning element <strong>${arr[0].val}</strong>.`, "Return Base", {
+            valuesArr: [...arr],
+            leftArr: [],
+            rightArr: [],
+            resultArr: [...arr],
+            lo: globalOffset,
+            hi: globalOffset + arr.length - 1,
+            path,
+            depth
+          });
+          callStack.pop();
+          return [...arr];
+        }
+
+        const mid = Math.floor(arr.length / 2);
+        snapshot(4, 2, `Computing midpoint: <code>mid = ${arr.length} / 2 = ${mid}</code>.`, "Compute Mid", {
+          valuesArr: [...arr],
+          leftArr: [],
+          rightArr: [],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        // Allocate left and right
+        allocArrays += 2;
+        allocElements += arr.length;
+        const left = new Array(mid);
+        const right = new Array(arr.length - mid);
+
+        snapshot(6, 2, `Allocating 2 new arrays on heap: <code>left = new int[${mid}]</code> and <code>right = new int[${arr.length - mid}]</code>.<br><span class="badge-alloc">+2 heap arrays, +${arr.length} elements</span>`, "Heap Allocate", {
+          valuesArr: [...arr],
+          leftArr: left.map(() => null),
+          rightArr: right.map(() => null),
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        // System.arraycopy
+        for (let i = 0; i < mid; i++) {
+          left[i] = arr[i];
+          writeCount++;
+        }
+        snapshot(10, 3, `<code>System.arraycopy</code>: Copied <code>values[0..${mid - 1}]</code> into <code>left[0..${mid - 1}]</code>.`, "Copy Left", {
+          valuesArr: [...arr],
+          leftArr: [...left],
+          rightArr: right.map(() => null),
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        for (let i = 0; i < arr.length - mid; i++) {
+          right[i] = arr[mid + i];
+          writeCount++;
+        }
+        snapshot(12, 3, `<code>System.arraycopy</code>: Copied <code>values[${mid}..${arr.length - 1}]</code> into <code>right[0..${arr.length - mid - 1}]</code>.`, "Copy Right", {
+          valuesArr: [...arr],
+          leftArr: [...left],
+          rightArr: [...right],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        // Recurse left
+        snapshot(15, 4, `Recursive call: <code>mergeSort(left)</code> on left subarray of size ${left.length}.`, "Recurse Left", {
+          valuesArr: [...arr],
+          leftArr: [...left],
+          rightArr: [...right],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+        const sortedLeft = mergeSort(left, globalOffset, path + ".0", depth + 1, path);
+
+        snapshot(16, 4, `Left subarray sorted! Now recursively calling <code>mergeSort(right)</code> on right subarray of size ${right.length}.`, "Recurse Right", {
+          valuesArr: [...arr],
+          leftArr: [...sortedLeft],
+          rightArr: [...right],
+          resultArr: [],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+        const sortedRight = mergeSort(right, globalOffset + mid, path + ".1", depth + 1, path);
+
+        // Merge back into values
+        node.status = "merging";
+        snapshot(19, 5, `Both subarrays sorted! Now merging <code>left</code> and <code>right</code> back into <code>values</code>.`, "Begin Merge", {
+          valuesArr: [...arr],
+          leftArr: [...sortedLeft],
+          rightArr: [...sortedRight],
+          resultArr: new Array(arr.length).fill(null),
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        const result = new Array(arr.length).fill(null);
+        let index = 0, leftIndex = 0, rightIndex = 0;
+
+        snapshot(23, 5, `Initialized merge pointers: <code>leftIndex = 0</code>, <code>rightIndex = 0</code>, <code>index = 0</code>.`, "Merge Init", {
+          valuesArr: [...arr],
+          leftArr: [...sortedLeft],
+          rightArr: [...sortedRight],
+          resultArr: [...result],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          leftIndex: 0,
+          rightIndex: 0,
+          resultIndex: 0,
+          mid,
+          path,
+          depth
+        });
+
+        while (leftIndex !== sortedLeft.length || rightIndex !== sortedRight.length) {
+          let takeLeft = false;
+          let reason = "";
+          let compInfo = null;
+
+          if (rightIndex === sortedRight.length) {
+            takeLeft = true;
+            reason = `Right subarray exhausted (<code>rightIndex == ${sortedRight.length}</code>). Take remaining from left: <strong>${sortedLeft[leftIndex].val}</strong>.`;
+            snapshot(25, 5, reason, "Right Exhausted", {
+              valuesArr: [...arr],
+              leftArr: [...sortedLeft],
+              rightArr: [...sortedRight],
+              resultArr: [...result],
+              lo: globalOffset,
+              hi: globalOffset + arr.length - 1,
+              leftIndex,
+              rightIndex,
+              resultIndex: index,
+              highlightLeftIdx: leftIndex,
+              mid,
+              path,
+              depth
+            });
+          } else if (leftIndex !== sortedLeft.length) {
+            compCount++;
+            const leftVal = sortedLeft[leftIndex].val;
+            const rightVal = sortedRight[rightIndex].val;
+            const cmp = leftVal < rightVal;
+
+            if (cmp) {
+              takeLeft = true;
+              reason = `Comparing <code>left[${leftIndex}]</code> (${leftVal}) &lt; <code>right[${rightIndex}]</code> (${rightVal}) &rarr; <strong>true</strong>. Left is smaller.`;
+            } else {
+              takeLeft = false;
+              const isEqual = leftVal === rightVal;
+              reason = isEqual
+                ? `Comparing <code>left[${leftIndex}]</code> (${leftVal}) &lt; <code>right[${rightIndex}]</code> (${rightVal}) &rarr; <strong>false</strong> (Equal keys!). Right is taken in this implementation.`
+                : `Comparing <code>left[${leftIndex}]</code> (${leftVal}) &lt; <code>right[${rightIndex}]</code> (${rightVal}) &rarr; <strong>false</strong>. Right is smaller.`;
+            }
+
+            compInfo = {
+              expr: `left[${leftIndex}] (${leftVal}) < right[${rightIndex}] (${rightVal})`,
+              res: cmp ? "true" : "false",
+              decision: takeLeft ? `Take left[${leftIndex}] (${leftVal})` : `Take right[${rightIndex}] (${rightVal})`
+            };
+
+            snapshot(26, 5, reason, "Compare", {
+              valuesArr: [...arr],
+              leftArr: [...sortedLeft],
+              rightArr: [...sortedRight],
+              resultArr: [...result],
+              lo: globalOffset,
+              hi: globalOffset + arr.length - 1,
+              leftIndex,
+              rightIndex,
+              resultIndex: index,
+              highlightLeftIdx: leftIndex,
+              highlightRightIdx: rightIndex,
+              compInfo,
+              soundVal: Math.min(leftVal, rightVal),
+              mid,
+              path,
+              depth
+            });
+          } else {
+            takeLeft = false;
+            reason = `Left subarray exhausted (<code>leftIndex == ${sortedLeft.length}</code>). Take remaining from right: <strong>${sortedRight[rightIndex].val}</strong>.`;
+            snapshot(29, 5, reason, "Left Exhausted", {
+              valuesArr: [...arr],
+              leftArr: [...sortedLeft],
+              rightArr: [...sortedRight],
+              resultArr: [...result],
+              lo: globalOffset,
+              hi: globalOffset + arr.length - 1,
+              leftIndex,
+              rightIndex,
+              resultIndex: index,
+              highlightRightIdx: rightIndex,
+              mid,
+              path,
+              depth
+            });
+          }
+
+          if (takeLeft) {
+            const item = sortedLeft[leftIndex];
+            result[index] = item;
+            writeCount++;
+            globalArray[globalOffset + index] = item;
+            leftIndex++;
+            snapshot(27, 5, `Copied <code>left[${leftIndex - 1}]</code> (${item.val}) to <code>result[${index}]</code>. Incremented <code>leftIndex</code> to ${leftIndex}.`, "Write Left", {
+              valuesArr: [...arr],
+              leftArr: [...sortedLeft],
+              rightArr: [...sortedRight],
+              resultArr: [...result],
+              lo: globalOffset,
+              hi: globalOffset + arr.length - 1,
+              leftIndex,
+              rightIndex,
+              resultIndex: index,
+              writtenVal: item.val,
+              soundVal: item.val,
+              mid,
+              path,
+              depth
+            });
+          } else {
+            const item = sortedRight[rightIndex];
+            result[index] = item;
+            writeCount++;
+            globalArray[globalOffset + index] = item;
+            rightIndex++;
+            snapshot(30, 5, `Copied <code>right[${rightIndex - 1}]</code> (${item.val}) to <code>result[${index}]</code>. Incremented <code>rightIndex</code> to ${rightIndex}.`, "Write Right", {
+              valuesArr: [...arr],
+              leftArr: [...sortedLeft],
+              rightArr: [...sortedRight],
+              resultArr: [...result],
+              lo: globalOffset,
+              hi: globalOffset + arr.length - 1,
+              leftIndex,
+              rightIndex,
+              resultIndex: index,
+              writtenVal: item.val,
+              soundVal: item.val,
+              mid,
+              path,
+              depth
+            });
+          }
+
+          index++;
+          snapshot(33, 5, `Incremented target <code>index</code> to ${index}.`, "Advance Index", {
+            valuesArr: [...arr],
+            leftArr: [...sortedLeft],
+            rightArr: [...sortedRight],
+            resultArr: [...result],
+            lo: globalOffset,
+            hi: globalOffset + arr.length - 1,
+            leftIndex,
+            rightIndex,
+            resultIndex: index,
+            mid,
+            path,
+            depth
+          });
+        }
+
+        node.status = "sorted";
+        node.items = [...result];
+
+        snapshot(20, 6, `Merge complete! Subarray [${globalOffset}..${globalOffset + arr.length - 1}] is now fully sorted in values.<br><span class="badge-gc">Temporary left[] and right[] arrays discarded &amp; eligible for Garbage Collection.</span>`, "Merge Done", {
+          valuesArr: [...result],
+          leftArr: [...sortedLeft],
+          rightArr: [...sortedRight],
+          resultArr: [...result],
+          lo: globalOffset,
+          hi: globalOffset + arr.length - 1,
+          mid,
+          path,
+          depth
+        });
+
+        callStack.pop();
+        return result;
+      }
+
+      const finalSorted = mergeSort(taggedItems, 0, "0", 0, null);
+
+      snapshot(20, 6, `Sorting complete! The entire array is sorted in ascending order.<br>Total heap arrays allocated: <strong>${allocArrays}</strong> (${allocElements} elements created).`, "Done", {
+        valuesArr: [...finalSorted],
+        leftArr: [],
+        rightArr: [],
+        resultArr: [...finalSorted],
+        lo: 0,
+        hi: rawArr.length - 1,
+        isComplete: true
+      });
+
+      return steps;
+    }
+
+    // --- SIMULATION GENERATOR 2: Shared Buffer aux[] (Sedgewick's Code) ---
+    function buildSharedSimulation(rawArr) {
+      const steps = [];
+      let compCount = 0;
+      let writeCount = 0;
+      let allocArrays = 1;
+      let allocElements = rawArr.length;
+      let maxDepth = 0;
+
+      const taggedItems = prepareTaggedItems(rawArr);
+      const a = [...taggedItems];
+      const aux = new Array(a.length).fill(null);
+      const callStack = [];
+      const treeMap = new Map();
+
+      function recordNode(path, lo, hi, parentPath = null) {
+        if (!treeMap.has(path)) {
+          treeMap.set(path, {
+            id: path,
+            parentPath,
+            lo,
+            hi,
+            status: "pending"
+          });
+        }
+      }
+
+      function snapshot(line, phase, descr, op, extra = {}) {
+        const currentDepth = extra.depth !== undefined ? extra.depth : (callStack.length ? callStack[callStack.length - 1].depth : 0);
+        if (currentDepth > maxDepth) maxDepth = currentDepth;
+
+        const treeSnap = [];
+        treeMap.forEach(n => treeSnap.push({ ...n }));
+
+        steps.push({
+          version: "shared",
+          line,
+          phase,
+          descr,
+          op,
+          stack: callStack.map(s => ({ ...s })),
+          globalArray: [...a],
+          auxArray: [...aux],
+          treeNodes: treeSnap,
+          comparisons: compCount,
+          arrayWrites: writeCount,
+          heapArraysAllocated: allocArrays,
+          heapElementsAllocated: allocElements,
+          maxDepth,
+          ...extra
+        });
+      }
+
+      recordNode("0", 0, a.length - 1, null);
+
+      snapshot(1, 1, `Starting Merge Sort (Shared Auxiliary Buffer). Array length is <strong>${a.length}</strong>.`, "Init", {
+        lo: 0,
+        hi: a.length - 1,
+        path: "0",
+        depth: 0
+      });
+
+      snapshot(2, 1, `Allocating single shared auxiliary array <code>aux = new int[${a.length}]</code> upfront.<br><span class="badge-alloc">Exactly 1 heap array (${a.length} elements) allocated for the entire sort! Zero reallocations.</span>`, "Alloc Aux", {
+        lo: 0,
+        hi: a.length - 1,
+        path: "0",
+        depth: 0
+      });
+
+      function sort(lo, hi, path, depth, parentPath) {
+        recordNode(path, lo, hi, parentPath);
+        const node = treeMap.get(path);
+        node.status = "active";
+
+        const callName = `sort(a, aux, lo=${lo}, hi=${hi})`;
+        callStack.push({ name: callName, path, depth, lo, hi });
+
+        snapshot(6, 2, `Entering <code>sort(a, aux, lo=${lo}, hi=${hi})</code>.`, "Call Sort", { lo, hi, path, depth });
+        snapshot(7, 2, `Checking base condition: <code>hi (${hi}) &lt;= lo (${lo})</code>.`, "Check Base", { lo, hi, path, depth });
+
+        if (hi <= lo) {
+          node.status = "sorted";
+          snapshot(7, 2, `Base case met: subarray [${lo}..${hi}] has length 1. Already sorted. Returning.`, "Return Base", { lo, hi, path, depth });
+          callStack.pop();
+          return;
+        }
+
+        const mid = lo + Math.floor((hi - lo) / 2);
+        snapshot(8, 2, `Computing midpoint: <code>mid = ${lo} + (${hi} - ${lo})/2 = ${mid}</code>.`, "Compute Mid", { lo, mid, hi, path, depth });
+
+        snapshot(9, 3, `Recursive call: <code>sort(a, aux, lo=${lo}, mid=${mid})</code> on left half.`, "Recurse Left", { lo, mid, hi, path, depth });
+        sort(lo, mid, path + ".0", depth + 1, path);
+
+        snapshot(10, 3, `Left half [${lo}..${mid}] sorted! Calling <code>sort(a, aux, mid+1=${mid + 1}, hi=${hi})</code> on right half.`, "Recurse Right", { lo, mid, hi, path, depth });
+        sort(mid + 1, hi, path + ".1", depth + 1, path);
+
+        // merge
+        node.status = "merging";
+        snapshot(11, 4, `Both halves sorted! Now calling <code>merge(a, aux, lo=${lo}, mid=${mid}, hi=${hi})</code>.`, "Call Merge", { lo, mid, hi, path, depth });
+        merge(lo, mid, hi, path, depth);
+
+        node.status = "sorted";
+        callStack.pop();
+      }
+
+      function merge(lo, mid, hi, path, depth) {
+        snapshot(14, 4, `Entering <code>merge</code> for range [${lo}..${hi}]. Midpoint is index ${mid}.`, "Enter Merge", { lo, mid, hi, path, depth });
+
+        // Copy a[lo..hi] into aux[lo..hi]
+        snapshot(16, 4, `Phase A: Copying elements <code>a[${lo}..${hi}]</code> into shared <code>aux[${lo}..${hi}]</code>.`, "Start Aux Copy", { lo, mid, hi, path, depth });
+        for (let k = lo; k <= hi; k++) {
+          aux[k] = a[k];
+          writeCount++;
+          snapshot(17, 4, `Copied <code>a[${k}]</code> (${a[k].val}) into <code>aux[${k}]</code>.`, "Copy to Aux", {
+            lo, mid, hi, k,
+            copyIdx: k,
+            soundVal: a[k].val,
+            path, depth
+          });
+        }
+
+        // Two-pointer merge
+        let i = lo;
+        let j = mid + 1;
+        snapshot(19, 5, `Phase B: Initialized pointers: <code>i = lo = ${lo}</code> (left half), <code>j = mid + 1 = ${j}</code> (right half).`, "Merge Pointers Init", { lo, mid, hi, i, j, path, depth });
+
+        for (let k = lo; k <= hi; k++) {
+          let branch = "";
+          let chosenVal = null;
+          let compInfo = null;
+
+          if (i > mid) {
+            branch = `Left half exhausted (<code>i &gt; mid</code>). Taking from right half: <code>aux[j=${j}]</code> (${aux[j].val}).`;
+            chosenVal = aux[j];
+            a[k] = aux[j];
+            j++;
+            writeCount++;
+            snapshot(21, 5, branch, "Left Exhausted", {
+              lo, mid, hi, i, j, k,
+              branch: 1,
+              writtenVal: chosenVal.val,
+              soundVal: chosenVal.val,
+              path, depth
+            });
+          } else if (j > hi) {
+            branch = `Right half exhausted (<code>j &gt; hi</code>). Taking from left half: <code>aux[i=${i}]</code> (${aux[i].val}).`;
+            chosenVal = aux[i];
+            a[k] = aux[i];
+            i++;
+            writeCount++;
+            snapshot(22, 5, branch, "Right Exhausted", {
+              lo, mid, hi, i, j, k,
+              branch: 2,
+              writtenVal: chosenVal.val,
+              soundVal: chosenVal.val,
+              path, depth
+            });
+          } else {
+            compCount++;
+            const leftVal = aux[i].val;
+            const rightVal = aux[j].val;
+            const cmp = rightVal < leftVal;
+
+            if (cmp) {
+              branch = `Comparing <code>aux[j=${j}]</code> (${rightVal}) &lt; <code>aux[i=${i}]</code> (${leftVal}) &rarr; <strong>true</strong>. Right is smaller.`;
+              chosenVal = aux[j];
+              a[k] = aux[j];
+              j++;
+              writeCount++;
+              compInfo = {
+                expr: `aux[j=${j-1}] (${rightVal}) < aux[i=${i}] (${leftVal})`,
+                res: "true",
+                decision: `Right element (${rightVal}) is smaller → write to a[${k}]`
+              };
+              snapshot(23, 5, branch, "Compare (Take Right)", {
+                lo, mid, hi, i, j, k,
+                branch: 3,
+                compInfo,
+                writtenVal: chosenVal.val,
+                soundVal: chosenVal.val,
+                path, depth
+              });
+            } else {
+              const isEqual = rightVal === leftVal;
+              branch = isEqual
+                ? `Comparing <code>aux[j=${j}]</code> (${rightVal}) &lt; <code>aux[i=${i}]</code> (${leftVal}) &rarr; <strong>false</strong> (Equal keys!). Taking <code>aux[i]</code> to <strong>preserve stability</strong>.`
+                : `Comparing <code>aux[j=${j}]</code> (${rightVal}) &lt; <code>aux[i=${i}]</code> (${leftVal}) &rarr; <strong>false</strong>. Left is smaller.`;
+              chosenVal = aux[i];
+              a[k] = aux[i];
+              i++;
+              writeCount++;
+              compInfo = {
+                expr: `aux[j=${j}] (${rightVal}) < aux[i=${i-1}] (${leftVal})`,
+                res: "false",
+                decision: isEqual ? `Equal keys: take left element (${leftVal}) to preserve stability` : `Left element (${leftVal}) is smaller → write to a[${k}]`
+              };
+              snapshot(24, 5, branch, "Compare (Take Left)", {
+                lo, mid, hi, i, j, k,
+                branch: 4,
+                compInfo,
+                writtenVal: chosenVal.val,
+                soundVal: chosenVal.val,
+                path, depth
+              });
+            }
+          }
+        }
+
+        snapshot(26, 6, `Finished merging range [${lo}..${hi}]. Range in <code>a</code> is now fully sorted.`, "Merge Range Complete", { lo, mid, hi, path, depth });
+      }
+
+      sort(0, a.length - 1, "0", 0, null);
+
+      snapshot(4, 6, `Sorting complete! All elements in <code>a</code> are sorted in ascending order.<br>Total auxiliary heap allocations: <strong>1 array (${a.length} elements)</strong>.`, "Done", {
+        lo: 0,
+        hi: a.length - 1,
+        isComplete: true
+      });
+
+      return steps;
+    }
+
+    // --- UI Renderers ---
+    function renderCodeEditor() {
+      const codeData = currentVersion === "split" ? CODE_SPLIT : CODE_SHARED;
+      codeEditor.innerHTML = "";
+      codeData.forEach(row => {
+        const div = document.createElement("div");
+        div.className = "code-row";
+        div.dataset.line = row.num;
+        div.innerHTML = `<span class="code-line-num">${row.num}</span><span class="code-line-content">${row.text}</span>`;
+        codeEditor.appendChild(div);
+      });
+      codeFilename.textContent = currentVersion === "split" ? "MergeSortSplit.java" : "MergeSortShared.java";
+      codeRefLabel.textContent = currentVersion === "split" ? "Direct Subarray Allocation" : "Sedgewick & Wayne Reference";
+    }
+
+    function renderPhaseBar() {
+      const phases = currentVersion === "split" ? PHASES_SPLIT : PHASES_SHARED;
+      phaseBarContainer.innerHTML = "";
+      phases.forEach(p => {
+        const pill = document.createElement("div");
+        pill.className = "phase-pill";
+        pill.id = `phasePill-${p.id}`;
+        pill.innerHTML = `<span class="pill-dot"></span><span>${p.label}</span>`;
+        phaseBarContainer.appendChild(pill);
+      });
+    }
+
+    function renderCurrentStep() {
+      if (simulationSteps.length === 0) return;
+      const step = simulationSteps[currentStepIndex];
+
+      // Update Step badge & Explanation
+      stepCounterBadge.textContent = `Step ${currentStepIndex + 1} / ${simulationSteps.length}`;
+      stepExplanation.innerHTML = step.descr;
+      stepExplanation.className = `explanation-banner ${currentVersion === 'shared' ? 'banner-shared' : ''}`;
+
+      // Highlight active code line
+      document.querySelectorAll(".code-row").forEach(r => {
+        const isMatch = Number(r.dataset.line) === step.line;
+        r.classList.toggle("active", isMatch);
+        if (isMatch && currentVersion === "shared") {
+          r.classList.add("active-shared");
+        } else {
+          r.classList.remove("active-shared");
+        }
+        if (isMatch) {
+          r.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      });
+
+      // Update Phase Pills
+      const phases = currentVersion === "split" ? PHASES_SPLIT : PHASES_SHARED;
+      phases.forEach(p => {
+        const pill = document.getElementById(`phasePill-${p.id}`);
+        if (!pill) return;
+        pill.classList.remove("active", "completed");
+        if (p.id === step.phase) {
+          pill.classList.add("active");
+        } else if (p.id < step.phase || step.isComplete) {
+          pill.classList.add("completed");
+        }
+      });
+
+      // Update Variables Grid
+      renderVariablesGrid(step);
+
+      // Render Global Array Strip
+      renderGlobalArray(step);
+
+      // Render Subarrays (Version 1) or Shared Aux (Version 2)
+      if (currentVersion === "split") {
+        splitSubarraysSection.style.display = "block";
+        sharedAuxSection.style.display = "none";
+        renderSplitSubarrays(step);
+      } else {
+        splitSubarraysSection.style.display = "none";
+        sharedAuxSection.style.display = "block";
+        renderSharedAux(step);
+      }
+
+      // Comparison Banner
+      if (step.compInfo) {
+        comparisonBanner.style.display = "flex";
+        compExprText.textContent = step.compInfo.expr;
+        compDecisionText.textContent = step.compInfo.decision;
+        compResultBadge.textContent = step.compInfo.res.toUpperCase();
+        compResultBadge.className = `comp-result-pill ${step.compInfo.res}`;
+      } else {
+        comparisonBanner.style.display = "none";
+      }
+
+      // Recursion Tree & Call Stack
+      renderRecursionTree(step);
+      renderCallStack(step);
+
+      // Stats
+      statComparisons.textContent = step.comparisons;
+      statWrites.textContent = step.arrayWrites;
+      statAllocArrays.textContent = step.heapArraysAllocated;
+      statAllocElements.textContent = step.heapElementsAllocated;
+      statMaxDepth.textContent = step.maxDepth;
+
+      // Play Sound if step has value tone
+      if (step.soundVal !== undefined && isPlaying) {
+        playValueTone(step.soundVal);
+      } else if (step.isComplete && isPlaying) {
+        playVictoryChime();
+      }
+    }
+
+    function renderVariablesGrid(step) {
+      variablesGrid.innerHTML = "";
+      if (currentVersion === "split") {
+        const vars = [
+          { name: "Operation", val: step.op },
+          { name: "Active Subproblem", val: `[${step.lo !== undefined ? step.lo : 0}..${step.hi !== undefined ? step.hi : currentRawData.length - 1}]` },
+          { name: "Midpoint (mid)", val: step.mid !== undefined ? step.mid : "—" },
+          { name: "Merge Pointers", val: step.leftIndex !== undefined ? `L:${step.leftIndex} R:${step.rightIndex} &rarr; idx:${step.resultIndex}` : "—" }
+        ];
+        vars.forEach(v => {
+          const cell = document.createElement("div");
+          cell.className = "variable-cell";
+          cell.innerHTML = `<div class="v-name">${v.name}</div><div class="v-val">${v.val}</div>`;
+          variablesGrid.appendChild(cell);
+        });
+      } else {
+        const vars = [
+          { name: "Operation", val: step.op },
+          { name: "Range [lo..hi]", val: `[${step.lo !== undefined ? step.lo : 0}..${step.hi !== undefined ? step.hi : currentRawData.length - 1}]` },
+          { name: "Midpoint (mid)", val: step.mid !== undefined ? step.mid : "—" },
+          { name: "Pointers (i, j, k)", val: step.i !== undefined ? `i:${step.i}, j:${step.j} &rarr; k:${step.k !== undefined ? step.k : '—'}` : "—" }
+        ];
+        vars.forEach(v => {
+          const cell = document.createElement("div");
+          cell.className = "variable-cell";
+          cell.innerHTML = `<div class="v-name">${v.name}</div><div class="v-val" style="color:var(--accent-amber);">${v.val}</div>`;
+          variablesGrid.appendChild(cell);
+        });
+      }
+    }
+
+    function renderGlobalArray(step) {
+      globalArrayStrip.innerHTML = "";
+      const arr = step.globalArray;
+      const lo = step.lo !== undefined ? step.lo : 0;
+      const hi = step.hi !== undefined ? step.hi : arr.length - 1;
+      const mid = step.mid;
+
+      lblPrimaryArrayName.textContent = currentVersion === "split" ? "values[]" : "a[]";
+      lblGlobalSubarrayRange.textContent = step.isComplete ? "Fully Sorted!" : `Active: [${lo}..${hi}]`;
+      activeSubproblemTitle.textContent = step.isComplete ? "Array Sorted!" : `Subarray [${lo}..${hi}] (size ${hi - lo + 1})`;
+
+      arr.forEach((item, idx) => {
+        const col = document.createElement("div");
+        col.className = "cell-col";
+
+        // Badges for pointers
+        if (currentVersion === "shared") {
+          if (idx === step.k && step.k !== undefined) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-k";
+            b.textContent = "k";
+            col.appendChild(b);
+          } else if (idx === lo) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-lo";
+            b.textContent = "lo";
+            col.appendChild(b);
+          } else if (idx === hi && hi !== lo) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-hi";
+            b.textContent = "hi";
+            col.appendChild(b);
+          } else if (idx === mid) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-mid";
+            b.textContent = "mid";
+            col.appendChild(b);
+          }
+        } else {
+          // Version split
+          if (idx === lo + step.resultIndex && step.resultIndex !== undefined) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-resultIdx";
+            b.textContent = "idx";
+            col.appendChild(b);
+          } else if (idx === lo && lo !== undefined) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-lo";
+            b.textContent = "lo";
+            col.appendChild(b);
+          } else if (idx === hi && hi !== lo) {
+            const b = document.createElement("span");
+            b.className = "cell-pointer-badge pointer-hi";
+            b.textContent = "hi";
+            col.appendChild(b);
+          }
+        }
+
+        const idxSpan = document.createElement("span");
+        idxSpan.className = "cell-idx";
+        idxSpan.textContent = idx;
+        col.appendChild(idxSpan);
+
+        const box = document.createElement("div");
+        box.className = "cell-box";
+
+        if (step.isComplete) {
+          box.classList.add("sorted-final");
+        } else if (idx >= lo && idx <= hi) {
+          box.classList.add(currentVersion === "shared" ? "highlight-in-range-shared" : "highlight-in-range");
+        }
+
+        if (currentVersion === "shared" && idx === step.k) {
+          box.classList.add("active-write");
+        } else if (currentVersion === "split" && idx === lo + (step.resultIndex - 1) && step.writtenVal !== undefined) {
+          box.classList.add("active-write");
+        }
+
+        box.innerHTML = item ? item.tag : "—";
+        col.appendChild(box);
+        globalArrayStrip.appendChild(col);
+      });
+    }
+
+    function renderSplitSubarrays(step) {
+      leftArrayStrip.innerHTML = "";
+      rightArrayStrip.innerHTML = "";
+
+      const leftArr = step.leftArr || [];
+      const rightArr = step.rightArr || [];
+
+      lblLeftSize.textContent = leftArr.length;
+      lblRightSize.textContent = rightArr.length;
+      lblHeapAllocBadge.textContent = `${step.heapArraysAllocated} Heap Arrays Allocated`;
+
+      leftArr.forEach((item, idx) => {
+        const col = document.createElement("div");
+        col.className = "cell-col";
+
+        if (idx === step.leftIndex && step.leftIndex !== null) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-leftIdx";
+          b.textContent = "leftIdx";
+          col.appendChild(b);
+        }
+
+        const idxSpan = document.createElement("span");
+        idxSpan.className = "cell-idx";
+        idxSpan.textContent = idx;
+        col.appendChild(idxSpan);
+
+        const box = document.createElement("div");
+        box.className = "cell-box";
+        if (!item) {
+          box.classList.add("empty");
+          box.textContent = "—";
+        } else {
+          box.innerHTML = item.tag;
+          if (idx === step.highlightLeftIdx) {
+            box.classList.add("active-compare");
+          }
+        }
+        col.appendChild(box);
+        leftArrayStrip.appendChild(col);
+      });
+
+      rightArr.forEach((item, idx) => {
+        const col = document.createElement("div");
+        col.className = "cell-col";
+
+        if (idx === step.rightIndex && step.rightIndex !== null) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-rightIdx";
+          b.textContent = "rightIdx";
+          col.appendChild(b);
+        }
+
+        const idxSpan = document.createElement("span");
+        idxSpan.className = "cell-idx";
+        idxSpan.textContent = idx;
+        col.appendChild(idxSpan);
+
+        const box = document.createElement("div");
+        box.className = "cell-box";
+        if (!item) {
+          box.classList.add("empty");
+          box.textContent = "—";
+        } else {
+          box.innerHTML = item.tag;
+          if (idx === step.highlightRightIdx) {
+            box.classList.add("active-compare");
+          }
+        }
+        col.appendChild(box);
+        rightArrayStrip.appendChild(col);
+      });
+    }
+
+    function renderSharedAux(step) {
+      sharedAuxArrayStrip.innerHTML = "";
+      const aux = step.auxArray || [];
+
+      aux.forEach((item, idx) => {
+        const col = document.createElement("div");
+        col.className = "cell-col";
+
+        if (idx === step.i && step.i !== undefined) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-i";
+          b.textContent = "i";
+          col.appendChild(b);
+        } else if (idx === step.j && step.j !== undefined) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-j";
+          b.textContent = "j";
+          col.appendChild(b);
+        }
+
+        const idxSpan = document.createElement("span");
+        idxSpan.className = "cell-idx";
+        idxSpan.textContent = idx;
+        col.appendChild(idxSpan);
+
+        const box = document.createElement("div");
+        box.className = "cell-box";
+
+        if (!item) {
+          box.classList.add("empty");
+          box.textContent = "—";
+        } else {
+          box.innerHTML = item.tag;
+          if (idx === step.copyIdx) {
+            box.classList.add("active-copy");
+          } else if (idx === step.i || idx === step.j) {
+            box.classList.add("active-compare");
+          } else if (step.lo !== undefined && idx >= step.lo && idx <= step.hi) {
+            box.classList.add("highlight-in-range-shared");
+          }
+        }
+
+        col.appendChild(box);
+        sharedAuxArrayStrip.appendChild(col);
+      });
+    }
+
+    function renderRecursionTree(step) {
+      recursionTreeContainer.innerHTML = "";
+      const nodes = step.treeNodes || [];
+      if (nodes.length === 0) return;
+
+      // Group nodes by path depth
+      const levels = {};
+      nodes.forEach(n => {
+        const depth = n.id.split('.').length - 1;
+        if (!levels[depth]) levels[depth] = [];
+        levels[depth].push(n);
+      });
+
+      lblTreeDepth.textContent = `Depth: ${Object.keys(levels).length - 1}`;
+
+      Object.keys(levels).sort((a,b) => Number(a) - Number(b)).forEach(d => {
+        const row = document.createElement("div");
+        row.className = "tree-level";
+        levels[d].forEach(node => {
+          const div = document.createElement("div");
+          div.className = `tree-node ${node.status}`;
+          if (step.path === node.id) {
+            div.classList.add(currentVersion === "shared" ? "active-shared" : "active");
+          }
+          const label = `[${node.lo}..${node.hi}]`;
+          div.innerHTML = `<span>${node.status === 'sorted' ? '✓ ' : ''}${label}</span>`;
+          row.appendChild(div);
+        });
+        recursionTreeContainer.appendChild(row);
+      });
+    }
+
+    function renderCallStack(step) {
+      callStackList.innerHTML = "";
+      const stack = step.stack || [];
+      lblStackFramesCount.textContent = `Frames: ${stack.length}`;
+
+      for (let i = stack.length - 1; i >= 0; i--) {
+        const frame = stack[i];
+        const item = document.createElement("div");
+        item.className = `stack-frame-item ${i === stack.length - 1 ? 'current' : ''}`;
+        if (i === stack.length - 1 && currentVersion === "shared") {
+          item.classList.add("frame-shared");
+        }
+        item.innerHTML = `<span>${frame.name}</span><span style="color:var(--text-dim);">depth ${frame.depth}</span>`;
+        callStackList.appendChild(item);
+      }
+    }
+
+    // --- Simulation Loader ---
+    function loadSimulation() {
+      pause();
+      if (currentVersion === "split") {
+        simulationSteps = buildSplitSimulation(currentRawData);
+        stabilityNoteText.innerHTML = `Notice: In <code>left[leftIndex] &lt; right[rightIndex]</code>, ties fall into <code>else</code>, taking the right element first and <strong>inverting stability</strong>! Use <code>&le;</code> to preserve stability.`;
+        versionExplanationChip.innerHTML = `Active Model: <strong>Split Subarrays</strong> &bull; Allocates new <code>left[]</code> and <code>right[]</code> on every recursive call ($O(N \\log N)$ total allocations).`;
+      } else {
+        simulationSteps = buildSharedSimulation(currentRawData);
+        stabilityNoteText.innerHTML = `Notice: In <code>if (aux[j] &lt; aux[i]) a[k] = aux[j++]; else a[k] = aux[i++];</code>, ties fall into <code>else</code>, taking the left element first, which strictly <strong>preserves stability</strong>!`;
+        versionExplanationChip.innerHTML = `Active Model: <strong>Shared Auxiliary Buffer</strong> &bull; Allocates <code>aux[N]</code> once upfront, reused everywhere ($O(N)$ auxiliary space total).`;
+      }
+      currentStepIndex = 0;
+      renderCodeEditor();
+      renderPhaseBar();
+      renderCurrentStep();
+    }
+
+    // --- Playback Controls ---
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        currentStepIndex = 0;
+      }
+      isPlaying = true;
+      btnPlay.innerHTML = "⏸ Pause";
+      btnPlay.classList.add("btn-primary");
+      runTimer();
+    }
+
+    function pause() {
+      isPlaying = false;
+      btnPlay.innerHTML = "▶ Play";
+      if (playTimer) {
+        clearTimeout(playTimer);
+        playTimer = null;
+      }
+    }
+
+    function runTimer() {
+      if (!isPlaying) return;
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderCurrentStep();
+        playTimer = setTimeout(runTimer, playSpeed);
+      } else {
+        pause();
+      }
+    }
+
+    function nextStep() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderCurrentStep();
+      }
+    }
+
+    function prevStep() {
+      pause();
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderCurrentStep();
+      }
+    }
+
+    function reset() {
+      pause();
+      currentStepIndex = 0;
+      renderCurrentStep();
+    }
+
+    // --- Event Listeners ---
+    btnVersionSplit.addEventListener("click", () => {
+      if (currentVersion === "split") return;
+      currentVersion = "split";
+      btnVersionSplit.className = "btn-version-toggle active-split";
+      btnVersionShared.className = "btn-version-toggle";
+      loadSimulation();
+    });
+
+    btnVersionShared.addEventListener("click", () => {
+      if (currentVersion === "shared") return;
+      currentVersion = "shared";
+      btnVersionShared.className = "btn-version-toggle active-shared";
+      btnVersionSplit.className = "btn-version-toggle";
+      loadSimulation();
+    });
+
+    presetSelect.addEventListener("change", (e) => {
+      const key = e.target.value;
+      if (PRESETS[key]) {
+        currentRawData = [...PRESETS[key]];
+        loadSimulation();
+      }
+    });
+
+    speedSlider.addEventListener("input", (e) => {
+      playSpeed = Number(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+    });
+
+    btnSoundToggle.addEventListener("click", () => {
+      isSoundEnabled = !isSoundEnabled;
+      btnSoundToggle.textContent = isSoundEnabled ? "🔊" : "🔇";
+      btnSoundToggle.title = isSoundEnabled ? "Sound Enabled" : "Sound Muted";
+      if (isSoundEnabled) initAudio();
+    });
+
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause(); else play();
+    });
+
+    btnNext.addEventListener("click", nextStep);
+    btnPrev.addEventListener("click", prevStep);
+    btnReset.addEventListener("click", reset);
+
+    // Custom Modal
+    btnCustomModal.addEventListener("click", () => {
+      pause();
+      customInputText.value = currentRawData.join(", ");
+      customInputModal.classList.add("open");
+      customInputText.focus();
+    });
+
+    btnCancelCustom.addEventListener("click", () => {
+      customInputModal.classList.remove("open");
+    });
+
+    btnApplyCustom.addEventListener("click", () => {
+      const rawStr = customInputText.value.trim();
+      const parts = rawStr.split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+      if (parts.length < 2) {
+        alert("Please enter at least 2 numbers.");
+        return;
+      }
+      if (parts.length > 16) {
+        alert("Maximum 16 numbers allowed for clean visualization.");
+        return;
+      }
+      currentRawData = parts;
+      customInputModal.classList.remove("open");
+      loadSimulation();
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (customInputModal.classList.contains("open")) return;
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (isPlaying) pause(); else play();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        nextStep();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prevStep();
+      } else if (e.key === "r" || e.key === "R") {
+        reset();
+      } else if (e.key === "v" || e.key === "V") {
+        if (currentVersion === "split") {
+          btnVersionShared.click();
+        } else {
+          btnVersionSplit.click();
+        }
+      }
+    });
+
+    // --- Init ---
+    loadSimulation();
+  </script>
+</body>
+</html>

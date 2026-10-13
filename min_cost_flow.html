@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimum-Cost Flow Visualizer — LINFO2266 & LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Toggle Buttons Group */
+    .view-toggle-group {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .view-toggle-btn {
+      border-radius: 0;
+      border: none;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      background: #151f32;
+      color: var(--text-dim);
+    }
+
+    .view-toggle-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 1fr 460px;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Playback Bar */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .phase-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--accent-amber);
+    }
+
+    .phase-badge.optimal {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .step-expl-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      line-height: 1.45;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Graph Viewport (SVG) */
+    .graph-viewport {
+      position: relative;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-height: 480px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg#mcfGraphSvg {
+      width: 100%;
+      height: 480px;
+      display: block;
+      user-select: none;
+    }
+
+    .graph-legend {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .legend-pill {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .metric-pill {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: monospace;
+      margin-top: 0.15rem;
+    }
+
+    .metric-value.highlight {
+      color: var(--accent-emerald);
+    }
+
+    .metric-value.cost {
+      color: var(--accent-amber);
+    }
+
+    /* History & Cost Breakdown Table */
+    .history-table-container {
+      overflow-y: auto;
+      max-height: 190px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    table.cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      font-family: monospace;
+      text-align: left;
+    }
+
+    table.cost-table th {
+      background: #131d31;
+      padding: 0.35rem 0.5rem;
+      color: var(--text-dim);
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.cost-table td {
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+    }
+
+    table.cost-table tr.active-hist {
+      background: rgba(56, 189, 248, 0.12);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Node Potentials Panel */
+    .potentials-panel {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .potentials-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .potential-chip {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.2rem 0.5rem;
+      font-family: monospace;
+      font-size: 0.78rem;
+    }
+
+    .potential-chip span.p-var {
+      color: var(--accent-purple);
+      font-weight: 700;
+    }
+
+    .potential-chip span.p-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+    }
+
+    /* Pseudocode */
+    .code-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .code-line.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      font-weight: 700;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .kw { color: #f43f5e; font-weight: 700; }
+    .fn { color: #38bdf8; }
+    .cm { color: #475569; font-style: italic; }
+    .vr { color: #f59e0b; }
+    .num { color: #10b981; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO2266 / LINFO1121</span>
+      <div>
+        <h1>Minimum-Cost Flow Visualizer</h1>
+        <div class="header-subtitle">Successive Shortest Path (SSP) • Bellman-Ford • Residual Cost Refunds • Node Potentials</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Selection -->
+      <div class="control-item">
+        <label for="presetSelect">Network:</label>
+        <select id="presetSelect">
+          <option value="classic6">Classic 6-Node Network (Figure 7.10, Target B=10)</option>
+          <option value="transport">Transportation Logistics (2 Sources, 2 Demands)</option>
+          <option value="tradeoff">Fast-Costly vs Slow-Cheap Path Tradeoff</option>
+        </select>
+      </div>
+
+      <!-- Target Flow B -->
+      <div class="control-item">
+        <label for="targetFlowInput">Demand B:</label>
+        <input type="range" id="targetFlowInput" min="1" max="15" step="1" value="10" style="width: 70px;">
+        <span class="dynamic-val" id="targetFlowVal">10</span>
+      </div>
+
+      <!-- Animation Speed -->
+      <div class="control-item">
+        <label for="speedRange">Speed:</label>
+        <input type="range" id="speedRange" min="200" max="2500" step="100" value="1000">
+        <span class="dynamic-val" id="speedVal">1.0s</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="app-main">
+
+    <!-- Left Column: Graph Viewport & Cost Breakdown -->
+    <div class="left-column">
+
+      <!-- Execution Stepper Controls -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Stepper</span>
+          <span class="phase-badge" id="phaseBadge">Step 0 / 0</span>
+        </div>
+
+        <div class="playback-bar">
+          <div class="btn-group">
+            <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+            <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+            <button id="btnNext" title="Next Step">Next ⏭</button>
+            <button id="btnReset" title="Reset Simulation">↺ Reset</button>
+          </div>
+
+          <!-- View Mode Toggles -->
+          <div class="view-toggle-group">
+            <button class="view-toggle-btn active" id="btnViewFlow">Original Net G</button>
+            <button class="view-toggle-btn" id="btnViewResidual">Residual G<sub>f</sub> (Costs)</button>
+            <button class="view-toggle-btn" id="btnViewDual">Dual Overlay</button>
+          </div>
+
+          <span id="stepCounter" style="font-size: 0.8rem; color: var(--text-dim); font-family: monospace;">Iteration 0</span>
+        </div>
+
+        <!-- Explanation text -->
+        <div class="step-expl-box" id="stepExplanation" style="margin-top: 0.75rem;">
+          Select a network model and run Successive Shortest Path (SSP) or Cycle Canceling.
+        </div>
+      </div>
+
+      <!-- Graph Viewport (SVG) -->
+      <div class="card" style="padding: 0.75rem;">
+        <div class="card-header-line" style="margin-bottom: 0.4rem;">
+          <span id="viewportTitle">Minimum-Cost Network: [flow / cap | cost aₑ]</span>
+          <span id="mcfStatusBadge" style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700;">In Progress</span>
+        </div>
+
+        <div class="graph-viewport">
+          <svg id="mcfGraphSvg" viewBox="0 0 860 480">
+            <!-- Dynamic SVG elements rendered here -->
+          </svg>
+
+          <!-- Graph Legend -->
+          <div class="graph-legend">
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #10b981;"></div>
+              <span>Source <em>s</em> (Supply +B)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f43f5e;"></div>
+              <span>Sink <em>t</em> (Demand -B)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #38bdf8;"></div>
+              <span>Shortest Augmenting Path</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #c084fc; border: 1px dashed #c084fc;"></div>
+              <span>Backward Arc in G<sub>f</sub>: Cost Refund <em>-a(u,v)</em></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f59e0b;"></div>
+              <span>Bottleneck Arc / Saturated (f = c)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edge Cost Audit Table -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Edge Flow & Cost Contribution Breakdown</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">Total Cost = ∑ f(e) · a(e)</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="cost-table" id="edgeAuditTable">
+            <thead>
+              <tr>
+                <th>Edge</th>
+                <th>Capacity c(e)</th>
+                <th>Unit Cost a(e)</th>
+                <th>Current Flow f(e)</th>
+                <th>Cost Contribution</th>
+                <th>Residual Arc in G<sub>f</sub></th>
+              </tr>
+            </thead>
+            <tbody id="edgeAuditTbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Metrics, History, Potentials & Pseudocode -->
+    <div class="right-column">
+
+      <!-- Metrics Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Optimization Metrics</span>
+          <span id="targetStatusText" style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 700;">Target B = 10</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-pill">
+            <div class="metric-label">Flow Routed v(f)</div>
+            <div class="metric-value highlight" id="metricFlowVal">0 / 10</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Total Cost</div>
+            <div class="metric-value cost" id="metricTotalCost">$0</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Avg Unit Cost</div>
+            <div class="metric-value" id="metricUnitCost">—</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Augmentations</div>
+            <div class="metric-value" id="metricAugCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node Potentials & Reduced Costs Panel -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Dual Vertex Potentials π & Reduced Costs</span>
+          <span style="font-size: 0.72rem; color: var(--accent-purple); font-weight: 700;">a^π(u,v) = a(u,v) + π(u) - π(v)</span>
+        </div>
+
+        <div class="potentials-panel">
+          <div>Shortest path distances in G<sub>f</sub> define vertex potentials π(v). When updated, all residual reduced costs satisfy <em>a^π<sub>f</sub> ≥ 0</em>.</div>
+          <div class="potentials-grid" id="potentialsGrid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Iteration / Augmentation History Table -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Augmentation History & Path Costs</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);" id="historyCountHeader">0 Steps</span>
+        </div>
+
+        <div class="history-table-container">
+          <table class="cost-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Shortest Path</th>
+                <th>Flow +δ</th>
+                <th>Unit Path Cost</th>
+                <th>Total Cost</th>
+              </tr>
+            </thead>
+            <tbody id="historyTbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pseudocode -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Successive Shortest Path Algorithm</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">P. Schaus / Ahuja et al.</span>
+        </div>
+
+        <div class="code-box">
+          <span class="code-line" id="sspLine1"><span class="kw">double</span> totalCost = <span class="num">0.0</span>, vFlow = <span class="num">0.0</span>;</span>
+          <span class="code-line" id="sspLine2"><span class="kw">while</span> (vFlow &lt; B) {</span>
+          <span class="code-line" id="sspLine3">&nbsp;&nbsp;<span class="cm">// Find shortest path in G_f with respect to costs a_f (Bellman-Ford)</span></span>
+          <span class="code-line" id="sspLine4">&nbsp;&nbsp;Path P = <span class="fn">bellmanFordShortestPath</span>(G_f, s, t, a_f);</span>
+          <span class="code-line" id="sspLine5">&nbsp;&nbsp;<span class="kw">if</span> (P == <span class="vr">null</span>) <span class="kw">return</span> <span class="vr">INFEASIBLE</span>;</span>
+          <span class="code-line" id="sspLine6">&nbsp;&nbsp;<span class="cm">// Bottleneck capacity: min(remaining demand, min c_f(e))</span></span>
+          <span class="code-line" id="sspLine7">&nbsp;&nbsp;<span class="kw">double</span> delta = Math.<span class="fn">min</span>(B - vFlow, P.<span class="fn">bottleneck</span>());</span>
+          <span class="code-line" id="sspLine8">&nbsp;&nbsp;<span class="cm">// Augment flow (forward adds cost, backward refunds cost!)</span></span>
+          <span class="code-line" id="sspLine9">&nbsp;&nbsp;<span class="fn">augmentFlow</span>(P, delta);</span>
+          <span class="code-line" id="sspLine10">&nbsp;&nbsp;vFlow += delta;</span>
+          <span class="code-line" id="sspLine11">&nbsp;&nbsp;totalCost += delta * P.<span class="fn">unitCost</span>();</span>
+          <span class="code-line" id="sspLine12">}</span>
+          <span class="code-line" id="sspLine13"><span class="kw">return</span> totalCost; <span class="cm">// Optimal Minimum-Cost Flow</span></span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // PROBLEM PRESETS & TOPOLOGIES
+    // =========================================================================
+    const MCF_NETWORKS = {
+      classic6: {
+        title: "Classic 6-Node Network (Figure 7.10)",
+        V: 6,
+        s: 0,
+        t: 5,
+        defaultB: 10,
+        maxFeasibleB: 11,
+        edges: [
+          { u: 0, v: 1, c: 7, a: 2 },
+          { u: 0, v: 2, c: 6, a: 4 },
+          { u: 1, v: 2, c: 3, a: 1 },
+          { u: 1, v: 3, c: 5, a: 3 },
+          { u: 2, v: 4, c: 8, a: 2 },
+          { u: 3, v: 4, c: 2, a: 1 },
+          { u: 3, v: 5, c: 7, a: 5 },
+          { u: 4, v: 5, c: 6, a: 3 }
+        ],
+        positions: [
+          { x: 90,  y: 240, label: "0 (s)" },
+          { x: 280, y: 120, label: "1" },
+          { x: 280, y: 360, label: "2" },
+          { x: 560, y: 120, label: "3" },
+          { x: 560, y: 360, label: "4" },
+          { x: 750, y: 240, label: "5 (t)" }
+        ]
+      },
+      transport: {
+        title: "Transportation Problem (2 Warehouses, 2 Demands)",
+        V: 6,
+        s: 0,
+        t: 5,
+        defaultB: 12,
+        maxFeasibleB: 16,
+        edges: [
+          { u: 0, v: 1, c: 10, a: 0 },
+          { u: 0, v: 2, c: 8,  a: 0 },
+          { u: 1, v: 3, c: 7,  a: 2 },
+          { u: 1, v: 4, c: 8,  a: 5, curveOffset: -22, labelT: 0.32 }, // Diagonal down, bowed and shifted left
+          { u: 2, v: 3, c: 6,  a: 4, curveOffset: 22,  labelT: 0.68 }, // Diagonal up, bowed and shifted right
+          { u: 2, v: 4, c: 7,  a: 1 },
+          { u: 3, v: 5, c: 9,  a: 0 },
+          { u: 4, v: 5, c: 9,  a: 0 }
+        ],
+        positions: [
+          { x: 80,  y: 240, label: "s" },
+          { x: 280, y: 140, label: "W₁" },
+          { x: 280, y: 340, label: "W₂" },
+          { x: 560, y: 140, label: "C₁" },
+          { x: 560, y: 340, label: "C₂" },
+          { x: 760, y: 240, label: "t" }
+        ]
+      },
+      tradeoff: {
+        title: "Fast-Expensive vs Slow-Cheap Route Tradeoff",
+        V: 5,
+        s: 0,
+        t: 4,
+        defaultB: 8,
+        maxFeasibleB: 12,
+        edges: [
+          { u: 0, v: 1, c: 5, a: 1 }, // Cheap but limited
+          { u: 1, v: 4, c: 5, a: 2 }, // Total cheap route cost: 1+2 = 3
+          { u: 0, v: 2, c: 8, a: 4 }, // Expensive route
+          { u: 2, v: 3, c: 8, a: 3 },
+          { u: 3, v: 4, c: 8, a: 2 }, // Total expensive route cost: 4+3+2 = 9
+          { u: 1, v: 2, c: 3, a: 1 }  // Cross link
+        ],
+        positions: [
+          { x: 90,  y: 240, label: "0 (s)" },
+          { x: 340, y: 110, label: "1" },
+          { x: 340, y: 370, label: "2" },
+          { x: 580, y: 370, label: "3" },
+          { x: 750, y: 240, label: "4 (t)" }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // STATE & REFS
+    // =========================================================================
+    let currentNetworkKey = "classic6";
+    let currentTargetB = 10;
+    let currentViewMode = "flow"; // "flow", "residual", "dual"
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 1000;
+
+    // DOM Elements
+    const presetSelect = document.getElementById("presetSelect");
+    const targetFlowInput = document.getElementById("targetFlowInput");
+    const targetFlowVal = document.getElementById("targetFlowVal");
+    const speedRange = document.getElementById("speedRange");
+    const speedVal = document.getElementById("speedVal");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+    const btnViewFlow = document.getElementById("btnViewFlow");
+    const btnViewResidual = document.getElementById("btnViewResidual");
+    const btnViewDual = document.getElementById("btnViewDual");
+    const phaseBadge = document.getElementById("phaseBadge");
+    const stepCounter = document.getElementById("stepCounter");
+    const stepExplanation = document.getElementById("stepExplanation");
+    const mcfGraphSvg = document.getElementById("mcfGraphSvg");
+    const viewportTitle = document.getElementById("viewportTitle");
+    const mcfStatusBadge = document.getElementById("mcfStatusBadge");
+    const metricFlowVal = document.getElementById("metricFlowVal");
+    const metricTotalCost = document.getElementById("metricTotalCost");
+    const metricUnitCost = document.getElementById("metricUnitCost");
+    const metricAugCount = document.getElementById("metricAugCount");
+    const targetStatusText = document.getElementById("targetStatusText");
+    const potentialsGrid = document.getElementById("potentialsGrid");
+    const historyTbody = document.getElementById("historyTbody");
+    const historyCountHeader = document.getElementById("historyCountHeader");
+    const edgeAuditTbody = document.getElementById("edgeAuditTbody");
+
+    // =========================================================================
+    // SIMULATION ENGINE: SUCCESSIVE SHORTEST PATH & CYCLE CANCELING
+    // =========================================================================
+    function cloneEdges(edges) {
+      return edges.map(e => ({ ...e }));
+    }
+
+    function computeTotalCost(edges) {
+      return edges.reduce((sum, e) => sum + e.f * e.a, 0);
+    }
+
+    function buildMinCostSimulation(net, targetB) {
+      const steps = [];
+      const V = net.V;
+      const s = net.s;
+      const t = net.t;
+
+      const edges = net.edges.map((e, idx) => ({
+        id: idx,
+        u: e.u,
+        v: e.v,
+        c: e.c,
+        a: e.a,
+        f: 0
+      }));
+
+      // Adjacency builder for residual graph G_f with modified costs
+      function getResidualNetwork(currEdges) {
+        const adj = Array.from({ length: V }, () => []);
+        currEdges.forEach(e => {
+          // Forward arc
+          const fwdCap = e.c - e.f;
+          if (fwdCap > 1e-9) {
+            adj[e.u].push({ edge: e, from: e.u, to: e.v, isForward: true, resCap: fwdCap, cost: e.a });
+          }
+          // Backward arc (Flow refund: cost is -a)
+          const bwdCap = e.f;
+          if (bwdCap > 1e-9) {
+            adj[e.v].push({ edge: e, from: e.v, to: e.u, isForward: false, resCap: bwdCap, cost: -e.a });
+          }
+        });
+        return adj;
+      }
+
+      // Initial Step
+      steps.push({
+        phase: "Initial State (Zero Flow)",
+        phaseClass: "",
+        codeLine: 1,
+        edges: cloneEdges(edges),
+        flowValue: 0,
+        targetB: targetB,
+        totalCost: 0,
+        activePath: null,
+        bottleneck: 0,
+        unitPathCost: 0,
+        potentials: new Array(V).fill(0),
+        history: [],
+        isOptimal: false,
+        explanation: `Initialized zero flow in network. Target flow demand is B = ${targetB}. We will iteratively find shortest augmenting paths using Bellman-Ford.`
+      });
+
+      let currentFlow = 0;
+      let augCount = 0;
+      const history = [];
+
+      // ---------------------------------------------------------------------
+      // SUCCESSIVE SHORTEST PATH (SSP)
+      // ---------------------------------------------------------------------
+      while (currentFlow < targetB - 1e-9) {
+        const adj = getResidualNetwork(edges);
+
+        // Moore-Bellman-Ford on residual graph G_f from source s
+        const bfResult = bellmanFord(V, s, t, adj);
+
+        if (!bfResult.hasPath) {
+          // No augmenting path exists, cannot fulfill demand B!
+          steps.push({
+            phase: "Infeasible Target Demand",
+            phaseClass: "unbounded",
+            codeLine: 5,
+            edges: cloneEdges(edges),
+            flowValue: currentFlow,
+            targetB: targetB,
+            totalCost: computeTotalCost(edges),
+            activePath: null,
+            bottleneck: 0,
+            unitPathCost: 0,
+            potentials: bfResult.dist,
+            history: [...history],
+            isOptimal: false,
+            explanation: `Target flow B = ${targetB} is infeasible! Residual graph G_f contains no directed path from s to t. Maximum possible flow reached was ${currentFlow}.`
+          });
+          return steps;
+        }
+
+        const path = bfResult.path;
+        const unitCost = bfResult.pathCost;
+
+        // Bottleneck capacity = min(remaining demand B - currentFlow, min residual capacity on path)
+        let minResCap = Infinity;
+        path.forEach(item => {
+          if (item.resCap < minResCap) minResCap = item.resCap;
+        });
+
+        const delta = Math.min(targetB - currentFlow, minResCap);
+        augCount++;
+
+        const pathStr = path.map(p => net.positions[p.from].label.split(' ')[0])
+          .concat([net.positions[t].label.split(' ')[0]])
+          .join(" → ");
+
+        // Step: Shortest Path Found
+        steps.push({
+          phase: `Shortest Path ${augCount} Found`,
+          phaseClass: "",
+          codeLine: 4,
+          edges: cloneEdges(edges),
+          flowValue: currentFlow,
+          targetB: targetB,
+          totalCost: computeTotalCost(edges),
+          activePath: path,
+          bottleneck: delta,
+          unitPathCost: unitCost,
+          potentials: bfResult.dist,
+          history: [...history],
+          isOptimal: false,
+          explanation: `Bellman-Ford identified shortest augmenting path: [${pathStr}] with unit path cost $${unitCost.toFixed(1)}. Can route δ = ${delta} units before hitting capacity.`
+        });
+
+        // Augment flow
+        path.forEach(item => {
+          const e = edges[item.edge.id];
+          if (item.isForward) {
+            e.f += delta;
+          } else {
+            // Backward edge refund
+            e.f -= delta;
+          }
+        });
+
+        currentFlow += delta;
+        const newTotalCost = computeTotalCost(edges);
+
+        history.push({
+          index: augCount,
+          pathStr,
+          delta,
+          unitCost,
+          totalCost: newTotalCost
+        });
+
+        // Step: Flow Augmented
+        steps.push({
+          phase: `Augmentation ${augCount} Completed`,
+          phaseClass: "",
+          codeLine: 9,
+          edges: cloneEdges(edges),
+          flowValue: currentFlow,
+          targetB: targetB,
+          totalCost: newTotalCost,
+          activePath: path,
+          bottleneck: delta,
+          unitPathCost: unitCost,
+          potentials: bfResult.dist,
+          history: [...history],
+          isOptimal: currentFlow >= targetB - 1e-9,
+          explanation: `Augmented δ = ${delta} along [${pathStr}]. Total routed flow: ${currentFlow} / ${targetB}. New total cost: $${newTotalCost.toFixed(1)}.`
+        });
+      }
+
+      // Final Step: Optimal
+      const finalCost = computeTotalCost(edges);
+      steps.push({
+        phase: "Optimal Minimum-Cost Flow Achieved",
+        phaseClass: "optimal",
+        codeLine: 13,
+        edges: cloneEdges(edges),
+        flowValue: currentFlow,
+        targetB: targetB,
+        totalCost: finalCost,
+        activePath: null,
+        bottleneck: 0,
+        unitPathCost: 0,
+        potentials: steps[steps.length - 1].potentials,
+        history: [...history],
+        isOptimal: true,
+        explanation: `Optimal Minimum-Cost Flow certified! Target demand B = ${targetB} routed successfully with minimum total cost $${finalCost.toFixed(1)} (Average unit cost: $${(finalCost / targetB).toFixed(2)}). G_f contains no negative cost cycle.`
+      });
+
+      return steps;
+    }
+
+    // Moore-Bellman-Ford Shortest Path on Residual Graph with Negative Costs
+    function bellmanFord(V, s, t, adj) {
+      const dist = new Array(V).fill(Infinity);
+      const edgeTo = new Array(V).fill(null);
+      dist[s] = 0;
+
+      // Relax edges |V| - 1 times
+      for (let i = 0; i < V - 1; i++) {
+        let anyRelaxed = false;
+        for (let u = 0; u < V; u++) {
+          if (dist[u] === Infinity) continue;
+          for (const item of adj[u]) {
+            const w = item.to;
+            if (dist[u] + item.cost < dist[w] - 1e-9) {
+              dist[w] = dist[u] + item.cost;
+              edgeTo[w] = item;
+              anyRelaxed = true;
+            }
+          }
+        }
+        if (!anyRelaxed) break;
+      }
+
+      if (dist[t] === Infinity) {
+        return { hasPath: false, dist, path: [], pathCost: 0 };
+      }
+
+      // Reconstruct path
+      const path = [];
+      let curr = t;
+      let pathCost = 0;
+      while (curr !== s) {
+        const item = edgeTo[curr];
+        if (!item) break;
+        path.unshift(item);
+        pathCost += item.cost;
+        curr = item.from;
+      }
+
+      return { hasPath: true, dist, path, pathCost };
+    }
+
+    // =========================================================================
+    // RENDERING & SVG GRAPH VISUALIZATION
+    // =========================================================================
+    function renderStep(step) {
+      if (!step) return;
+
+      const net = MCF_NETWORKS[currentNetworkKey];
+
+      // Update Phase Badge & Step Counter
+      phaseBadge.textContent = step.phase;
+      phaseBadge.className = `phase-badge ${step.phaseClass}`;
+      stepCounter.textContent = `Step ${currentStepIndex + 1} / ${simulationSteps.length}`;
+      stepExplanation.innerHTML = step.explanation;
+
+      // Highlight Pseudocode Line
+      for (let i = 1; i <= 13; i++) {
+        const lineEl = document.getElementById(`sspLine${i}`);
+        if (lineEl) {
+          if (i === step.codeLine) lineEl.classList.add("active");
+          else lineEl.classList.remove("active");
+        }
+      }
+
+      // Update Metrics
+      metricFlowVal.textContent = `${step.flowValue.toFixed(1)} / ${step.targetB}`;
+      metricTotalCost.textContent = `$${step.totalCost.toFixed(1)}`;
+      metricUnitCost.textContent = step.flowValue > 0 ? `$${(step.totalCost / step.flowValue).toFixed(2)}` : "—";
+      metricAugCount.textContent = step.history.length;
+      targetStatusText.textContent = `Target Demand B = ${step.targetB}`;
+
+      if (step.isOptimal) {
+        mcfStatusBadge.textContent = "● Optimal Min-Cost Certified!";
+        mcfStatusBadge.style.color = "var(--accent-emerald)";
+      } else {
+        mcfStatusBadge.textContent = "○ Searching SSP Paths";
+        mcfStatusBadge.style.color = "var(--accent-amber)";
+      }
+
+      // Update History Table
+      renderHistoryTable(step.history);
+
+      // Update Edge Cost Audit Table
+      renderEdgeAuditTable(step.edges);
+
+      // Update Node Potentials Panel
+      renderPotentialsPanel(net, step.potentials);
+
+      // Render Graph SVG
+      renderGraphSvg(net, step);
+    }
+
+    function renderHistoryTable(history) {
+      if (!history || history.length === 0) {
+        historyTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 1rem;">No augmentations yet</td></tr>`;
+        historyCountHeader.textContent = "0 Steps";
+        return;
+      }
+
+      historyCountHeader.textContent = `${history.length} Step${history.length > 1 ? 's' : ''}`;
+      historyTbody.innerHTML = history.map((item, idx) => `
+        <tr class="${idx === history.length - 1 ? 'active-hist' : ''}">
+          <td>#${item.index}</td>
+          <td style="color: var(--accent-blue); font-weight: 700;">${item.pathStr}</td>
+          <td style="color: var(--accent-emerald); font-weight: 700;">+${item.delta}</td>
+          <td style="color: var(--accent-amber); font-weight: 700;">$${item.unitCost.toFixed(1)}</td>
+          <td style="font-weight: 800; color: #fff;">$${item.totalCost.toFixed(1)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderEdgeAuditTable(edges) {
+      const net = MCF_NETWORKS[currentNetworkKey];
+      let html = "";
+
+      edges.forEach(e => {
+        const uLabel = net.positions[e.u].label.split(' ')[0];
+        const vLabel = net.positions[e.v].label.split(' ')[0];
+        const costContribution = e.f * e.a;
+        const isSaturated = Math.abs(e.c - e.f) < 1e-6 && e.f > 0;
+
+        let resArcDesc = `+${(e.c - e.f).toFixed(1)} (cost +${e.a})`;
+        if (e.f > 0) {
+          resArcDesc += ` &amp; ↶${e.f.toFixed(1)} (refund -${e.a})`;
+        }
+
+        html += `
+          <tr style="${isSaturated ? 'background: rgba(245, 158, 11, 0.08);' : ''}">
+            <td><strong>(${uLabel} → ${vLabel})</strong></td>
+            <td>${e.c}</td>
+            <td style="color: var(--accent-amber); font-weight: 700;">$${e.a}</td>
+            <td style="font-weight: 700; color: ${e.f > 0 ? 'var(--accent-blue)' : 'var(--text-dim)'};">${e.f.toFixed(1)}</td>
+            <td style="font-weight: 700; color: ${costContribution > 0 ? 'var(--accent-emerald)' : 'var(--text-dim)'};">$${costContribution.toFixed(1)}</td>
+            <td style="font-size: 0.72rem; color: var(--accent-purple);">${resArcDesc}</td>
+          </tr>
+        `;
+      });
+
+      edgeAuditTbody.innerHTML = html;
+    }
+
+    function renderPotentialsPanel(net, potentials) {
+      if (!potentials) return;
+      potentialsGrid.innerHTML = potentials.map((p, v) => {
+        const pStr = p === Infinity ? "∞" : p.toFixed(1);
+        return `
+          <div class="potential-chip">
+            <span class="p-var">π(${net.positions[v].label.split(' ')[0]}):</span>
+            <span class="p-val">${pStr}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Render MCF Directed Graph SVG
+    function renderGraphSvg(net, step) {
+      const activePathEdges = new Set();
+      if (step.activePath) {
+        step.activePath.forEach(item => {
+          activePathEdges.add(`${item.from}->${item.to}`);
+        });
+      }
+
+      let svgHtml = `
+        <defs>
+          <!-- MCF Arrowheads: userSpaceOnUse, tip at x=9.5, base at x=0 -->
+          <marker id="mcf-arrow-gray" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#64748b" />
+          </marker>
+          <marker id="mcf-arrow-blue" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#38bdf8" />
+          </marker>
+          <marker id="mcf-arrow-amber" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#f59e0b" />
+          </marker>
+          <marker id="mcf-arrow-purple" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#c084fc" />
+          </marker>
+          <marker id="mcf-arrow-green" viewBox="0 0 10 8" refX="0" refY="4" markerWidth="10" markerHeight="8" orient="auto" markerUnits="userSpaceOnUse">
+            <polygon points="0 0.5, 9.5 4, 0 7.5, 2 4" fill="#10b981" />
+          </marker>
+        </defs>
+      `;
+
+      // Draw Edges
+      step.edges.forEach(e => {
+        const p1 = net.positions[e.u];
+        const p2 = net.positions[e.v];
+        const isSaturated = Math.abs(e.c - e.f) < 1e-6 && e.f > 0;
+        const isForwardActive = activePathEdges.has(`${e.u}->${e.v}`);
+        const isBackwardActive = activePathEdges.has(`${e.v}->${e.u}`);
+
+        const hasReverse = step.edges.some(other => other.u === e.v && other.v === e.u);
+        const curveOffset = e.curveOffset !== undefined ? e.curveOffset : (hasReverse ? 26 : 0);
+        const labelT = e.labelT !== undefined ? e.labelT : 0.5;
+        const arrowLen = 9.5;
+        const nodeRadius = 20;
+
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+
+        const mx = (p1.x + p2.x) / 2 + nx * curveOffset;
+        const my = (p1.y + p2.y) / 2 + ny * curveOffset;
+
+        // Path trimmed mathematically so arrow tip lands precisely on node circle
+        let dPath = "";
+        if (curveOffset !== 0) {
+          const d1x = mx - p1.x;
+          const d1y = my - p1.y;
+          const dist1 = Math.hypot(d1x, d1y) || 1;
+          const sx = p1.x + (d1x / dist1) * nodeRadius;
+          const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+          const d2x = p2.x - mx;
+          const d2y = p2.y - my;
+          const dist2 = Math.hypot(d2x, d2y) || 1;
+          const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+          const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        } else {
+          const ux = dx / dist;
+          const uy = dy / dist;
+          const sx = p1.x + ux * nodeRadius;
+          const sy = p1.y + uy * nodeRadius;
+          const ex = p2.x - ux * (nodeRadius + arrowLen);
+          const ey = p2.y - uy * (nodeRadius + arrowLen);
+
+          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        }
+
+        // Color & marker logic - Consistent 2.5px base, 3.5px for active
+        let strokeColor = "#334869";
+        let markerId = "mcf-arrow-gray";
+        let strokeWidth = 2.5;
+
+        if (isForwardActive) {
+          strokeColor = "#38bdf8";
+          markerId = "mcf-arrow-blue";
+          strokeWidth = 3.5;
+        } else if (isSaturated) {
+          strokeColor = "#f59e0b";
+          markerId = "mcf-arrow-amber";
+          strokeWidth = 2.5;
+        } else if (e.f > 0) {
+          strokeColor = "#10b981";
+          markerId = "mcf-arrow-green";
+          strokeWidth = 2.5;
+        }
+
+        // Forward / Original Flow Arc
+        if (currentViewMode === "flow" || currentViewMode === "dual") {
+          svgHtml += `
+            <path d="${dPath}" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" marker-end="url(#${markerId})" />
+          `;
+
+          // Label: f / cap | cost a (parameterized by labelT)
+          const oneMinusT = 1 - labelT;
+          const px = curveOffset !== 0
+            ? (oneMinusT * oneMinusT * p1.x + 2 * oneMinusT * labelT * mx + labelT * labelT * p2.x)
+            : (p1.x + labelT * dx);
+          const py = curveOffset !== 0
+            ? (oneMinusT * oneMinusT * p1.y + 2 * oneMinusT * labelT * my + labelT * labelT * p2.y)
+            : (p1.y + labelT * dy);
+
+          const labelX = px + nx * 14;
+          const labelY = py + ny * 14;
+
+          const labelBg = isForwardActive ? "#0369a1" : (isSaturated ? "#78350f" : "#0f172a");
+
+          svgHtml += `
+            <g transform="translate(${labelX}, ${labelY})">
+              <rect x="-35" y="-11" width="70" height="22" rx="4" fill="${labelBg}" stroke="${strokeColor}" stroke-width="1.2" opacity="0.95" />
+              <text x="0" y="4" fill="#f8fafc" font-size="9.5" font-family="monospace" font-weight="bold" text-anchor="middle">
+                ${e.f}/${e.c} <tspan fill="#f59e0b">($${e.a})</tspan>
+              </text>
+            </g>
+          `;
+        }
+
+        // Residual Network View (G_f)
+        if (currentViewMode === "residual" || currentViewMode === "dual") {
+          const resFwd = e.c - e.f;
+          const resBwd = e.f;
+
+          // Forward residual arc
+          if (resFwd > 0 && currentViewMode === "residual") {
+            svgHtml += `
+              <path d="${dPath}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#mcf-arrow-blue)" />
+              <g transform="translate(${mx}, ${my - 14})">
+                <rect x="-26" y="-8" width="52" height="17" rx="3" fill="#13241b" stroke="#10b981" stroke-width="1" />
+                <text x="0" y="4" fill="#10b981" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  cap ${resFwd}, +$${e.a}
+                </text>
+              </g>
+            `;
+          }
+
+          // Backward residual arc (Cost refund: -$a)
+          if (resBwd > 0) {
+            const bwdMx = (p1.x + p2.x) / 2 - nx * (curveOffset !== 0 ? curveOffset : 24);
+            const bwdMy = (p1.y + p2.y) / 2 - ny * (curveOffset !== 0 ? curveOffset : 24);
+
+            const bd1x = bwdMx - p2.x;
+            const bd1y = bwdMy - p2.y;
+            const bdist1 = Math.hypot(bd1x, bd1y) || 1;
+            const bsx = p2.x + (bd1x / bdist1) * nodeRadius;
+            const bsy = p2.y + (bd1y / bdist1) * nodeRadius;
+
+            const bd2x = p1.x - bwdMx;
+            const bd2y = p1.y - bwdMy;
+            const bdist2 = Math.hypot(bd2x, bd2y) || 1;
+            const bex = p1.x - (bd2x / bdist2) * (nodeRadius + arrowLen);
+            const bey = p1.y - (bd2y / bdist2) * (nodeRadius + arrowLen);
+
+            const dBwd = `M ${bsx.toFixed(1)} ${bsy.toFixed(1)} Q ${bwdMx.toFixed(1)} ${bwdMy.toFixed(1)} ${bex.toFixed(1)} ${bey.toFixed(1)}`;
+
+            svgHtml += `
+              <path d="${dBwd}" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="4,4" marker-end="url(#mcf-arrow-purple)" />
+              <g transform="translate(${bwdMx}, ${bwdMy})">
+                <rect x="-28" y="-8" width="56" height="17" rx="3" fill="#241331" stroke="#c084fc" stroke-width="1" />
+                <text x="0" y="4" fill="#c084fc" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  ↶${resBwd}, -$${e.a}
+                </text>
+              </g>
+            `;
+          }
+        }
+      });
+
+      // Draw Vertices
+      for (let v = 0; v < net.V; v++) {
+        const pos = net.positions[v];
+        const isSource = v === net.s;
+        const isSink = v === net.t;
+
+        let fillCol = "#1e293b";
+        let strokeCol = "#38bdf8";
+        let radius = 20;
+
+        if (isSource) {
+          fillCol = "#064e3b";
+          strokeCol = "#10b981";
+          radius = 20;
+        } else if (isSink) {
+          fillCol = "#4c0519";
+          strokeCol = "#f43f5e";
+          radius = 20;
+        }
+
+        const potVal = step.potentials[v];
+        const potStr = potVal !== undefined && potVal !== Infinity ? `π=${potVal.toFixed(0)}` : "";
+
+        svgHtml += `
+          <g transform="translate(${pos.x}, ${pos.y})">
+            <circle cx="0" cy="0" r="${radius}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="2.5" />
+            <text x="0" y="4" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">
+              ${pos.label.split(' ')[0]}
+            </text>
+            ${isSource ? `<text x="0" y="-26" fill="#10b981" font-size="11" font-weight="800" text-anchor="middle">s (b=+${step.targetB})</text>` : ''}
+            ${isSink ? `<text x="0" y="-26" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">t (b=-${step.targetB})</text>` : ''}
+            ${!isSource && !isSink && potStr ? `<text x="0" y="-24" fill="#c084fc" font-size="9.5" font-family="monospace" font-weight="bold" text-anchor="middle">${potStr}</text>` : ''}
+          </g>
+        `;
+      }
+
+      mcfGraphSvg.innerHTML = svgHtml;
+    }
+
+    // =========================================================================
+    // CONTROLS & PLAYBACK ENGINE
+    // =========================================================================
+    function stepNext() {
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderStep(simulationSteps[currentStepIndex]);
+      } else {
+        pause();
+      }
+      updateNavButtons();
+    }
+
+    function stepPrev() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderStep(simulationSteps[currentStepIndex]);
+      }
+      updateNavButtons();
+    }
+
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        currentStepIndex = 0;
+      }
+      isPlaying = true;
+      btnPlay.textContent = "⏸ Pause";
+      btnPlay.classList.remove("btn-primary");
+      btnPlay.style.background = "#d97706";
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          stepNext();
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      if (!isPlaying) return;
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      btnPlay.textContent = "▶ Play";
+      btnPlay.classList.add("btn-primary");
+      btnPlay.style.background = "";
+    }
+
+    function resetSimulation() {
+      pause();
+      currentStepIndex = 0;
+      const net = MCF_NETWORKS[currentNetworkKey];
+      simulationSteps = buildMinCostSimulation(net, currentTargetB);
+      renderStep(simulationSteps[0]);
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      btnPrev.disabled = currentStepIndex === 0;
+      btnNext.disabled = currentStepIndex >= simulationSteps.length - 1;
+    }
+
+    // Event Listeners
+    btnNext.addEventListener("click", () => { pause(); stepNext(); });
+    btnPrev.addEventListener("click", () => { pause(); stepPrev(); });
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause();
+      else play();
+    });
+    btnReset.addEventListener("click", resetSimulation);
+
+    presetSelect.addEventListener("change", (e) => {
+      currentNetworkKey = e.target.value;
+      const net = MCF_NETWORKS[currentNetworkKey];
+      currentTargetB = net.defaultB;
+      targetFlowInput.max = net.maxFeasibleB;
+      targetFlowInput.value = currentTargetB;
+      targetFlowVal.textContent = currentTargetB;
+      resetSimulation();
+    });
+
+    targetFlowInput.addEventListener("input", (e) => {
+      currentTargetB = parseInt(e.target.value, 10);
+      targetFlowVal.textContent = currentTargetB;
+      resetSimulation();
+    });
+
+    speedRange.addEventListener("input", (e) => {
+      playSpeed = parseInt(e.target.value, 10);
+      speedVal.textContent = (playSpeed / 1000).toFixed(1) + "s";
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    // View Toggles
+    btnViewFlow.addEventListener("click", () => {
+      currentViewMode = "flow";
+      btnViewFlow.classList.add("active");
+      btnViewResidual.classList.remove("active");
+      btnViewDual.classList.remove("active");
+      viewportTitle.textContent = "Minimum-Cost Network: [flow / cap | cost aₑ]";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    btnViewResidual.addEventListener("click", () => {
+      currentViewMode = "residual";
+      btnViewFlow.classList.remove("active");
+      btnViewResidual.classList.add("active");
+      btnViewDual.classList.remove("active");
+      viewportTitle.textContent = "Residual Network G_f: [Forward +a | Backward ↶ -a (Cost Refund)]";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    btnViewDual.addEventListener("click", () => {
+      currentViewMode = "dual";
+      btnViewFlow.classList.remove("active");
+      btnViewResidual.classList.remove("active");
+      btnViewDual.classList.add("active");
+      viewportTitle.textContent = "Dual Overlay: Flow G with Residual Cost Arcs";
+      renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    // Initialize
+    const initialNet = MCF_NETWORKS[currentNetworkKey];
+    currentTargetB = initialNet.defaultB;
+    targetFlowInput.max = initialNet.maxFeasibleB;
+    targetFlowInput.value = currentTargetB;
+    targetFlowVal.textContent = currentTargetB;
+    resetSimulation();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Search Visualizer — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+      --accent-cyan: #06b6d4;
+
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #60a5fa;
+    }
+
+    /* Target Key Control Bar */
+    .target-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .target-selector-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .target-input-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.25rem 0.6rem;
+    }
+
+    .target-input-box input {
+      background: transparent;
+      border: none;
+      color: var(--accent-amber);
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 800;
+      width: 54px;
+      outline: none;
+      text-align: center;
+    }
+
+    .quick-target-btn {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .quick-target-btn:hover {
+      background: #28374d;
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .quick-target-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    /* Phase Stepper Bar */
+    .phase-bar {
+      background: #0d1527;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .phase-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      background: #151f32;
+      border: 1px solid var(--border-color);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .phase-pill.active {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    .phase-pill.completed {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Main Grid Layout */
+    .app-main {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.25rem;
+      max-width: 1720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Code Editor Box */
+    .code-editor-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.52;
+      overflow-x: auto;
+      padding: 0.4rem 0;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.15rem 0.75rem;
+      transition: background 0.15s ease;
+    }
+
+    .code-row.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .code-line-num {
+      width: 26px;
+      color: #475569;
+      user-select: none;
+      text-align: right;
+      padding-right: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #cbd5e1;
+      white-space: pre;
+    }
+
+    .c-keyword { color: #f43f5e; font-weight: 600; }
+    .c-func { color: #38bdf8; font-weight: 600; }
+    .c-type { color: #fbbf24; }
+    .c-comment { color: #64748b; font-style: italic; }
+
+    /* Explanation Banner */
+    .explanation-banner {
+      background: var(--bg-card-inner);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    /* Variables Grid */
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem;
+      margin-top: 0.85rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .variable-cell .v-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-top: 0.15rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Visualizer Canvas Area */
+    .viz-canvas-card {
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-label .tag {
+      background: #1e293b;
+      color: var(--accent-blue);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    /* Target Key Visual Box */
+    .target-key-hero {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .target-val-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .target-pill {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 0.2rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    /* Array Display Strip */
+    .array-container-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.2rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .array-strip {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.45rem;
+      overflow-x: auto;
+      padding: 1.6rem 0.25rem 0.75rem;
+      min-height: 112px;
+    }
+
+    .cell-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      min-width: 46px;
+      flex: 1;
+      max-width: 64px;
+      position: relative;
+    }
+
+    .cell-idx {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .cell-box {
+      width: 100%;
+      height: 52px;
+      background: #1e293b;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      user-select: none;
+    }
+
+    .cell-box.eliminated {
+      opacity: 0.25;
+      background: #090e1b;
+      border-color: #1e293b;
+      color: #64748b;
+    }
+
+    .cell-box.active-range {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .cell-box.active-mid {
+      background: #6d28d9 !important;
+      border-color: #c084fc !important;
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 0 16px rgba(192, 132, 252, 0.6);
+      z-index: 5;
+    }
+
+    .cell-box.match-found {
+      background: #064e3b !important;
+      border-color: #10b981 !important;
+      color: #a7f3d0 !important;
+      transform: translateY(-6px) scale(1.15);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+      z-index: 10;
+    }
+
+    /* Pointer Badges */
+    .cell-pointer-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      white-space: nowrap;
+      position: absolute;
+      top: -24px;
+      animation: pointerBounce 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10;
+    }
+
+    @keyframes pointerBounce {
+      0% { transform: translateY(-4px) scale(0.85); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .pointer-low { background: var(--accent-blue); color: #000; }
+    .pointer-mid { background: var(--accent-purple); color: #000; }
+    .pointer-high { background: var(--accent-amber); color: #000; }
+    .pointer-both { background: linear-gradient(135deg, var(--accent-blue), var(--accent-amber)); color: #fff; }
+
+    /* Comparison Banner */
+    .comparison-banner {
+      background: #111a2e;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .comp-expression {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comp-action-badge {
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .comp-action-badge.go-right {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .comp-action-badge.go-left {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .comp-action-badge.found {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+    }
+
+    /* Result Banner */
+    .result-banner {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .result-badge {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .result-badge.hit {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .result-badge.miss {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+
+    /* Cumulative Stats Bar */
+    .stats-footer-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      text-align: center;
+    }
+
+    @media (max-width: 800px) {
+      .stats-footer-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-val {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    /* Custom Input Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-box h3 {
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+    }
+
+    .modal-box p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+
+    .modal-box input {
+      width: 100%;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+    }
+
+    .modal-box input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Binary Search Visualizer</h1>
+        <div class="header-subtitle">Logarithmic $O(\log N)$ Search in Sorted Arrays &bull; Exact Java Specification</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Array Selector -->
+      <div class="control-item">
+        <label for="presetSelect">Array:</label>
+        <select id="presetSelect">
+          <option value="twelve">12 Items [3, 8, 12, 17, 23, 28, 35, 42, 59, 68, 80, 91]</option>
+          <option value="seven">7 Items [5, 10, 15, 20, 25, 30, 35]</option>
+          <option value="sixteen">16 Items [2, 4, 7, 11, 16, 22, 29, 37, 46, 56, 67, 79, 88, 92, 95, 99]</option>
+        </select>
+      </div>
+
+      <button id="btnCustomModal" title="Enter Custom Array">✏️ Custom Array</button>
+
+      <div class="control-item">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="200" max="1800" step="50" value="700">
+        <span class="dynamic-val" id="speedVal">700ms</span>
+      </div>
+
+      <button id="btnSoundToggle" title="Toggle Sound">🔊</button>
+      <button id="btnPrev" title="Previous Step (Left Arrow)">⏮ Prev</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause (Space)">▶ Play</button>
+      <button id="btnNext" title="Next Step (Right Arrow)">⏭ Next</button>
+      <button id="btnReset" title="Reset Animation (R)">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Target Key Control Bar -->
+  <div class="target-bar">
+    <div class="target-selector-wrap">
+      <div style="font-size:0.85rem; font-weight:700; color:#fff;">Target Key to Find:</div>
+      <div class="target-input-box">
+        <input type="number" id="inputTargetKey" value="23">
+        <button id="btnApplyTargetKey" style="padding:0.25rem 0.5rem; font-size:0.75rem;">Set</button>
+      </div>
+
+      <span style="font-size:0.8rem; color:var(--text-dim); margin-left:0.5rem;">Quick Scenarios:</span>
+      <button class="quick-target-btn active" data-key="23">Hit: 23</button>
+      <button class="quick-target-btn" data-key="3">Hit First: 3</button>
+      <button class="quick-target-btn" data-key="91">Hit Last: 91</button>
+      <button class="quick-target-btn" data-key="1">Miss: 1 (&lt; min)</button>
+      <button class="quick-target-btn" data-key="30">Miss: 30 (mid gap)</button>
+      <button class="quick-target-btn" data-key="100">Miss: 100 (&gt; max)</button>
+    </div>
+
+    <div style="font-size:0.8rem; color:var(--text-muted);" id="lblIntervalStatus">
+      Search Range: <strong>[low=0 .. high=11]</strong> (12 items)
+    </div>
+  </div>
+
+  <!-- Phase Stepper -->
+  <div class="phase-bar">
+    <div class="phase-pill active" id="pillPhase1">
+      <span class="pill-dot"></span>
+      <span>1. Range [low..high]</span>
+    </div>
+    <div class="phase-pill" id="pillPhase2">
+      <span class="pill-dot"></span>
+      <span>2. Compute mid = low + (high-low)/2</span>
+    </div>
+    <div class="phase-pill" id="pillPhase3">
+      <span class="pill-dot"></span>
+      <span>3. Three-Way Compare (midVal vs key)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase4">
+      <span class="pill-dot"></span>
+      <span>4. Eliminate Half (low=mid+1 or high=mid-1)</span>
+    </div>
+    <div class="phase-pill" id="pillPhase5">
+      <span class="pill-dot"></span>
+      <span>5. Result (Hit: mid / Miss: -(low+1))</span>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <!-- Left Column: Source Code & Execution State -->
+    <div class="left-column">
+      <!-- Java Source Code Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>BinarySearch.java</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Exact Method Specification</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">private static int</span> <span class="c-func">binarySearch</span>(<span class="c-type">int</span>[] a, <span class="c-type">int</span> key) {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-type">int</span> low = 0;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-type">int</span> high = a.length - 1;</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">while</span> (low &lt;= high) {</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">        <span class="c-type">int</span> mid = low + (high - low) / 2;</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">        <span class="c-type">int</span> midVal = a[mid];</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content">        <span class="c-keyword">if</span> (midVal &lt; key)</span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">            low = mid + 1;</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">        <span class="c-keyword">else if</span> (midVal &gt; key)</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">            high = mid - 1;</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">        <span class="c-keyword">else</span></span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">            <span class="c-keyword">return</span> mid; <span class="c-comment">// key found</span></span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content">    <span class="c-keyword">return</span> -(low + 1); <span class="c-comment">// key not found.</span></span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <!-- Execution State Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Step &amp; State</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue);" id="stepCounterBadge">Step 0 / 0</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Ready to run Binary Search. Press Play or Next to step through.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">Operation</div>
+            <div class="v-val" id="valOp">Init</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Target Key</div>
+            <div class="v-val" id="valKey" style="color:var(--accent-amber);">23</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Range [low..high]</div>
+            <div class="v-val" id="valRange">[0..11]</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">Midpoint (mid, midVal)</div>
+            <div class="v-val" id="valMid" style="color:var(--accent-purple);">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Educational Insights Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Binary Search Analysis &amp; Invariants</span>
+          <span style="font-size:0.75rem; color:var(--accent-emerald);">LINFO1121 Invariants</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.55;">
+          <p><strong style="color:var(--accent-blue);">Logarithmic Guarantee:</strong>
+            Because the remaining search interval is divided in half at each iteration, the maximum number of iterations is $\lfloor \log_2 N \rfloor + 1$.
+            For $N = 1\,000\,000$, at most <strong>20 comparisons</strong> are ever needed!
+          </p>
+          <p style="margin-top:0.45rem;"><strong style="color:var(--accent-amber);">Integer Overflow Bug Avoidance:</strong>
+            Writing <code>low + (high - low) / 2</code> instead of <code>(low + high) / 2</code> avoids arithmetic overflow when <code>low + high</code> exceeds $2^{31}-1$ (a famous bug that stayed hidden in Java for 9 years!).
+          </p>
+          <p style="margin-top:0.45rem;"><strong style="color:var(--accent-rose);">Negative Return Value: <code>-(low + 1)</code></strong>
+            When <code>key</code> is not found, <code>low</code> is the exact <strong>insertion point</strong> where <code>key</code> should be inserted to keep the array sorted.
+            Java returns <code>-(low + 1)</code> instead of <code>-low</code> because if <code>low == 0</code>, <code>-0 == 0</code>, which would collide with a match at index 0!
+            The insertion point is recovered as: <code>insertion_point = -result - 1</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Visualizer Canvas -->
+    <div class="right-column">
+      <div class="card viz-canvas-card">
+        <div class="card-header-line">
+          <span>Search Interval &amp; Array Canvas</span>
+          <span style="font-size:0.75rem; color:var(--accent-blue); font-weight:700;" id="activeStatusTitle">Ready</span>
+        </div>
+
+        <!-- Target Key Hero -->
+        <div class="target-key-hero">
+          <div class="target-val-badge">
+            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Searching For:</span>
+            <span class="target-pill" id="targetPillDisplay">23</span>
+          </div>
+          <div style="font-size:0.85rem; color:var(--text-muted);" id="subproblemSizeText">
+            Search Space: <strong>12 items</strong> (100%)
+          </div>
+        </div>
+
+        <!-- Array Strip -->
+        <div class="array-container-box">
+          <div class="section-label">
+            <span>Sorted Array: <code>a[]</code></span>
+            <span class="tag" id="lblRemainingRange">Interval: a[0..11]</span>
+          </div>
+          <div class="array-strip" id="arrayStrip">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Comparison Banner -->
+        <div class="comparison-banner" id="comparisonBanner" style="display:none;">
+          <div>
+            <span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Three-Way Comparison:</span>
+            <div class="comp-expression" id="compExprText">—</div>
+          </div>
+          <div id="compDecisionText" style="color:var(--text-main); font-size:0.85rem;">—</div>
+          <div class="comp-action-badge go-right" id="compActionBadge">GO RIGHT</div>
+        </div>
+
+        <!-- Final Result Banner -->
+        <div class="result-banner" id="resultBanner" style="display:none;">
+          <div>
+            <div style="font-size:0.85rem; font-weight:700; color:#fff;" id="resultTitle">Search Complete</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);" id="resultExplanation">—</div>
+          </div>
+          <div class="result-badge hit" id="resultBadgeValue">return 4</div>
+        </div>
+
+        <!-- Statistics Footer Bar -->
+        <div class="stats-footer-bar">
+          <div class="stat-cell">
+            <span class="stat-label">Comparisons Done</span>
+            <span class="stat-val" id="statComparisons" style="color:var(--accent-amber);">0</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Theoretical Max (1 + ⌊lg N⌋)</span>
+            <span class="stat-val" id="statMaxComparisons" style="color:var(--accent-cyan);">4</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Remaining Candidates</span>
+            <span class="stat-val" id="statCandidates" style="color:var(--accent-blue);">12</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Search Space Reduction</span>
+            <span class="stat-val" id="statReduction" style="color:var(--accent-emerald);">0%</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-label">Time Complexity</span>
+            <span class="stat-val" style="color:var(--accent-purple);">O(log N)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Custom Input Modal -->
+  <div class="modal-overlay" id="customInputModal">
+    <div class="modal-box">
+      <h3>Enter Custom Sorted Array</h3>
+      <p>Enter 2 to 16 integers separated by commas or spaces. The array will be automatically sorted to guarantee the binary search prerequisite.</p>
+      <input type="text" id="customInputText" value="3, 8, 12, 17, 23, 28, 35, 42, 59, 68, 80, 91">
+      <div class="modal-actions">
+        <button id="btnCancelCustom">Cancel</button>
+        <button class="btn-primary" id="btnApplyCustom">Apply &amp; Sort</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Implementation -->
+  <script>
+    const PRESETS = {
+      twelve: [3, 8, 12, 17, 23, 28, 35, 42, 59, 68, 80, 91],
+      seven: [5, 10, 15, 20, 25, 30, 35],
+      sixteen: [2, 4, 7, 11, 16, 22, 29, 37, 46, 56, 67, 79, 88, 92, 95, 99]
+    };
+
+    let currentArray = [...PRESETS.twelve];
+    let currentTargetKey = 23;
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 700;
+    let isSoundEnabled = true;
+    let audioCtx = null;
+
+    // DOM Elements
+    const codeEditor = document.getElementById("codeEditor");
+    const stepCounterBadge = document.getElementById("stepCounterBadge");
+    const stepExplanation = document.getElementById("stepExplanation");
+    const valOp = document.getElementById("valOp");
+    const valKey = document.getElementById("valKey");
+    const valRange = document.getElementById("valRange");
+    const valMid = document.getElementById("valMid");
+
+    const inputTargetKey = document.getElementById("inputTargetKey");
+    const btnApplyTargetKey = document.getElementById("btnApplyTargetKey");
+    const targetPillDisplay = document.getElementById("targetPillDisplay");
+    const subproblemSizeText = document.getElementById("subproblemSizeText");
+    const lblIntervalStatus = document.getElementById("lblIntervalStatus");
+    const lblRemainingRange = document.getElementById("lblRemainingRange");
+    const activeStatusTitle = document.getElementById("activeStatusTitle");
+    const arrayStrip = document.getElementById("arrayStrip");
+
+    const comparisonBanner = document.getElementById("comparisonBanner");
+    const compExprText = document.getElementById("compExprText");
+    const compDecisionText = document.getElementById("compDecisionText");
+    const compActionBadge = document.getElementById("compActionBadge");
+
+    const resultBanner = document.getElementById("resultBanner");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultExplanation = document.getElementById("resultExplanation");
+    const resultBadgeValue = document.getElementById("resultBadgeValue");
+
+    const statComparisons = document.getElementById("statComparisons");
+    const statMaxComparisons = document.getElementById("statMaxComparisons");
+    const statCandidates = document.getElementById("statCandidates");
+    const statReduction = document.getElementById("statReduction");
+
+    const presetSelect = document.getElementById("presetSelect");
+    const speedSlider = document.getElementById("speedSlider");
+    const speedVal = document.getElementById("speedVal");
+    const btnSoundToggle = document.getElementById("btnSoundToggle");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+
+    const customInputModal = document.getElementById("customInputModal");
+    const btnCustomModal = document.getElementById("btnCustomModal");
+    const customInputText = document.getElementById("customInputText");
+    const btnCancelCustom = document.getElementById("btnCancelCustom");
+    const btnApplyCustom = document.getElementById("btnApplyCustom");
+
+    // Audio
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.08) {
+      if (!isSoundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playValueTone(val, duration = 0.12) {
+      const minVal = Math.min(...currentArray);
+      const maxVal = Math.max(...currentArray);
+      const ratio = maxVal === minVal ? 0.5 : (val - minVal) / (maxVal - minVal);
+      const freq = 220 + ratio * 480;
+      playTone(freq, 'triangle', duration, 0.09);
+    }
+
+    function playVictoryChime() {
+      if (!isSoundEnabled) return;
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+      notes.forEach((f, i) => {
+        setTimeout(() => playTone(f, 'sine', 0.25, 0.12), i * 90);
+      });
+    }
+
+    function playMissSound() {
+      if (!isSoundEnabled) return;
+      playTone(200, 'sawtooth', 0.25, 0.08);
+      setTimeout(() => playTone(160, 'sawtooth', 0.3, 0.08), 120);
+    }
+
+    // --- Simulation Generator ---
+    function buildSimulation(a, key) {
+      const steps = [];
+      let low = 0;
+      let high = a.length - 1;
+      let compCount = 0;
+
+      function snapshot(line, phase, descr, op, extra = {}) {
+        const remainingCount = (low <= high && low >= 0 && high < a.length) ? (high - low + 1) : 0;
+        steps.push({
+          line,
+          phase,
+          descr,
+          op,
+          low,
+          high,
+          key,
+          comparisons: compCount,
+          remainingCount,
+          ...extra
+        });
+      }
+
+      snapshot(1, 1, `Entering <code>binarySearch(a, key=${key})</code>. Array length is <strong>${a.length}</strong>.`, "Call", {
+        low: 0,
+        high: a.length - 1
+      });
+
+      snapshot(2, 1, `Initialized lower search bound: <code>int low = 0</code>.`, "Init low", {
+        low: 0,
+        high: a.length - 1
+      });
+
+      snapshot(3, 1, `Initialized upper search bound: <code>int high = a.length - 1 = ${a.length - 1}</code>. Initial search range: [0..${a.length - 1}].`, "Init high", {
+        low: 0,
+        high: a.length - 1
+      });
+
+      let found = false;
+
+      while (low <= high) {
+        snapshot(4, 1, `Checking loop condition: <code>low (${low}) &le; high (${high})</code> &rarr; <strong>true</strong>. Range has ${high - low + 1} candidate elements.`, "Loop Check", {
+          low,
+          high
+        });
+
+        const mid = low + Math.floor((high - low) / 2);
+        snapshot(5, 2, `Computed midpoint: <code>int mid = low + (high - low)/2 = ${low} + (${high} - ${low})/2 = ${mid}</code>.`, "Compute mid", {
+          low,
+          high,
+          mid
+        });
+
+        const midVal = a[mid];
+        snapshot(6, 2, `Inspected midpoint value: <code>int midVal = a[mid] = a[${mid}] = ${midVal}</code>.`, "Inspect midVal", {
+          low,
+          high,
+          mid,
+          midVal,
+          soundVal: midVal
+        });
+
+        compCount++;
+        if (midVal < key) {
+          const compInfo = {
+            expr: `midVal (${midVal}) < key (${key})`,
+            decision: `${midVal} is strictly smaller than ${key} → key must be in right half. Eliminate [${low}..${mid}]!`,
+            action: "GO RIGHT (low = mid + 1)",
+            type: "go-right"
+          };
+          snapshot(7, 3, `Comparing: <code>midVal (${midVal}) &lt; key (${key})</code> &rarr; <strong>true</strong>. Target key is strictly larger than midpoint.`, "Compare <", {
+            low,
+            high,
+            mid,
+            midVal,
+            compInfo,
+            soundVal: midVal
+          });
+
+          low = mid + 1;
+          snapshot(8, 4, `Updated lower bound: <code>low = mid + 1 = ${low}</code>. Left half of search space eliminated.`, "Update low", {
+            low,
+            high,
+            mid
+          });
+        } else if (midVal > key) {
+          const compInfo = {
+            expr: `midVal (${midVal}) > key (${key})`,
+            decision: `${midVal} is strictly greater than ${key} → key must be in left half. Eliminate [${mid}..${high}]!`,
+            action: "GO LEFT (high = mid - 1)",
+            type: "go-left"
+          };
+          snapshot(9, 3, `Comparing: <code>midVal (${midVal}) &gt; key (${key})</code> &rarr; <strong>true</strong>. Target key is strictly smaller than midpoint.`, "Compare >", {
+            low,
+            high,
+            mid,
+            midVal,
+            compInfo,
+            soundVal: midVal
+          });
+
+          high = mid - 1;
+          snapshot(10, 4, `Updated upper bound: <code>high = mid - 1 = ${high}</code>. Right half of search space eliminated.`, "Update high", {
+            low,
+            high,
+            mid
+          });
+        } else {
+          // Found!
+          found = true;
+          const compInfo = {
+            expr: `midVal (${midVal}) == key (${key})`,
+            decision: `Match found! Element at index ${mid} equals target key ${key}.`,
+            action: "KEY FOUND!",
+            type: "found"
+          };
+          snapshot(11, 3, `Comparing: <code>midVal (${midVal}) == key (${key})</code> &rarr; <strong>Match found</strong>!`, "Match!", {
+            low,
+            high,
+            mid,
+            midVal,
+            compInfo,
+            isMatch: true,
+            soundVal: midVal
+          });
+
+          snapshot(12, 5, `Returning target index: <code>return mid = ${mid}</code>. Target found in ${compCount} comparisons!`, "Return Hit", {
+            low,
+            high,
+            mid,
+            midVal,
+            isMatch: true,
+            returnValue: mid,
+            isComplete: true
+          });
+          break;
+        }
+      }
+
+      if (!found) {
+        snapshot(4, 1, `Loop exited: <code>low (${low}) &le; high (${high})</code> is <strong>false</strong>. Search space is empty.`, "Loop Terminated", {
+          low,
+          high
+        });
+
+        const retVal = -(low + 1);
+        snapshot(14, 5, `Key <strong>${key}</strong> not found. Returning <code>-(low + 1) = -(${low} + 1) = ${retVal}</code>.<br><span style="color:var(--accent-amber);">Insertion point is index ${low}: insert key here to maintain sorted order!</span>`, "Return Miss", {
+          low,
+          high,
+          returnValue: retVal,
+          isMiss: true,
+          insertionPoint: low,
+          isComplete: true
+        });
+      }
+
+      return steps;
+    }
+
+    // --- Render Current Step ---
+    function renderCurrentStep() {
+      if (simulationSteps.length === 0) return;
+      const step = simulationSteps[currentStepIndex];
+
+      stepCounterBadge.textContent = `Step ${currentStepIndex + 1} / ${simulationSteps.length}`;
+      stepExplanation.innerHTML = step.descr;
+
+      // Highlight active code row
+      document.querySelectorAll(".code-row").forEach(r => {
+        const isMatch = Number(r.dataset.line) === step.line;
+        r.classList.toggle("active", isMatch);
+        if (isMatch) r.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+
+      // Highlight Phase Pills
+      for (let p = 1; p <= 5; p++) {
+        const pill = document.getElementById(`pillPhase${p}`);
+        if (!pill) continue;
+        pill.classList.remove("active", "completed");
+        if (p === step.phase) {
+          pill.classList.add("active");
+        } else if (p < step.phase || step.isComplete) {
+          pill.classList.add("completed");
+        }
+      }
+
+      // Variables
+      valOp.textContent = step.op;
+      valKey.textContent = currentTargetKey;
+      valRange.textContent = `[low=${step.low} .. high=${step.high}]`;
+      valMid.textContent = step.mid !== undefined ? `mid=${step.mid} (${step.midVal !== undefined ? 'val=' + step.midVal : ''})` : "—";
+
+      // Target Header Box
+      targetPillDisplay.textContent = currentTargetKey;
+      const pct = Math.round((step.remainingCount / currentArray.length) * 100);
+      subproblemSizeText.innerHTML = `Search Space: <strong>${step.remainingCount} items</strong> (${pct}%)`;
+      lblIntervalStatus.innerHTML = `Search Range: <strong>[low=${step.low} .. high=${step.high}]</strong> (${step.remainingCount} items remaining)`;
+      lblRemainingRange.textContent = step.isComplete ? "Search Terminated" : `Interval: a[${step.low}..${step.high}]`;
+      activeStatusTitle.textContent = step.isComplete
+        ? (step.isMatch ? `Found at index ${step.returnValue}!` : `Not found (ins point ${step.insertionPoint})`)
+        : `Searching... (step ${currentStepIndex + 1})`;
+
+      // Array Strip
+      arrayStrip.innerHTML = "";
+      currentArray.forEach((item, idx) => {
+        const col = document.createElement("div");
+        col.className = "cell-col";
+
+        // Badges for pointers
+        if (idx === step.low && idx === step.high) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-both";
+          b.textContent = "lo=hi";
+          col.appendChild(b);
+        } else if (idx === step.mid) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-mid";
+          b.textContent = "mid";
+          col.appendChild(b);
+        } else if (idx === step.low) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-low";
+          b.textContent = "low";
+          col.appendChild(b);
+        } else if (idx === step.high) {
+          const b = document.createElement("span");
+          b.className = "cell-pointer-badge pointer-high";
+          b.textContent = "high";
+          col.appendChild(b);
+        }
+
+        const idxSpan = document.createElement("span");
+        idxSpan.className = "cell-idx";
+        idxSpan.textContent = idx;
+        col.appendChild(idxSpan);
+
+        const box = document.createElement("div");
+        box.className = "cell-box";
+
+        const inRange = idx >= step.low && idx <= step.high;
+        if (!inRange) {
+          box.classList.add("eliminated");
+        } else {
+          box.classList.add("active-range");
+        }
+
+        if (idx === step.mid) {
+          box.classList.add(step.isMatch ? "match-found" : "active-mid");
+        }
+
+        box.textContent = item;
+        col.appendChild(box);
+        arrayStrip.appendChild(col);
+      });
+
+      // Comparison Banner
+      if (step.compInfo) {
+        comparisonBanner.style.display = "flex";
+        compExprText.textContent = step.compInfo.expr;
+        compDecisionText.textContent = step.compInfo.decision;
+        compActionBadge.textContent = step.compInfo.action;
+        compActionBadge.className = `comp-action-badge ${step.compInfo.type}`;
+      } else {
+        comparisonBanner.style.display = "none";
+      }
+
+      // Result Banner
+      if (step.returnValue !== undefined) {
+        resultBanner.style.display = "flex";
+        if (step.isMatch) {
+          resultTitle.textContent = `Target Found at index ${step.returnValue}!`;
+          resultExplanation.textContent = `a[${step.returnValue}] == ${currentTargetKey}. Binary search succeeded.`;
+          resultBadgeValue.className = "result-badge hit";
+          resultBadgeValue.textContent = `return ${step.returnValue};`;
+        } else {
+          resultTitle.textContent = `Target NOT Found in array`;
+          resultExplanation.textContent = `Insertion index is low = ${step.insertionPoint}. Encoded return value: -(low + 1) = ${step.returnValue}.`;
+          resultBadgeValue.className = "result-badge miss";
+          resultBadgeValue.textContent = `return ${step.returnValue};`;
+        }
+      } else {
+        resultBanner.style.display = "none";
+      }
+
+      // Stats
+      statComparisons.textContent = step.comparisons;
+      const maxC = 1 + Math.floor(Math.log2(currentArray.length));
+      statMaxComparisons.textContent = maxC;
+      statCandidates.textContent = step.remainingCount;
+      const reduction = Math.round((1 - step.remainingCount / currentArray.length) * 100);
+      statReduction.textContent = `${Math.max(0, reduction)}%`;
+
+      // Audio
+      if (step.soundVal !== undefined && isPlaying) {
+        playValueTone(step.soundVal);
+      } else if (step.isComplete && isPlaying) {
+        if (step.isMatch) playVictoryChime(); else playMissSound();
+      }
+    }
+
+    function loadSimulation() {
+      pause();
+      simulationSteps = buildSimulation(currentArray, currentTargetKey);
+      currentStepIndex = 0;
+      renderCurrentStep();
+    }
+
+    // Playback Controls
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        currentStepIndex = 0;
+      }
+      isPlaying = true;
+      btnPlay.innerHTML = "⏸ Pause";
+      btnPlay.classList.add("btn-primary");
+      runTimer();
+    }
+
+    function pause() {
+      isPlaying = false;
+      btnPlay.innerHTML = "▶ Play";
+      if (playTimer) {
+        clearTimeout(playTimer);
+        playTimer = null;
+      }
+    }
+
+    function runTimer() {
+      if (!isPlaying) return;
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderCurrentStep();
+        playTimer = setTimeout(runTimer, playSpeed);
+      } else {
+        pause();
+      }
+    }
+
+    function nextStep() {
+      pause();
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderCurrentStep();
+      }
+    }
+
+    function prevStep() {
+      pause();
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderCurrentStep();
+      }
+    }
+
+    function reset() {
+      pause();
+      currentStepIndex = 0;
+      renderCurrentStep();
+    }
+
+    // Event Listeners
+    btnApplyTargetKey.addEventListener("click", () => {
+      const val = parseInt(inputTargetKey.value, 10);
+      if (!isNaN(val)) {
+        currentTargetKey = val;
+        document.querySelectorAll(".quick-target-btn").forEach(b => b.classList.remove("active"));
+        loadSimulation();
+      }
+    });
+
+    inputTargetKey.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        btnApplyTargetKey.click();
+      }
+    });
+
+    document.querySelectorAll(".quick-target-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".quick-target-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const key = parseInt(btn.dataset.key, 10);
+        currentTargetKey = key;
+        inputTargetKey.value = key;
+        loadSimulation();
+      });
+    });
+
+    presetSelect.addEventListener("change", (e) => {
+      const k = e.target.value;
+      if (PRESETS[k]) {
+        currentArray = [...PRESETS[k]];
+        loadSimulation();
+      }
+    });
+
+    speedSlider.addEventListener("input", (e) => {
+      playSpeed = Number(e.target.value);
+      speedVal.textContent = `${playSpeed}ms`;
+    });
+
+    btnSoundToggle.addEventListener("click", () => {
+      isSoundEnabled = !isSoundEnabled;
+      btnSoundToggle.textContent = isSoundEnabled ? "🔊" : "🔇";
+      btnSoundToggle.title = isSoundEnabled ? "Sound Enabled" : "Sound Muted";
+      if (isSoundEnabled) initAudio();
+    });
+
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause(); else play();
+    });
+
+    btnNext.addEventListener("click", nextStep);
+    btnPrev.addEventListener("click", prevStep);
+    btnReset.addEventListener("click", reset);
+
+    // Custom Modal
+    btnCustomModal.addEventListener("click", () => {
+      pause();
+      customInputText.value = currentArray.join(", ");
+      customInputModal.classList.add("open");
+      customInputText.focus();
+    });
+
+    btnCancelCustom.addEventListener("click", () => {
+      customInputModal.classList.remove("open");
+    });
+
+    btnApplyCustom.addEventListener("click", () => {
+      const rawStr = customInputText.value.trim();
+      let parts = rawStr.split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+      if (parts.length < 2) {
+        alert("Please enter at least 2 numbers.");
+        return;
+      }
+      if (parts.length > 16) {
+        alert("Maximum 16 numbers allowed for clean visualization.");
+        return;
+      }
+      // Sort automatically to enforce binary search prerequisite
+      parts.sort((a, b) => a - b);
+      currentArray = parts;
+      customInputModal.classList.remove("open");
+      loadSimulation();
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (customInputModal.classList.contains("open")) return;
+      if (e.target.tagName === "INPUT") return;
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (isPlaying) pause(); else play();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        nextStep();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prevStep();
+      } else if (e.key === "r" || e.key === "R") {
+        reset();
+      }
+    });
+
+    // Init
+    loadSimulation();
+  </script>
+</body>
+</html>

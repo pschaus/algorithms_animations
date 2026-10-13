@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorting Complexity Race: O(N²) vs O(N log N) — LINFO1121 UCLouvain</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+      --accent-cyan: #06b6d4;
+
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-stack);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #60a5fa;
+    }
+
+    /* Sub-header Race Controls */
+    .race-control-bar {
+      background: #090e1b;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pill-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-card-inner);
+      padding: 0.25rem 0.35rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-pill-opt {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-pill-opt.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 1720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Dual Race Arena */
+    .race-arena-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 960px) {
+      .race-arena-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .race-card {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .race-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .algo-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-complexity {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .badge-quad {
+      background: rgba(244, 63, 94, 0.18);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .badge-nlogn {
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    /* Bar Chart Display */
+    .bars-chart-canvas {
+      height: 200px;
+      background: #070d19;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      padding: 0.5rem 0.4rem 0.2rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-col {
+      flex: 1;
+      background: linear-gradient(180deg, #38bdf8 0%, #0369a1 100%);
+      border-radius: 2px 2px 0 0;
+      transition: height 0.05s ease, background 0.1s ease;
+      min-width: 2px;
+    }
+
+    .bar-col.active {
+      background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+    }
+
+    .bar-col.write {
+      background: linear-gradient(180deg, #f43f5e 0%, #be123c 100%) !important;
+    }
+
+    .bar-col.sorted {
+      background: linear-gradient(180deg, #34d399 0%, #059669 100%) !important;
+    }
+
+    /* Progress & Metrics */
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 9999px;
+      transition: width 0.1s linear;
+    }
+
+    .fill-quad { background: linear-gradient(90deg, #f59e0b, #f43f5e); }
+    .fill-nlogn { background: linear-gradient(90deg, #38bdf8, #10b981); }
+
+    .race-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      background: #090e1b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem;
+    }
+
+    .metric-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .metric-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Winner Banner */
+    .winner-announcement-banner {
+      background: #111a2e;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .winner-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    /* Theoretical Growth Section */
+    .theory-section-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1050px) {
+      .theory-section-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Asymptotic SVG Curves */
+    .curves-graph-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Scaling Table */
+    .scaling-table-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    table.scaling-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    table.scaling-table th, table.scaling-table td {
+      padding: 0.55rem 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: var(--font-mono);
+    }
+
+    table.scaling-table th {
+      background: #0f172a;
+      color: var(--accent-blue);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+    }
+
+    table.scaling-table tr.active-row {
+      background: rgba(56, 189, 248, 0.12);
+      font-weight: 700;
+    }
+
+    .time-extreme {
+      color: var(--accent-rose);
+      font-weight: 800;
+    }
+
+    .time-fast {
+      color: var(--accent-emerald);
+      font-weight: 800;
+    }
+
+    /* Educational Callouts */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .edu-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .edu-card {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .edu-card h4 {
+      font-size: 0.88rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>Sorting Complexity Race: $O(N^2)$ vs $O(N \log N)$</h1>
+        <div class="header-subtitle">Empirical Demonstration of Quadratic vs Linearithmic Asymptotic Growth Rates</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="1" max="100" value="50">
+        <span class="dynamic-val" id="speedVal">50x</span>
+      </div>
+
+      <button id="btnSoundToggle" title="Toggle Sound">🔊</button>
+      <button id="btnStartRace" class="btn-primary" title="Start Head-to-Head Race">🏁 Start Race</button>
+      <button id="btnResetRace" title="Reset Arrays">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Sub-header Race Controls -->
+  <div class="race-control-bar">
+    <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+      <span style="font-size:0.8rem; font-weight:700; color:#fff;">Array Size N:</span>
+      <div class="pill-group">
+        <button class="btn-pill-opt" data-n="16">N = 16</button>
+        <button class="btn-pill-opt active" data-n="32">N = 32</button>
+        <button class="btn-pill-opt" data-n="64">N = 64</button>
+        <button class="btn-pill-opt" data-n="128">N = 128</button>
+      </div>
+
+      <span style="font-size:0.8rem; font-weight:700; color:#fff; margin-left:0.5rem;">Input Order:</span>
+      <div class="pill-group">
+        <button class="btn-pill-opt active" data-dist="random">Random (Average)</button>
+        <button class="btn-pill-opt" data-dist="reversed">Reversed (Worst Case)</button>
+        <button class="btn-pill-opt" data-dist="nearly">Nearly Sorted (Adaptive)</button>
+        <button class="btn-pill-opt" data-dist="sorted">Already Sorted</button>
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem; color:var(--text-muted);" id="raceStatusText">
+      Status: Ready for race. Both algorithms share identical input arrays.
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main>
+    <!-- Winner Announcement Banner -->
+    <div class="winner-announcement-banner">
+      <div class="winner-badge" id="winnerBadge">
+        <span>⚖️ Head-to-Head Benchmark</span>
+        <span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal;" id="winnerDetails">Click "Start Race" to watch both algorithms sort in parallel.</span>
+      </div>
+      <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);" id="speedupRatioText">
+        Operations Ratio: <strong style="color:var(--accent-blue);">1.00x</strong>
+      </div>
+    </div>
+
+    <!-- Dual Race Arena -->
+    <div class="race-arena-grid">
+      <!-- 1. Insertion Sort Card -->
+      <div class="race-card" id="cardInsertion">
+        <div class="race-card-header">
+          <div class="algo-title">
+            <span>Insertion Sort</span>
+            <span class="badge-complexity badge-quad">O(N²) Quadratic</span>
+          </div>
+          <a href="insertion_sort.html" class="btn-nav-index" style="font-size:0.7rem; padding:0.2rem 0.5rem;">Inspect Visualizer ➔</a>
+        </div>
+
+        <div class="bars-chart-canvas" id="canvasInsertion">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill fill-quad" id="progInsertion"></div>
+        </div>
+
+        <div class="race-metrics-grid">
+          <div class="metric-col">
+            <span class="metric-label">Comparisons</span>
+            <span class="metric-val" id="metricInsComps" style="color:var(--accent-amber);">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Array Writes</span>
+            <span class="metric-val" id="metricInsWrites" style="color:var(--accent-rose);">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Total Ops</span>
+            <span class="metric-val" id="metricInsTotal">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Status</span>
+            <span class="metric-val" id="metricInsStatus" style="color:var(--text-dim); font-size:0.8rem;">Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Merge Sort Card -->
+      <div class="race-card" id="cardMerge">
+        <div class="race-card-header">
+          <div class="algo-title">
+            <span>Merge Sort</span>
+            <span class="badge-complexity badge-nlogn">O(N log N) Linearithmic</span>
+          </div>
+          <a href="merge_sort.html" class="btn-nav-index" style="font-size:0.7rem; padding:0.2rem 0.5rem;">Inspect Visualizer ➔</a>
+        </div>
+
+        <div class="bars-chart-canvas" id="canvasMerge">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill fill-nlogn" id="progMerge"></div>
+        </div>
+
+        <div class="race-metrics-grid">
+          <div class="metric-col">
+            <span class="metric-label">Comparisons</span>
+            <span class="metric-val" id="metricMergeComps" style="color:var(--accent-blue);">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Array Writes</span>
+            <span class="metric-val" id="metricMergeWrites" style="color:var(--accent-emerald);">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Total Ops</span>
+            <span class="metric-val" id="metricMergeTotal">0</span>
+          </div>
+          <div class="metric-col">
+            <span class="metric-label">Status</span>
+            <span class="metric-val" id="metricMergeStatus" style="color:var(--text-dim); font-size:0.8rem;">Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theoretical Growth & Wall Clock Scaling -->
+    <div class="card">
+      <div class="card-header-line">
+        <span>Asymptotic Scaling &amp; Real-World CPU Time (1 Billion Operations / Second)</span>
+        <span style="font-size:0.75rem; color:var(--accent-emerald);">Theoretical Foundation</span>
+      </div>
+
+      <div class="theory-section-grid">
+        <!-- SVG Curves -->
+        <div class="curves-graph-box">
+          <div style="font-size:0.78rem; font-weight:700; color:var(--text-muted); margin-bottom:0.5rem; display:flex; justify-content:space-between;">
+            <span>Growth Curves: f(N) as N Increases</span>
+            <div style="display:flex; gap:0.75rem; font-size:0.72rem; font-family:var(--font-mono);">
+              <span style="color:var(--accent-rose);">● N²</span>
+              <span style="color:var(--accent-blue);">● N log₂ N</span>
+              <span style="color:var(--accent-emerald);">● N</span>
+            </div>
+          </div>
+          <svg id="svgCurves" viewBox="0 0 500 210" style="width:100%; height:100%;">
+            <!-- Axis lines -->
+            <line x1="40" y1="180" x2="480" y2="180" stroke="#334869" stroke-width="1.5" />
+            <line x1="40" y1="20" x2="40" y2="180" stroke="#334869" stroke-width="1.5" />
+            <!-- Axis labels -->
+            <text x="475" y="198" fill="#64748b" font-size="11" font-family="monospace" text-anchor="end">N →</text>
+            <text x="15" y="25" fill="#64748b" font-size="11" font-family="monospace">Ops ↑</text>
+            <!-- Curves dynamically rendered via JS -->
+          </svg>
+        </div>
+
+        <!-- Real-World Clock Time Scaling Table -->
+        <div class="scaling-table-box">
+          <table class="scaling-table">
+            <thead>
+              <tr>
+                <th>Size N</th>
+                <th>Insertion Sort (N²)</th>
+                <th>Merge Sort (N log N)</th>
+                <th>Speedup Ratio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>N = 100</td>
+                <td>0.01 ms</td>
+                <td class="time-fast">0.0007 ms</td>
+                <td>~15×</td>
+              </tr>
+              <tr>
+                <td>N = 1,000</td>
+                <td>1.0 ms</td>
+                <td class="time-fast">0.01 ms</td>
+                <td>~100×</td>
+              </tr>
+              <tr class="active-row">
+                <td>N = 10,000</td>
+                <td>100 ms</td>
+                <td class="time-fast">0.13 ms</td>
+                <td>~750×</td>
+              </tr>
+              <tr>
+                <td>N = 100,000</td>
+                <td class="time-extreme">10 seconds</td>
+                <td class="time-fast">1.7 ms</td>
+                <td>~6,000×</td>
+              </tr>
+              <tr>
+                <td>N = 1,000,000</td>
+                <td class="time-extreme">16.7 minutes</td>
+                <td class="time-fast">20 ms</td>
+                <td>~50,000×</td>
+              </tr>
+              <tr>
+                <td>N = 100,000,000</td>
+                <td class="time-extreme">3.17 YEARS!</td>
+                <td class="time-fast">2.7 seconds</td>
+                <td>~3,700,000×</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Educational Invariants & Takeaways -->
+    <div class="card">
+      <div class="card-header-line">
+        <span>Why Asymptotic Complexity Dominates Modern Computing</span>
+        <span style="font-size:0.75rem; color:var(--accent-amber);">LINFO1121 Exam Concepts</span>
+      </div>
+
+      <div class="edu-grid">
+        <div class="edu-card">
+          <h4 style="color:var(--accent-rose);">🚀 The Tyranny of O(N²)</h4>
+          <p>
+            When an algorithm runs in quadratic time, doubling the input size $N \to 2N$ multiplies the running time by <strong>4</strong>.
+            Multiplying $N$ by 10 increases the time by <strong>100</strong>!
+            No hardware upgrade or supercomputer can compensate for quadratic explosion as data scales to millions of records.
+          </p>
+        </div>
+
+        <div class="edu-card">
+          <h4 style="color:var(--accent-blue);">⚡ The Power of O(N log N)</h4>
+          <p>
+            Divide-and-conquer breaks the problem into $O(\log N)$ levels of linear work $\Theta(N)$.
+            Doubling $N \to 2N$ only adds one additional level of work, increasing time by a factor of roughly $2 \times (1 + 1/\log N) \approx 2.1$.
+            This scalability enables sorting millions of items in a fraction of a second.
+          </p>
+        </div>
+
+        <div class="edu-card">
+          <h4 style="color:var(--accent-emerald);">🎯 When Does Insertion Sort Win?</h4>
+          <p>
+            For tiny arrays ($N &lt; 10$) or arrays that are <strong>nearly sorted</strong> ($c \cdot N$ inversions), Insertion Sort runs in linear time $O(N)$ with zero recursion stack overhead and zero heap allocations.
+            Modern production algorithms (like Java's <code>DualPivotQuicksort</code> and Python's <code>Timsort</code>) switch to Insertion Sort for small partitions!
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- JavaScript Implementation -->
+  <script>
+    let currentN = 32;
+    let currentDist = "random";
+    let isRacing = false;
+    let raceTimer = null;
+    let raceSpeed = 50;
+    let isSoundEnabled = true;
+    let audioCtx = null;
+
+    let baseArray = [];
+    let insArray = [];
+    let mergeArray = [];
+
+    let insGen = null;
+    let mergeGen = null;
+
+    let insMetrics = { comps: 0, writes: 0, done: false, time: 0 };
+    let mergeMetrics = { comps: 0, writes: 0, done: false, time: 0 };
+
+    // DOM
+    const btnStartRace = document.getElementById("btnStartRace");
+    const btnResetRace = document.getElementById("btnResetRace");
+    const speedSlider = document.getElementById("speedSlider");
+    const speedVal = document.getElementById("speedVal");
+    const btnSoundToggle = document.getElementById("btnSoundToggle");
+    const raceStatusText = document.getElementById("raceStatusText");
+    const winnerBadge = document.getElementById("winnerBadge");
+    const winnerDetails = document.getElementById("winnerDetails");
+    const speedupRatioText = document.getElementById("speedupRatioText");
+
+    const canvasInsertion = document.getElementById("canvasInsertion");
+    const canvasMerge = document.getElementById("canvasMerge");
+    const progInsertion = document.getElementById("progInsertion");
+    const progMerge = document.getElementById("progMerge");
+
+    const metricInsComps = document.getElementById("metricInsComps");
+    const metricInsWrites = document.getElementById("metricInsWrites");
+    const metricInsTotal = document.getElementById("metricInsTotal");
+    const metricInsStatus = document.getElementById("metricInsStatus");
+
+    const metricMergeComps = document.getElementById("metricMergeComps");
+    const metricMergeWrites = document.getElementById("metricMergeWrites");
+    const metricMergeTotal = document.getElementById("metricMergeTotal");
+    const metricMergeStatus = document.getElementById("metricMergeStatus");
+
+    // Audio
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(freq, duration = 0.04) {
+      if (!isSoundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // Array Generation
+    function generateArray(n, dist) {
+      let arr = Array.from({ length: n }, (_, i) => i + 1);
+      if (dist === "random") {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      } else if (dist === "reversed") {
+        arr.reverse();
+      } else if (dist === "nearly") {
+        // Swap ~3 pairs
+        const swaps = Math.max(1, Math.floor(n / 10));
+        for (let s = 0; s < swaps; s++) {
+          const i = Math.floor(Math.random() * (n - 1));
+          [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+        }
+      }
+      return arr;
+    }
+
+    // Generator 1: Insertion Sort
+    function* createInsertionSortGen(arr) {
+      const a = [...arr];
+      const n = a.length;
+      let comps = 0, writes = 0;
+
+      for (let i = 1; i < n; i++) {
+        let key = a[i];
+        let j = i - 1;
+        while (j >= 0) {
+          comps++;
+          if (a[j] > key) {
+            a[j + 1] = a[j];
+            writes++;
+            yield { a: [...a], active: [j, j + 1], comps, writes, progress: Math.min(100, Math.round((i / n) * 100)) };
+            j--;
+          } else {
+            yield { a: [...a], active: [j], comps, writes, progress: Math.min(100, Math.round((i / n) * 100)) };
+            break;
+          }
+        }
+        a[j + 1] = key;
+        writes++;
+        yield { a: [...a], active: [j + 1], comps, writes, progress: Math.min(100, Math.round((i / n) * 100)) };
+      }
+
+      return { a, comps, writes, progress: 100, done: true };
+    }
+
+    // Generator 2: Merge Sort
+    function* createMergeSortGen(arr) {
+      const a = [...arr];
+      const aux = new Array(a.length);
+      let comps = 0, writes = 0;
+      let mergedCount = 0;
+
+      function* sort(lo, hi) {
+        if (hi <= lo) return;
+        const mid = lo + Math.floor((hi - lo) / 2);
+        yield* sort(lo, mid);
+        yield* sort(mid + 1, hi);
+
+        for (let k = lo; k <= hi; k++) {
+          aux[k] = a[k];
+          writes++;
+        }
+
+        let i = lo, j = mid + 1;
+        for (let k = lo; k <= hi; k++) {
+          comps++;
+          if (i > mid) {
+            a[k] = aux[j++];
+            writes++;
+          } else if (j > hi) {
+            a[k] = aux[i++];
+            writes++;
+          } else if (aux[j] < aux[i]) {
+            a[k] = aux[j++];
+            writes++;
+          } else {
+            a[k] = aux[i++];
+            writes++;
+          }
+          mergedCount++;
+          const progress = Math.min(100, Math.round((mergedCount / (a.length * Math.log2(a.length))) * 100));
+          yield { a: [...a], active: [k], comps, writes, progress };
+        }
+      }
+
+      yield* sort(0, a.length - 1);
+      return { a, comps, writes, progress: 100, done: true };
+    }
+
+    // Render Bars
+    function renderBars(container, arr, activeIndices = [], isSorted = false) {
+      container.innerHTML = "";
+      const maxVal = Math.max(...arr, 1);
+      arr.forEach((v, idx) => {
+        const bar = document.createElement("div");
+        bar.className = "bar-col";
+        const heightPct = Math.round((v / maxVal) * 100);
+        bar.style.height = `${Math.max(4, heightPct)}%`;
+
+        if (isSorted) {
+          bar.classList.add("sorted");
+        } else if (activeIndices.includes(idx)) {
+          bar.classList.add("active");
+        }
+        container.appendChild(bar);
+      });
+    }
+
+    function initArrays() {
+      stopRace();
+      baseArray = generateArray(currentN, currentDist);
+      insArray = [...baseArray];
+      mergeArray = [...baseArray];
+
+      insGen = createInsertionSortGen(insArray);
+      mergeGen = createMergeSortGen(mergeArray);
+
+      insMetrics = { comps: 0, writes: 0, done: false };
+      mergeMetrics = { comps: 0, writes: 0, done: false };
+
+      renderBars(canvasInsertion, insArray);
+      renderBars(canvasMerge, mergeArray);
+
+      progInsertion.style.width = "0%";
+      progMerge.style.width = "0%";
+
+      metricInsComps.textContent = "0";
+      metricInsWrites.textContent = "0";
+      metricInsTotal.textContent = "0";
+      metricInsStatus.textContent = "Ready";
+      metricInsStatus.style.color = "var(--text-dim)";
+
+      metricMergeComps.textContent = "0";
+      metricMergeWrites.textContent = "0";
+      metricMergeTotal.textContent = "0";
+      metricMergeStatus.textContent = "Ready";
+      metricMergeStatus.style.color = "var(--text-dim)";
+
+      winnerBadge.innerHTML = `<span>⚖️ Head-to-Head Benchmark</span><span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal;" id="winnerDetails">Click "Start Race" to watch both algorithms sort simultaneously.</span>`;
+      speedupRatioText.innerHTML = `Operations Ratio: <strong style="color:var(--accent-blue);">1.00x</strong>`;
+      raceStatusText.textContent = `Ready for race (N = ${currentN}, ${currentDist} input).`;
+      btnStartRace.innerHTML = "🏁 Start Race";
+    }
+
+    // Live Race Step Engine
+    function startRace() {
+      if (isRacing) {
+        stopRace();
+        return;
+      }
+      if (insMetrics.done && mergeMetrics.done) {
+        initArrays();
+      }
+
+      isRacing = true;
+      btnStartRace.innerHTML = "⏸ Pause Race";
+      raceStatusText.textContent = "Race in progress! Watch the operation counters.";
+
+      const stepsPerTick = Math.max(1, Math.floor(raceSpeed / 8));
+
+      function tick() {
+        if (!isRacing) return;
+
+        for (let s = 0; s < stepsPerTick; s++) {
+          // Advance Insertion
+          if (!insMetrics.done) {
+            const nextIns = insGen.next();
+            if (nextIns.done) {
+              insMetrics.done = true;
+              metricInsStatus.textContent = "✓ Finished!";
+              metricInsStatus.style.color = "var(--accent-emerald)";
+              renderBars(canvasInsertion, insArray, [], true);
+              progInsertion.style.width = "100%";
+            } else {
+              insArray = nextIns.value.a;
+              insMetrics.comps = nextIns.value.comps;
+              insMetrics.writes = nextIns.value.writes;
+              renderBars(canvasInsertion, insArray, nextIns.value.active);
+              progInsertion.style.width = `${nextIns.value.progress}%`;
+              metricInsComps.textContent = insMetrics.comps;
+              metricInsWrites.textContent = insMetrics.writes;
+              metricInsTotal.textContent = insMetrics.comps + insMetrics.writes;
+              metricInsStatus.textContent = "Sorting...";
+              metricInsStatus.style.color = "var(--accent-amber)";
+            }
+          }
+
+          // Advance Merge
+          if (!mergeMetrics.done) {
+            const nextMerge = mergeGen.next();
+            if (nextMerge.done) {
+              mergeMetrics.done = true;
+              metricMergeStatus.textContent = "✓ Finished!";
+              metricMergeStatus.style.color = "var(--accent-emerald)";
+              renderBars(canvasMerge, mergeArray, [], true);
+              progMerge.style.width = "100%";
+
+              // If merge finishes first, celebrate
+              if (!insMetrics.done) {
+                winnerBadge.innerHTML = `<span>🏆 Merge Sort Won!</span><span style="font-size:0.85rem; color:var(--accent-emerald); font-weight:normal;">Finished in ${mergeMetrics.comps + mergeMetrics.writes} operations (Insertion Sort is still working...)</span>`;
+              }
+            } else {
+              mergeArray = nextMerge.value.a;
+              mergeMetrics.comps = nextMerge.value.comps;
+              mergeMetrics.writes = nextMerge.value.writes;
+              renderBars(canvasMerge, mergeArray, nextMerge.value.active);
+              progMerge.style.width = `${nextMerge.value.progress}%`;
+              metricMergeComps.textContent = mergeMetrics.comps;
+              metricMergeWrites.textContent = mergeMetrics.writes;
+              metricMergeTotal.textContent = mergeMetrics.comps + mergeMetrics.writes;
+              metricMergeStatus.textContent = "Sorting...";
+              metricMergeStatus.style.color = "var(--accent-blue)";
+            }
+          }
+
+          // Sound
+          if (Math.random() < 0.25) {
+            playTone(200 + Math.random() * 400);
+          }
+        }
+
+        // Update ratio
+        const totalIns = insMetrics.comps + insMetrics.writes;
+        const totalMerge = mergeMetrics.comps + mergeMetrics.writes;
+        if (totalMerge > 0) {
+          const ratio = (totalIns / totalMerge).toFixed(2);
+          speedupRatioText.innerHTML = `Operations Ratio: <strong style="color:var(--accent-rose);">${ratio}x</strong> (Insertion / Merge)`;
+        }
+
+        if (insMetrics.done && mergeMetrics.done) {
+          stopRace();
+          btnStartRace.innerHTML = "↺ Run Again";
+          raceStatusText.textContent = `Race complete! Total operations: Insertion = ${totalIns} vs Merge = ${totalMerge}.`;
+          if (totalIns > totalMerge) {
+            winnerBadge.innerHTML = `<span>🏆 Merge Sort Outperformed!</span><span style="font-size:0.85rem; color:var(--accent-emerald); font-weight:normal;">Merge Sort required ${Math.round(totalIns / totalMerge)}× fewer operations than Insertion Sort!</span>`;
+          } else {
+            winnerBadge.innerHTML = `<span>⚡ Insertion Sort Won!</span><span style="font-size:0.85rem; color:var(--accent-emerald); font-weight:normal;">Adaptive linear behavior on nearly/already sorted input!</span>`;
+          }
+          return;
+        }
+
+        const delay = Math.max(10, Math.floor(100 - raceSpeed));
+        raceTimer = setTimeout(tick, delay);
+      }
+
+      tick();
+    }
+
+    function stopRace() {
+      isRacing = false;
+      btnStartRace.innerHTML = "🏁 Start Race";
+      if (raceTimer) {
+        clearTimeout(raceTimer);
+        raceTimer = null;
+      }
+    }
+
+    // Render Theoretical SVG Curves
+    function renderSvgCurves() {
+      const svg = document.getElementById("svgCurves");
+      const existing = svg.querySelectorAll("path");
+      existing.forEach(p => p.remove());
+
+      const maxN = 100;
+      const x0 = 40, y0 = 180, w = 430, h = 155;
+
+      // N^2 path
+      let dQuad = `M ${x0} ${y0}`;
+      for (let n = 1; n <= maxN; n++) {
+        const x = x0 + (n / maxN) * w;
+        const normY = Math.pow(n / maxN, 2);
+        const y = y0 - normY * h;
+        dQuad += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      const pQuad = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pQuad.setAttribute("d", dQuad);
+      pQuad.setAttribute("fill", "none");
+      pQuad.setAttribute("stroke", "#f43f5e");
+      pQuad.setAttribute("stroke-width", "3");
+      svg.appendChild(pQuad);
+
+      // N log N path
+      let dNlogN = `M ${x0} ${y0}`;
+      const maxNlogN = maxN * Math.log2(maxN);
+      for (let n = 1; n <= maxN; n++) {
+        const x = x0 + (n / maxN) * w;
+        const val = n * Math.log2(n);
+        const normY = (val / maxNlogN) * 0.45; // scale relative to quad
+        const y = y0 - normY * h;
+        dNlogN += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      const pNlogN = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pNlogN.setAttribute("d", dNlogN);
+      pNlogN.setAttribute("fill", "none");
+      pNlogN.setAttribute("stroke", "#38bdf8");
+      pNlogN.setAttribute("stroke-width", "3");
+      svg.appendChild(pNlogN);
+
+      // N path
+      let dLinear = `M ${x0} ${y0}`;
+      for (let n = 1; n <= maxN; n++) {
+        const x = x0 + (n / maxN) * w;
+        const normY = (n / maxN) * 0.22;
+        const y = y0 - normY * h;
+        dLinear += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      const pLinear = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pLinear.setAttribute("d", dLinear);
+      pLinear.setAttribute("fill", "none");
+      pLinear.setAttribute("stroke", "#10b981");
+      pLinear.setAttribute("stroke-width", "2");
+      pLinear.setAttribute("stroke-dasharray", "4,4");
+      svg.appendChild(pLinear);
+    }
+
+    // Event Listeners
+    btnStartRace.addEventListener("click", () => {
+      startRace();
+    });
+
+    btnResetRace.addEventListener("click", () => {
+      initArrays();
+    });
+
+    speedSlider.addEventListener("input", (e) => {
+      raceSpeed = Number(e.target.value);
+      speedVal.textContent = `${raceSpeed}x`;
+    });
+
+    btnSoundToggle.addEventListener("click", () => {
+      isSoundEnabled = !isSoundEnabled;
+      btnSoundToggle.textContent = isSoundEnabled ? "🔊" : "🔇";
+    });
+
+    // Pill Options N
+    document.querySelectorAll(".btn-pill-opt[data-n]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".btn-pill-opt[data-n]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentN = Number(btn.dataset.n);
+        initArrays();
+      });
+    });
+
+    // Pill Options Dist
+    document.querySelectorAll(".btn-pill-opt[data-dist]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".btn-pill-opt[data-dist]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentDist = btn.dataset.dist;
+        initArrays();
+      });
+    });
+
+    // Init
+    initArrays();
+    renderSvgCurves();
+  </script>
+</body>
+</html>

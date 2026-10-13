@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simplex Algorithm Visualizer — LINFO1121 & LINFO2266</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 1.3rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    select, button {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 540px 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Stepper Controls Bar */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card-inner);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .phase-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--accent-amber);
+    }
+
+    .phase-badge.optimal {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .phase-badge.unbounded {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: var(--accent-rose);
+      color: var(--accent-rose);
+    }
+
+    /* Explanation Box */
+    .step-expl-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      line-height: 1.45;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Tableau Table Styling */
+    .tableau-container {
+      overflow-x: auto;
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      padding: 0.5rem;
+    }
+
+    table.tableau-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      text-align: right;
+    }
+
+    table.tableau-table th {
+      background: #131d31;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 2px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    table.tableau-table td {
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: nowrap;
+    }
+
+    table.tableau-table tr.obj-row {
+      background: rgba(56, 189, 248, 0.06);
+      border-top: 2px solid var(--border-color);
+      font-weight: 700;
+    }
+
+    table.tableau-table tr.obj-row td {
+      border-bottom: none;
+      color: var(--accent-blue);
+    }
+
+    /* Highlighting cells */
+    .col-entering {
+      background: rgba(56, 189, 248, 0.12) !important;
+      color: var(--accent-blue) !important;
+      font-weight: 700;
+    }
+
+    .row-leaving {
+      background: rgba(245, 158, 11, 0.12) !important;
+    }
+
+    .row-leaving td:first-child {
+      color: var(--accent-amber);
+      font-weight: 700;
+    }
+
+    .cell-pivot {
+      background: rgba(16, 185, 129, 0.25) !important;
+      color: #fff !important;
+      font-weight: 800;
+      outline: 2px solid var(--accent-emerald);
+      border-radius: 4px;
+      animation: pulseCell 1.5s infinite;
+    }
+
+    @keyframes pulseCell {
+      0% { outline-color: var(--accent-emerald); }
+      50% { outline-color: var(--accent-blue); }
+      100% { outline-color: var(--accent-emerald); }
+    }
+
+    .ratio-col {
+      color: var(--text-dim);
+      border-left: 1px dashed var(--border-color);
+    }
+
+    .ratio-min {
+      color: var(--accent-amber);
+      font-weight: 800;
+    }
+
+    /* Row Operation Formulas Box */
+    .operations-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #93c5fd;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .op-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .op-tag {
+      background: #1e293b;
+      color: var(--text-dim);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+    }
+
+    /* Metric Badges & Status */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .metric-pill {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: monospace;
+      margin-top: 0.15rem;
+    }
+
+    .metric-value.highlight {
+      color: var(--accent-emerald);
+    }
+
+    /* Polytope 2D Canvas */
+    .canvas-container {
+      position: relative;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 440px;
+    }
+
+    canvas#polytopeCanvas {
+      width: 100%;
+      height: 440px;
+      display: block;
+    }
+
+    .canvas-legend {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Pseudocode Card */
+    .code-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .code-line {
+      display: block;
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .code-line.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: #fff;
+      font-weight: 700;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .kw { color: #f43f5e; font-weight: 700; }
+    .fn { color: #38bdf8; }
+    .cm { color: #475569; font-style: italic; }
+    .vr { color: #f59e0b; }
+    .num { color: #10b981; }
+
+    /* Dual Variables & Certificate */
+    .duality-panel {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .duality-panel strong {
+      color: var(--text-main);
+    }
+
+    .shadow-price-list {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .shadow-item {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.25rem 0.55rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    .shadow-item span.var {
+      color: var(--accent-purple);
+      font-weight: 700;
+    }
+
+    .shadow-item span.val {
+      color: var(--accent-emerald);
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121 / LINFO2266</span>
+      <div>
+        <h1>Simplex Algorithm Visualizer</h1>
+        <div class="header-subtitle">Linear Programming • Simplex Tableau • 2D Geometric Polytope • Bland's / Dantzig's Pivot Rules</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Preset Selection -->
+      <div class="control-item">
+        <label for="presetSelect">Preset:</label>
+        <select id="presetSelect">
+          <option value="brewery">The Brewery Problem (Ale & Beer, 2 vars, 3 constraints)</option>
+          <option value="productMix">Product Mix (Desks & Chairs, 2 vars, 2 constraints)</option>
+          <option value="cycling">Degeneracy & Bland's Rule (Cycling demo)</option>
+          <option value="unbounded">Unbounded Linear Program (Infinite profit ray)</option>
+          <option value="diet3">Small Diet / Nutrition (3 variables, 2 constraints)</option>
+        </select>
+      </div>
+
+      <!-- Pivot Rule -->
+      <div class="control-item">
+        <label for="pivotRuleSelect">Rule:</label>
+        <select id="pivotRuleSelect">
+          <option value="dantzig">Dantzig (Max positive c_j)</option>
+          <option value="bland">Bland (Smallest subscript index)</option>
+        </select>
+      </div>
+
+      <!-- Animation Speed -->
+      <div class="control-item">
+        <label for="speedRange">Speed:</label>
+        <input type="range" id="speedRange" min="200" max="2500" step="100" value="1000">
+        <span class="dynamic-val" id="speedVal">1.0s</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+
+    <!-- Left Column: Tableau & Stepper & Operations -->
+    <div class="left-column">
+
+      <!-- Stepper Controls & Status -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Execution Stepper</span>
+          <span class="phase-badge" id="phaseBadge">Step 0 / 0</span>
+        </div>
+
+        <div class="playback-bar">
+          <div class="btn-group">
+            <button id="btnPrev" title="Previous Step">⏮ Prev</button>
+            <button id="btnPlay" class="btn-primary" title="Play / Pause">▶ Play</button>
+            <button id="btnNext" title="Next Step">Next ⏭</button>
+            <button id="btnReset" title="Reset Simulation">↺ Reset</button>
+          </div>
+          <span id="stepCounter" style="font-size: 0.8rem; color: var(--text-dim); font-family: monospace;">Iteration 0</span>
+        </div>
+
+        <!-- Explanation text -->
+        <div class="step-expl-box" id="stepExplanation" style="margin-top: 0.75rem;">
+          Select a preset problem and step through the Simplex algorithm.
+        </div>
+      </div>
+
+      <!-- Simplex Tableau Matrix -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Simplex Tableau</span>
+          <span id="tableauStatus" style="font-size: 0.75rem; color: var(--text-dim); font-family: monospace;">Standard Equational Form</span>
+        </div>
+
+        <div class="tableau-container">
+          <table class="tableau-table" id="tableauTable">
+            <!-- Dynamically populated -->
+          </table>
+        </div>
+
+        <!-- Row Operations details -->
+        <div class="operations-box" id="operationsBox" style="margin-top: 0.75rem;">
+          <div class="op-line">
+            <span class="op-tag">Status</span>
+            <span>Initial Dictionary in Canonical Form. Slacks form initial basis.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solution Metrics -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Current Basic Feasible Solution (BFS)</span>
+          <span id="optimalityBadge" style="font-size: 0.75rem; color: var(--accent-amber); font-weight: 700;">In Progress</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-pill">
+            <div class="metric-label">Objective Z</div>
+            <div class="metric-value highlight" id="metricObjZ">0.00</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Current Vertex</div>
+            <div class="metric-value" id="metricVertex">(0, 0)</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Basic Variables</div>
+            <div class="metric-value" id="metricBasis" style="font-size: 0.85rem;">{s₀, s₁, s₂}</div>
+          </div>
+          <div class="metric-pill">
+            <div class="metric-label">Pivot Count</div>
+            <div class="metric-value" id="metricPivots">0</div>
+          </div>
+        </div>
+
+        <!-- Shadow Prices & Dual Certificate -->
+        <div class="duality-panel" id="dualityPanel" style="margin-top: 0.75rem;">
+          <div><strong>Dual Variables / Shadow Prices (y = c_B B⁻¹):</strong></div>
+          <div class="shadow-price-list" id="shadowPriceList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: 2D Geometry & Pseudocode -->
+    <div class="right-column">
+
+      <!-- 2D Geometry Polytope View -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Geometric View: Feasible Polytope 𝒫 & Trajectory</span>
+          <span id="geoDimInfo" style="font-size: 0.75rem; color: var(--text-dim); font-family: monospace;">2D Cartesian Projection</span>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="polytopeCanvas" width="700" height="440"></canvas>
+          <div class="canvas-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background: rgba(56, 189, 248, 0.35); border: 1px solid #38bdf8;"></div>
+              <span>Feasible Polytope 𝒫 (Ax ≤ b, x ≥ 0)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #10b981; border-radius: 50%;"></div>
+              <span>Active Vertex BFS (Current Basis)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #f59e0b; border: 1px dashed #f59e0b;"></div>
+              <span>Simplex Trajectory Trail</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #f43f5e; border: 1px solid #f43f5e;"></div>
+              <span>Iso-Profit Objective Contour (∇Z Gradient)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pseudocode & Mathematical Invariants -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Simplex Method Pseudocode (LinearProgramming.java)</span>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">Sedgewick & Wayne / Schaus</span>
+        </div>
+
+        <div class="code-box">
+          <span class="code-line" id="codeLine1"><span class="kw">while</span> (true) {</span>
+          <span class="code-line" id="codeLine2">&nbsp;&nbsp;<span class="cm">// Step 1: Entering variable (Pivot Column q)</span></span>
+          <span class="code-line" id="codeLine3">&nbsp;&nbsp;<span class="kw">int</span> q = rule == BLAND ? <span class="fn">bland</span>() : <span class="fn">dantzig</span>();</span>
+          <span class="code-line" id="codeLine4">&nbsp;&nbsp;<span class="kw">if</span> (q == -1) <span class="kw">break</span>; <span class="cm">// All reduced costs c[q] ≤ 0: OPTIMAL</span></span>
+          <span class="code-line" id="codeLine5">&nbsp;&nbsp;<span class="cm">// Step 2: Leaving variable (Pivot Row p via min ratio test)</span></span>
+          <span class="code-line" id="codeLine6">&nbsp;&nbsp;<span class="kw">int</span> p = <span class="fn">minRatioRule</span>(q);</span>
+          <span class="code-line" id="codeLine7">&nbsp;&nbsp;<span class="kw">if</span> (p == -1) <span class="kw">return</span> <span class="vr">UNBOUNDED</span>; <span class="cm">// Objective can increase to +∞</span></span>
+          <span class="code-line" id="codeLine8">&nbsp;&nbsp;<span class="cm">// Step 3: Gauss-Jordan elimination on tableau</span></span>
+          <span class="code-line" id="codeLine9">&nbsp;&nbsp;<span class="fn">pivot</span>(p, q); <span class="cm">// Normalize row p and eliminate col q from other rows</span></span>
+          <span class="code-line" id="codeLine10">&nbsp;&nbsp;basis[p] = q; <span class="cm">// Update basic variable index</span></span>
+          <span class="code-line" id="codeLine11">}</span>
+          <span class="code-line" id="codeLine12"><span class="kw">return</span> <span class="vr">OPTIMAL</span>;</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // PROBLEM PRESETS & MODEL DEFINITIONS
+    // =========================================================================
+    const PRESETS = {
+      brewery: {
+        title: "The Brewery Problem (Ale & Beer)",
+        description: "Classic manufacturing problem from Sedgewick & Wayne and Advanced Algorithms & Optimization by P. Schaus. Maximize Z = 13 x₀ + 23 x₁ subject to corn, hops, and malt capacities.",
+        n: 2, // Decision variables (x0: ale, x1: beer)
+        m: 3, // Constraints (corn, hops, malt)
+        varNames: ["x₀ (Ale)", "x₁ (Beer)"],
+        slackNames: ["s₀ (Corn)", "s₁ (Hops)", "s₂ (Malt)"],
+        c: [13, 23], // Objective: max 13 x0 + 23 x1
+        A: [
+          [5, 15],  // 5 x0 + 15 x1 <= 480 (Corn)
+          [4, 4],   // 4 x0 +  4 x1 <= 160 (Hops)
+          [35, 20]  // 35 x0 + 20 x1 <= 1190 (Malt)
+        ],
+        b: [480, 160, 1190],
+        xBounds: [0, 45],
+        yBounds: [0, 40],
+        constraintLabels: ["Corn: 5x₀ + 15x₁ ≤ 480", "Hops: 4x₀ + 4x₁ ≤ 160", "Malt: 35x₀ + 20x₁ ≤ 1190"]
+      },
+      productMix: {
+        title: "Product Mix (Desks & Chairs)",
+        description: "Maximize profit Z = 50 x₀ + 40 x₁ subject to carpentry and finishing labor hours.",
+        n: 2,
+        m: 2,
+        varNames: ["x₀ (Desks)", "x₁ (Chairs)"],
+        slackNames: ["s₀ (Carpentry)", "s₁ (Finishing)"],
+        c: [50, 40],
+        A: [
+          [2, 1],   // 2 x0 + x1 <= 100
+          [1, 1]    // x0 + x1 <= 80
+        ],
+        b: [100, 80],
+        xBounds: [0, 60],
+        yBounds: [0, 90],
+        constraintLabels: ["Carpentry: 2x₀ + x₁ ≤ 100", "Finishing: x₀ + x₁ ≤ 80"]
+      },
+      cycling: {
+        title: "Degeneracy & Bland's Rule Example",
+        description: "Constructed LP (Beale's cycling counter-example) where Dantzig's rule can cycle endlessly if degenerate pivots occur, while Bland's rule guarantees termination.",
+        n: 2,
+        m: 3,
+        varNames: ["x₀", "x₁"],
+        slackNames: ["s₀", "s₁", "s₂"],
+        c: [10, -57],
+        A: [
+          [0.5, -5.5],
+          [0.5, -1.5],
+          [1.0, 0.0]
+        ],
+        b: [0, 0, 1],
+        xBounds: [0, 3],
+        yBounds: [-2, 3],
+        constraintLabels: ["0.5x₀ - 5.5x₁ ≤ 0", "0.5x₀ - 1.5x₁ ≤ 0", "x₀ ≤ 1"]
+      },
+      unbounded: {
+        title: "Unbounded Linear Program",
+        description: "A linear program with an open feasible ray along which the objective value can grow indefinitely without violating constraints.",
+        n: 2,
+        m: 2,
+        varNames: ["x₀", "x₁"],
+        slackNames: ["s₀", "s₁"],
+        c: [2, 1],
+        A: [
+          [1, -1],  // x0 - x1 <= 10
+          [-1, 2]   // -x0 + 2x1 <= 20
+        ],
+        b: [10, 20],
+        xBounds: [0, 40],
+        yBounds: [0, 40],
+        constraintLabels: ["x₀ - x₁ ≤ 10", "-x₀ + 2x₁ ≤ 20"]
+      },
+      diet3: {
+        title: "Small Production LP (3 Variables)",
+        description: "Maximize Z = 3 x₀ + 2 x₁ + 5 x₂ subject to raw materials and machine hours.",
+        n: 3,
+        m: 2,
+        varNames: ["x₀", "x₁", "x₂"],
+        slackNames: ["s₀ (Raw)", "s₁ (Hours)"],
+        c: [3, 2, 5],
+        A: [
+          [1, 2, 1],
+          [3, 0, 2]
+        ],
+        b: [430, 460],
+        xBounds: [0, 200],
+        yBounds: [0, 200],
+        constraintLabels: ["x₀ + 2x₁ + x₂ ≤ 430", "3x₀ + 2x₂ ≤ 460"]
+      }
+    };
+
+    // =========================================================================
+    // STATE & GLOBAL REFS
+    // =========================================================================
+    let currentPresetKey = "brewery";
+    let currentRule = "dantzig"; // "dantzig" or "bland"
+    let simulationSteps = [];
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 1000;
+
+    // DOM Elements
+    const presetSelect = document.getElementById("presetSelect");
+    const pivotRuleSelect = document.getElementById("pivotRuleSelect");
+    const speedRange = document.getElementById("speedRange");
+    const speedVal = document.getElementById("speedVal");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnPlay = document.getElementById("btnPlay");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+    const phaseBadge = document.getElementById("phaseBadge");
+    const stepCounter = document.getElementById("stepCounter");
+    const stepExplanation = document.getElementById("stepExplanation");
+    const tableauTable = document.getElementById("tableauTable");
+    const operationsBox = document.getElementById("operationsBox");
+    const metricObjZ = document.getElementById("metricObjZ");
+    const metricVertex = document.getElementById("metricVertex");
+    const metricBasis = document.getElementById("metricBasis");
+    const metricPivots = document.getElementById("metricPivots");
+    const optimalityBadge = document.getElementById("optimalityBadge");
+    const shadowPriceList = document.getElementById("shadowPriceList");
+    const polytopeCanvas = document.getElementById("polytopeCanvas");
+    const canvasCtx = polytopeCanvas.getContext("2d");
+
+    // =========================================================================
+    // SIMULATION BUILDER (RECORDING PRECISE STEP-BY-STEP SNAPSHOTS)
+    // =========================================================================
+    function cloneTableau(T) {
+      return T.map(row => [...row]);
+    }
+
+    function formatNumber(val, decimals = 2) {
+      if (Math.abs(val) < 1e-9) return "0";
+      // Check if integer
+      if (Math.abs(val - Math.round(val)) < 1e-6) {
+        return Math.round(val).toString();
+      }
+      return val.toFixed(decimals);
+    }
+
+    function formatFractionOrDecimal(val) {
+      return formatNumber(val, 2);
+    }
+
+    function buildSimplexSimulation(preset, rule) {
+      const steps = [];
+      const m = preset.m;
+      const n = preset.n;
+      const totalVars = n + m; // n decision + m slacks
+
+      // Initial Tableau: (m + 1) rows, (n + m + 1) cols
+      // Row 0..m-1: constraints
+      // Row m: objective row
+      // Col 0..n-1: x_j
+      // Col n..n+m-1: s_i (identity)
+      // Col n+m: RHS b
+      let T = Array.from({ length: m + 1 }, () => new Array(totalVars + 1).fill(0));
+      let basis = [];
+
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+          T[i][j] = preset.A[i][j];
+        }
+        T[i][n + i] = 1.0; // Slack variable identity
+        T[i][totalVars] = preset.b[i]; // RHS
+        basis.push(n + i); // Slacks in initial basis
+      }
+
+      // Objective row (Sedgewick/Schaus convention):
+      // Maximize Z = c^T x  ==>  Z - c^T x = 0
+      // In tableau row m: T[m][j] stores c_j (positive reduced costs allow improvement)
+      for (let j = 0; j < n; j++) {
+        T[m][j] = preset.c[j];
+      }
+      T[m][totalVars] = 0.0; // Current Z is 0
+
+      let iteration = 0;
+      let pivotCount = 0;
+
+      function extractSolution(currT, currBasis) {
+        const sol = new Array(totalVars).fill(0);
+        for (let i = 0; i < m; i++) {
+          const varIdx = currBasis[i];
+          sol[varIdx] = currT[i][totalVars];
+        }
+        const objVal = -currT[m][totalVars]; // Or current Z
+        return { sol, objVal: currT[m][totalVars] <= 0 ? -currT[m][totalVars] : currT[m][totalVars] };
+      }
+
+      function getVertexCoords(currT, currBasis) {
+        if (n >= 2) {
+          const s = extractSolution(currT, currBasis).sol;
+          return [s[0], s[1]];
+        }
+        return [0, 0];
+      }
+
+      // Record Step 0: Initial State
+      steps.push({
+        iteration,
+        codeLine: 1,
+        phase: "Initial State",
+        phaseClass: "",
+        T: cloneTableau(T),
+        basis: [...basis],
+        enteringCol: -1,
+        leavingRow: -1,
+        pivotVal: null,
+        ratios: new Array(m).fill(null),
+        operations: ["Initial Dictionary loaded into standard Simplex Tableau.", "Slacks form initial Basic Feasible Solution (BFS)."],
+        explanation: `Initial state: origin vertex (0, 0) with profit Z = 0. Basic variables are ${preset.slackNames.map(s => s.split(' ')[0]).join(', ')}.`,
+        isOptimal: false,
+        isUnbounded: false,
+        trajectory: [getVertexCoords(T, basis)]
+      });
+
+      const trajectory = [getVertexCoords(T, basis)];
+      const maxIterations = 25; // Guard against infinite cycling
+
+      while (iteration < maxIterations) {
+        iteration++;
+
+        // -------------------------------------------------------------
+        // Step A: Find entering variable (Pivot Column q)
+        // -------------------------------------------------------------
+        let q = -1;
+        const EPS = 1e-9;
+
+        if (rule === "bland") {
+          // Bland's rule: smallest index j such that T[m][j] > EPS
+          for (let j = 0; j < totalVars; j++) {
+            if (T[m][j] > EPS) {
+              q = j;
+              break;
+            }
+          }
+        } else {
+          // Dantzig's rule: index j with maximum positive T[m][j]
+          let maxCoeff = EPS;
+          for (let j = 0; j < totalVars; j++) {
+            if (T[m][j] > maxCoeff) {
+              maxCoeff = T[m][j];
+              q = j;
+            }
+          }
+        }
+
+        // Check for Optimality
+        if (q === -1) {
+          // All reduced costs are <= 0: OPTIMAL!
+          const currentZ = -T[m][totalVars];
+          steps.push({
+            iteration,
+            codeLine: 4,
+            phase: "Optimal Solution Certified",
+            phaseClass: "optimal",
+            T: cloneTableau(T),
+            basis: [...basis],
+            enteringCol: -1,
+            leavingRow: -1,
+            pivotVal: null,
+            ratios: new Array(m).fill(null),
+            operations: [
+              "Optimality Condition Satisfied: All reduced costs in objective row are non-positive (c_j ≤ 0).",
+              "No non-basic variable can enter the basis to strictly improve the objective Z.",
+              `Global maximum certified: Z* = ${formatNumber(currentZ, 2)}.`
+            ],
+            explanation: `Optimality reached! All reduced costs in row m are ≤ 0. Current vertex achieves maximum profit Z* = ${formatNumber(currentZ, 2)}.`,
+            isOptimal: true,
+            isUnbounded: false,
+            trajectory: [...trajectory]
+          });
+          break;
+        }
+
+        const enteringName = q < n ? preset.varNames[q] : preset.slackNames[q - n];
+
+        // -------------------------------------------------------------
+        // Step B: Leaving variable (Pivot Row p via Minimum Ratio Test)
+        // -------------------------------------------------------------
+        let p = -1;
+        let minRatio = Infinity;
+        const ratios = new Array(m).fill(null);
+
+        for (let i = 0; i < m; i++) {
+          if (T[i][q] > EPS) {
+            const ratio = T[i][totalVars] / T[i][q];
+            ratios[i] = ratio;
+            if (ratio < minRatio - EPS) {
+              minRatio = ratio;
+              p = i;
+            }
+          } else {
+            ratios[i] = null; // Negative or zero entry, cannot bound ratio
+          }
+        }
+
+        // Step record: Entering Column selected
+        steps.push({
+          iteration,
+          codeLine: 3,
+          phase: "Entering Variable Selected",
+          phaseClass: "",
+          T: cloneTableau(T),
+          basis: [...basis],
+          enteringCol: q,
+          leavingRow: -1,
+          pivotVal: null,
+          ratios: [...ratios],
+          operations: [
+            `Rule (${rule.toUpperCase()}): Selected entering variable ${enteringName} with reduced cost +${formatNumber(T[m][q], 2)}.`,
+            "Now computing Minimum Ratio Test on positive constraint entries."
+          ],
+          explanation: `Entering variable is ${enteringName} (positive reduced cost +${formatNumber(T[m][q], 2)}). Increasing this variable will improve profit Z.`,
+          isOptimal: false,
+          isUnbounded: false,
+          trajectory: [...trajectory]
+        });
+
+        // Check for Unboundedness
+        if (p === -1) {
+          // Column q has all non-positive entries: UNBOUNDED!
+          steps.push({
+            iteration,
+            codeLine: 7,
+            phase: "Unbounded Problem Detected",
+            phaseClass: "unbounded",
+            T: cloneTableau(T),
+            basis: [...basis],
+            enteringCol: q,
+            leavingRow: -1,
+            pivotVal: null,
+            ratios: [...ratios],
+            operations: [
+              `Unboundedness Certified: All coefficients in pivot column ${enteringName} are ≤ 0.`,
+              `Variable ${enteringName} can increase to +∞ without violating any constraint equation!`,
+              "Objective Z is unbounded above (+∞)."
+            ],
+            explanation: `Unbounded LP! No constraint bounds the increase of ${enteringName}. The objective can grow infinitely along this ray.`,
+            isOptimal: false,
+            isUnbounded: true,
+            trajectory: [...trajectory]
+          });
+          break;
+        }
+
+        const leavingIdx = basis[p];
+        const leavingName = leavingIdx < n ? preset.varNames[leavingIdx] : preset.slackNames[leavingIdx - n];
+        const pivotVal = T[p][q];
+
+        // Step record: Leaving Row & Pivot Element selected
+        steps.push({
+          iteration,
+          codeLine: 6,
+          phase: "Leaving Variable Selected",
+          phaseClass: "",
+          T: cloneTableau(T),
+          basis: [...basis],
+          enteringCol: q,
+          leavingRow: p,
+          pivotVal: pivotVal,
+          ratios: [...ratios],
+          operations: [
+            `Minimum Ratio Test: Row ${p} gives minimum positive ratio θ* = ${formatNumber(minRatio, 2)}.`,
+            `Leaving basic variable: ${leavingName}. Pivot element a[${p}][${q}] = ${formatNumber(pivotVal, 3)}.`,
+            `Gauss-Jordan elimination will normalize Row ${p} and eliminate Column ${q} from all other rows.`
+          ],
+          explanation: `Leaving variable is ${leavingName} (minimum ratio ${formatNumber(minRatio, 2)}). Pivot element is ${formatNumber(pivotVal, 2)}.`,
+          isOptimal: false,
+          isUnbounded: false,
+          trajectory: [...trajectory]
+        });
+
+        // -------------------------------------------------------------
+        // Step C: Execute Pivot (Gauss-Jordan Elimination)
+        // -------------------------------------------------------------
+        const opList = [];
+        opList.push(`Normalize Pivot Row: R_${p} ← R_${p} / ${formatNumber(pivotVal, 2)}`);
+
+        // 1. Normalize pivot row
+        for (let j = 0; j <= totalVars; j++) {
+          T[p][j] /= pivotVal;
+        }
+
+        // 2. Eliminate from other rows
+        for (let i = 0; i <= m; i++) {
+          if (i !== p) {
+            const factor = T[i][q];
+            if (Math.abs(factor) > EPS) {
+              const rowTag = i === m ? "Z" : `R_${i}`;
+              opList.push(`${rowTag} ← ${rowTag} - (${formatNumber(factor, 2)}) × R_${p}`);
+              for (let j = 0; j <= totalVars; j++) {
+                T[i][j] -= factor * T[p][j];
+              }
+            }
+          }
+        }
+
+        // 3. Update Basis
+        basis[p] = q;
+        pivotCount++;
+
+        const newVertex = getVertexCoords(T, basis);
+        trajectory.push(newVertex);
+        const newZ = -T[m][totalVars];
+
+        // Step record: Pivot Completed
+        steps.push({
+          iteration,
+          codeLine: 9,
+          phase: `Pivot ${pivotCount} Executed`,
+          phaseClass: "",
+          T: cloneTableau(T),
+          basis: [...basis],
+          enteringCol: -1,
+          leavingRow: -1,
+          pivotVal: null,
+          ratios: new Array(m).fill(null),
+          operations: opList,
+          explanation: `Pivot completed! Variable ${enteringName} entered the basis, replacing ${leavingName}. Traversed to vertex (${formatNumber(newVertex[0], 1)}, ${formatNumber(newVertex[1], 1)}) with profit Z = ${formatNumber(newZ, 2)}.`,
+          isOptimal: false,
+          isUnbounded: false,
+          trajectory: [...trajectory]
+        });
+      }
+
+      return steps;
+    }
+
+    // =========================================================================
+    // RENDERING FUNCTIONS: TABLEAU, METRICS, 2D POLYTOPE CANVAS
+    // =========================================================================
+    function renderStep(step) {
+      if (!step) return;
+
+      const preset = PRESETS[currentPresetKey];
+      const n = preset.n;
+      const m = preset.m;
+      const totalVars = n + m;
+      const T = step.T;
+      const basis = step.basis;
+
+      // Update Phase Badge & Step Counter
+      phaseBadge.textContent = step.phase;
+      phaseBadge.className = `phase-badge ${step.phaseClass}`;
+      stepCounter.textContent = `Step ${currentStepIndex + 1} / ${simulationSteps.length}`;
+      stepExplanation.innerHTML = step.explanation;
+
+      // Update Highlighted Pseudocode Line
+      for (let i = 1; i <= 12; i++) {
+        const lineEl = document.getElementById(`codeLine${i}`);
+        if (lineEl) {
+          if (i === step.codeLine) {
+            lineEl.classList.add("active");
+          } else {
+            lineEl.classList.remove("active");
+          }
+        }
+      }
+
+      // Update Tableau Matrix Table
+      let tableHtml = "<thead><tr><th>Basic</th>";
+      for (let j = 0; j < n; j++) {
+        const cls = j === step.enteringCol ? 'class="col-entering"' : '';
+        tableHtml += `<th ${cls}>x<sub>${j}</sub></th>`;
+      }
+      for (let i = 0; i < m; i++) {
+        const j = n + i;
+        const cls = j === step.enteringCol ? 'class="col-entering"' : '';
+        tableHtml += `<th ${cls}>s<sub>${i}</sub></th>`;
+      }
+      tableHtml += `<th>RHS</th><th class="ratio-col">Ratio (b / a<sub>iq</sub>)</th></tr></thead><tbody>`;
+
+      // Constraint Rows
+      for (let i = 0; i < m; i++) {
+        const basicIdx = basis[i];
+        const basicName = basicIdx < n ? `x<sub>${basicIdx}</sub>` : `s<sub>${basicIdx - n}</sub>`;
+        const rowCls = i === step.leavingRow ? 'class="row-leaving"' : '';
+
+        tableHtml += `<tr ${rowCls}><td><strong>${basicName}</strong></td>`;
+
+        for (let j = 0; j < totalVars; j++) {
+          let cellCls = "";
+          if (j === step.enteringCol && i === step.leavingRow) {
+            cellCls = 'class="cell-pivot"';
+          } else if (j === step.enteringCol) {
+            cellCls = 'class="col-entering"';
+          }
+          tableHtml += `<td ${cellCls}>${formatFractionOrDecimal(T[i][j])}</td>`;
+        }
+
+        // RHS
+        tableHtml += `<td style="font-weight: 700;">${formatFractionOrDecimal(T[i][totalVars])}</td>`;
+
+        // Ratio
+        const ratioVal = step.ratios[i];
+        let ratioStr = "—";
+        let ratioCls = "ratio-col";
+        if (ratioVal !== null && ratioVal !== undefined) {
+          ratioStr = formatFractionOrDecimal(ratioVal);
+          if (i === step.leavingRow) ratioCls += " ratio-min";
+        }
+        tableHtml += `<td class="${ratioCls}">${ratioStr}</td></tr>`;
+      }
+
+      // Objective Row
+      tableHtml += `<tr class="obj-row"><td><strong>Z</strong></td>`;
+      for (let j = 0; j < totalVars; j++) {
+        const cellCls = j === step.enteringCol ? 'class="col-entering"' : '';
+        tableHtml += `<td ${cellCls}>${formatFractionOrDecimal(T[m][j])}</td>`;
+      }
+      // Current Objective Value RHS: in standard form, RHS stores -Z or Z
+      const currentZ = -T[m][totalVars];
+      tableHtml += `<td style="font-weight: 800; color: var(--accent-emerald);">${formatFractionOrDecimal(currentZ)}</td>`;
+      tableHtml += `<td class="ratio-col">—</td></tr></tbody>`;
+
+      tableauTable.innerHTML = tableHtml;
+
+      // Update Operations Box
+      operationsBox.innerHTML = step.operations.map(op => `
+        <div class="op-line">
+          <span class="op-tag">Row Op</span>
+          <span>${op}</span>
+        </div>
+      `).join("");
+
+      // Update Solution Metrics
+      metricObjZ.textContent = formatNumber(currentZ, 2);
+      metricBasis.textContent = "{" + basis.map(b => (b < n ? `x${b}` : `s${b - n}`)).join(", ") + "}";
+      metricPivots.textContent = step.iteration > 0 ? (step.phase.includes("Pivot") ? step.phase.replace(/[^0-9]/g, '') : Math.floor(step.iteration / 2)) : 0;
+
+      // Active Vertex
+      const vert = step.trajectory[step.trajectory.length - 1];
+      metricVertex.textContent = `(${formatNumber(vert[0], 1)}, ${formatNumber(vert[1], 1)})`;
+
+      if (step.isOptimal) {
+        optimalityBadge.textContent = "● Optimal Certified";
+        optimalityBadge.style.color = "var(--accent-emerald)";
+      } else if (step.isUnbounded) {
+        optimalityBadge.textContent = "▲ Unbounded Ray";
+        optimalityBadge.style.color = "var(--accent-rose)";
+      } else {
+        optimalityBadge.textContent = "○ Traversing Edges";
+        optimalityBadge.style.color = "var(--accent-amber)";
+      }
+
+      // Shadow Prices / Dual Values
+      // The shadow prices y_i are the negative of the coefficients in the objective row for the slack variables!
+      let shadowHtml = "";
+      for (let i = 0; i < m; i++) {
+        const slackCol = n + i;
+        const shadowVal = -T[m][slackCol]; // y_i
+        const slackLabel = preset.slackNames[i].split(" ")[0];
+        shadowHtml += `
+          <div class="shadow-item">
+            <span class="var">y<sub>${i}</sub> (${slackLabel}):</span>
+            <span class="val">${formatNumber(shadowVal, 3)}</span>
+          </div>
+        `;
+      }
+      shadowPriceList.innerHTML = shadowHtml;
+
+      // Render 2D Geometry
+      renderPolytopeGeometry(preset, step);
+    }
+
+    // =========================================================================
+    // 2D POLYTOPE & TRAJECTORY CANVAS RENDERER
+    // =========================================================================
+    function renderPolytopeGeometry(preset, step) {
+      const width = polytopeCanvas.width;
+      const height = polytopeCanvas.height;
+      canvasCtx.clearRect(0, 0, width, height);
+
+      if (preset.n < 2) {
+        canvasCtx.fillStyle = "#94a3b8";
+        canvasCtx.font = "14px sans-serif";
+        canvasCtx.textAlign = "center";
+        canvasCtx.fillText("Geometric view available for 2 or more variables.", width / 2, height / 2);
+        return;
+      }
+
+      const padding = 55;
+      const xMax = preset.xBounds[1];
+      const yMax = preset.yBounds[1];
+
+      function toCanvasX(x) {
+        return padding + (x / xMax) * (width - 2 * padding);
+      }
+
+      function toCanvasY(y) {
+        return height - padding - (y / yMax) * (height - 2 * padding);
+      }
+
+      // 1. Draw Grid Lines
+      canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      canvasCtx.lineWidth = 1;
+      const xSteps = 5;
+      for (let i = 0; i <= xSteps; i++) {
+        const xVal = (xMax / xSteps) * i;
+        const cx = toCanvasX(xVal);
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(cx, padding);
+        canvasCtx.lineTo(cx, height - padding);
+        canvasCtx.stroke();
+
+        // Label
+        canvasCtx.fillStyle = "#64748b";
+        canvasCtx.font = "10px monospace";
+        canvasCtx.textAlign = "center";
+        canvasCtx.fillText(formatNumber(xVal, 0), cx, height - padding + 18);
+      }
+
+      const ySteps = 5;
+      for (let i = 0; i <= ySteps; i++) {
+        const yVal = (yMax / ySteps) * i;
+        const cy = toCanvasY(yVal);
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(padding, cy);
+        canvasCtx.lineTo(width - padding, cy);
+        canvasCtx.stroke();
+
+        canvasCtx.fillStyle = "#64748b";
+        canvasCtx.font = "10px monospace";
+        canvasCtx.textAlign = "right";
+        canvasCtx.fillText(formatNumber(yVal, 0), padding - 8, cy + 3);
+      }
+
+      // 2. Draw Axes
+      canvasCtx.strokeStyle = "#475569";
+      canvasCtx.lineWidth = 2;
+      canvasCtx.beginPath();
+      // X axis
+      canvasCtx.moveTo(padding, height - padding);
+      canvasCtx.lineTo(width - padding + 15, height - padding);
+      // Y axis
+      canvasCtx.moveTo(padding, height - padding);
+      canvasCtx.lineTo(padding, padding - 15);
+      canvasCtx.stroke();
+
+      // Axis Arrowheads
+      canvasCtx.fillStyle = "#475569";
+      // X arrow
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(width - padding + 15, height - padding);
+      canvasCtx.lineTo(width - padding + 8, height - padding - 4);
+      canvasCtx.lineTo(width - padding + 8, height - padding + 4);
+      canvasCtx.fill();
+      // Y arrow
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(padding, padding - 15);
+      canvasCtx.lineTo(padding - 4, padding - 8);
+      canvasCtx.lineTo(padding + 4, padding - 8);
+      canvasCtx.fill();
+
+      // Axis Labels
+      canvasCtx.fillStyle = "#38bdf8";
+      canvasCtx.font = "bold 12px sans-serif";
+      canvasCtx.textAlign = "right";
+      canvasCtx.fillText(preset.varNames[0], width - padding + 20, height - padding + 35);
+      canvasCtx.textAlign = "left";
+      canvasCtx.fillText(preset.varNames[1], padding - 40, padding - 22);
+
+      // 3. Compute Feasible Region Polygon Vertices via line intersections
+      // For 2D problems, compute polygon by clipping halfplanes with x >= 0, y >= 0
+      const polygon = compute2DFeasiblePolygon(preset);
+
+      if (polygon.length >= 3) {
+        // Shaded Feasible Polygon
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(toCanvasX(polygon[0].x), toCanvasY(polygon[0].y));
+        for (let i = 1; i < polygon.length; i++) {
+          canvasCtx.lineTo(toCanvasX(polygon[i].x), toCanvasY(polygon[i].y));
+        }
+        canvasCtx.closePath();
+
+        const grad = canvasCtx.createLinearGradient(padding, padding, width - padding, height - padding);
+        grad.addColorStop(0, "rgba(56, 189, 248, 0.25)");
+        grad.addColorStop(1, "rgba(99, 102, 241, 0.15)");
+        canvasCtx.fillStyle = grad;
+        canvasCtx.fill();
+
+        canvasCtx.strokeStyle = "rgba(56, 189, 248, 0.6)";
+        canvasCtx.lineWidth = 2;
+        canvasCtx.stroke();
+
+        // Polytope Vertices Labels
+        polygon.forEach((pt, idx) => {
+          const cx = toCanvasX(pt.x);
+          const cy = toCanvasY(pt.y);
+
+          canvasCtx.fillStyle = "#0f172a";
+          canvasCtx.beginPath();
+          canvasCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+          canvasCtx.fill();
+          canvasCtx.strokeStyle = "#38bdf8";
+          canvasCtx.lineWidth = 2;
+          canvasCtx.stroke();
+
+          canvasCtx.fillStyle = "#cbd5e1";
+          canvasCtx.font = "10px monospace";
+          canvasCtx.textAlign = pt.x > xMax * 0.7 ? "right" : "left";
+          canvasCtx.fillText(`(${formatNumber(pt.x, 1)}, ${formatNumber(pt.y, 1)})`, cx + 6, cy - 6);
+        });
+      }
+
+      // 4. Draw Constraint Boundary Lines
+      for (let i = 0; i < preset.m; i++) {
+        const a0 = preset.A[i][0];
+        const a1 = preset.A[i][1];
+        const b = preset.b[i];
+
+        // Find intersections with canvas boundary box
+        const pts = [];
+        if (Math.abs(a1) > 1e-6) {
+          // at x = 0
+          const y0 = b / a1;
+          if (y0 >= 0 && y0 <= yMax * 1.5) pts.push({ x: 0, y: y0 });
+          // at x = xMax
+          const yX = (b - a0 * xMax) / a1;
+          if (yX >= 0 && yX <= yMax * 1.5) pts.push({ x: xMax, y: yX });
+        }
+        if (Math.abs(a0) > 1e-6) {
+          // at y = 0
+          const x0 = b / a0;
+          if (x0 >= 0 && x0 <= xMax * 1.5) pts.push({ x: x0, y: 0 });
+          // at y = yMax
+          const xY = (b - a1 * yMax) / a0;
+          if (xY >= 0 && xY <= xMax * 1.5) pts.push({ x: xY, y: yMax });
+        }
+
+        if (pts.length >= 2) {
+          canvasCtx.strokeStyle = "rgba(148, 163, 184, 0.4)";
+          canvasCtx.lineWidth = 1.5;
+          canvasCtx.setLineDash([4, 4]);
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(toCanvasX(pts[0].x), toCanvasY(pts[0].y));
+          canvasCtx.lineTo(toCanvasX(pts[1].x), toCanvasY(pts[1].y));
+          canvasCtx.stroke();
+          canvasCtx.setLineDash([]);
+        }
+      }
+
+      // 5. Draw Simplex Trajectory (Path across vertices)
+      if (step.trajectory.length > 1) {
+        canvasCtx.strokeStyle = "#f59e0b";
+        canvasCtx.lineWidth = 3;
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(toCanvasX(step.trajectory[0][0]), toCanvasY(step.trajectory[0][1]));
+        for (let i = 1; i < step.trajectory.length; i++) {
+          canvasCtx.lineTo(toCanvasX(step.trajectory[i][0]), toCanvasY(step.trajectory[i][1]));
+        }
+        canvasCtx.stroke();
+
+        // Trajectory Direction Arrows
+        for (let i = 0; i < step.trajectory.length - 1; i++) {
+          const p1 = step.trajectory[i];
+          const p2 = step.trajectory[i + 1];
+          const mx = (toCanvasX(p1[0]) + toCanvasX(p2[0])) / 2;
+          const my = (toCanvasY(p1[1]) + toCanvasY(p2[1])) / 2;
+          const angle = Math.atan2(toCanvasY(p2[1]) - toCanvasY(p1[1]), toCanvasX(p2[0]) - toCanvasX(p1[0]));
+
+          canvasCtx.save();
+          canvasCtx.translate(mx, my);
+          canvasCtx.rotate(angle);
+          canvasCtx.fillStyle = "#f59e0b";
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(6, 0);
+          canvasCtx.lineTo(-6, -4);
+          canvasCtx.lineTo(-6, 4);
+          canvasCtx.fill();
+          canvasCtx.restore();
+        }
+      }
+
+      // 6. Draw Iso-Profit Objective Contour at Current Vertex
+      const currentVert = step.trajectory[step.trajectory.length - 1];
+      const curX = currentVert[0];
+      const curY = currentVert[1];
+      const c0 = preset.c[0];
+      const c1 = preset.c[1];
+      const currentZ = c0 * curX + c1 * curY;
+
+      // Draw contour line c0 x + c1 y = currentZ
+      if (Math.abs(c1) > 1e-6) {
+        const xA = 0;
+        const yA = currentZ / c1;
+        const xB = xMax;
+        const yB = (currentZ - c0 * xMax) / c1;
+
+        canvasCtx.strokeStyle = "#f43f5e";
+        canvasCtx.lineWidth = 2;
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(toCanvasX(xA), toCanvasY(yA));
+        canvasCtx.lineTo(toCanvasX(xB), toCanvasY(yB));
+        canvasCtx.stroke();
+      }
+
+      // Gradient vector arrow ∇Z = (c0, c1) at current vertex
+      const curCx = toCanvasX(curX);
+      const curCy = toCanvasY(curY);
+      const gradLen = 45;
+      const gradMag = Math.sqrt(c0 * c0 + c1 * c1) || 1;
+      const gDx = (c0 / gradMag) * gradLen;
+      const gDy = -(c1 / gradMag) * gradLen; // canvas inverted Y
+
+      canvasCtx.strokeStyle = "#f43f5e";
+      canvasCtx.lineWidth = 2;
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(curCx, curCy);
+      canvasCtx.lineTo(curCx + gDx, curCy + gDy);
+      canvasCtx.stroke();
+
+      // Arrowhead
+      const gAngle = Math.atan2(gDy, gDx);
+      canvasCtx.save();
+      canvasCtx.translate(curCx + gDx, curCy + gDy);
+      canvasCtx.rotate(gAngle);
+      canvasCtx.fillStyle = "#f43f5e";
+      canvasCtx.beginPath();
+      canvasCtx.moveTo(8, 0);
+      canvasCtx.lineTo(-6, -4);
+      canvasCtx.lineTo(-6, 4);
+      canvasCtx.fill();
+      canvasCtx.restore();
+
+      // Label ∇Z
+      canvasCtx.fillStyle = "#f43f5e";
+      canvasCtx.font = "bold 10px monospace";
+      canvasCtx.fillText("∇Z", curCx + gDx + 6, curCy + gDy);
+
+      // 7. Draw Active Vertex Glowing Marker
+      canvasCtx.fillStyle = "#10b981";
+      canvasCtx.beginPath();
+      canvasCtx.arc(curCx, curCy, 7, 0, Math.PI * 2);
+      canvasCtx.fill();
+      canvasCtx.strokeStyle = "#ffffff";
+      canvasCtx.lineWidth = 2.5;
+      canvasCtx.stroke();
+
+      // Pulsing outer halo
+      canvasCtx.strokeStyle = "rgba(16, 185, 129, 0.4)";
+      canvasCtx.lineWidth = 4;
+      canvasCtx.beginPath();
+      canvasCtx.arc(curCx, curCy, 12, 0, Math.PI * 2);
+      canvasCtx.stroke();
+    }
+
+    // Helper: Compute 2D Convex Polygon of Ax <= b, x >= 0
+    function compute2DFeasiblePolygon(preset) {
+      if (preset.n < 2) return [];
+
+      // Collect all lines: A[i][0] x + A[i][1] y <= b[i], and x >= 0, y >= 0
+      const lines = [];
+      for (let i = 0; i < preset.m; i++) {
+        lines.push({ a: preset.A[i][0], b: preset.A[i][1], c: preset.b[i] });
+      }
+      lines.push({ a: -1, b: 0, c: 0 }); // -x <= 0 -> x >= 0
+      lines.push({ a: 0, b: -1, c: 0 }); // -y <= 0 -> y >= 0
+
+      // Find intersection points of all pairs of lines
+      const candidates = [];
+      const EPS = 1e-6;
+
+      for (let i = 0; i < lines.length; i++) {
+        for (let j = i + 1; j < lines.length; j++) {
+          const l1 = lines[i];
+          const l2 = lines[j];
+          const det = l1.a * l2.b - l1.b * l2.a;
+          if (Math.abs(det) < EPS) continue; // Parallel lines
+
+          const x = (l1.c * l2.b - l1.b * l2.c) / det;
+          const y = (l1.a * l2.c - l1.c * l2.a) / det;
+
+          // Check if this point satisfies ALL inequalities: l.a * x + l.b * y <= l.c + EPS
+          let feasible = true;
+          for (let k = 0; k < lines.length; k++) {
+            const lk = lines[k];
+            if (lk.a * x + lk.b * y > lk.c + EPS) {
+              feasible = false;
+              break;
+            }
+          }
+
+          if (feasible) {
+            // Avoid duplicates
+            if (!candidates.some(pt => Math.hypot(pt.x - x, pt.y - y) < 1e-4)) {
+              candidates.push({ x, y });
+            }
+          }
+        }
+      }
+
+      if (candidates.length < 3) return candidates;
+
+      // Sort points radially around their centroid to form a simple polygon
+      const cx = candidates.reduce((sum, p) => sum + p.x, 0) / candidates.length;
+      const cy = candidates.reduce((sum, p) => sum + p.y, 0) / candidates.length;
+
+      candidates.sort((p1, p2) => {
+        const a1 = Math.atan2(p1.y - cy, p1.x - cx);
+        const a2 = Math.atan2(p2.y - cy, p2.x - cx);
+        return a1 - a2;
+      });
+
+      return candidates;
+    }
+
+    // =========================================================================
+    // CONTROLS & PLAYBACK ENGINE
+    // =========================================================================
+    function stepNext() {
+      if (currentStepIndex < simulationSteps.length - 1) {
+        currentStepIndex++;
+        renderStep(simulationSteps[currentStepIndex]);
+      } else {
+        pause();
+      }
+      updateNavButtons();
+    }
+
+    function stepPrev() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderStep(simulationSteps[currentStepIndex]);
+      }
+      updateNavButtons();
+    }
+
+    function play() {
+      if (isPlaying) return;
+      if (currentStepIndex >= simulationSteps.length - 1) {
+        currentStepIndex = 0;
+      }
+      isPlaying = true;
+      btnPlay.textContent = "⏸ Pause";
+      btnPlay.classList.remove("btn-primary");
+      btnPlay.style.background = "#d97706";
+
+      playTimer = setInterval(() => {
+        if (currentStepIndex < simulationSteps.length - 1) {
+          stepNext();
+        } else {
+          pause();
+        }
+      }, playSpeed);
+    }
+
+    function pause() {
+      if (!isPlaying) return;
+      isPlaying = false;
+      clearInterval(playTimer);
+      playTimer = null;
+      btnPlay.textContent = "▶ Play";
+      btnPlay.classList.add("btn-primary");
+      btnPlay.style.background = "";
+    }
+
+    function resetSimulation() {
+      pause();
+      currentStepIndex = 0;
+      const preset = PRESETS[currentPresetKey];
+      simulationSteps = buildSimplexSimulation(preset, currentRule);
+      renderStep(simulationSteps[0]);
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      btnPrev.disabled = currentStepIndex === 0;
+      btnNext.disabled = currentStepIndex >= simulationSteps.length - 1;
+    }
+
+    // Event Listeners
+    btnNext.addEventListener("click", () => { pause(); stepNext(); });
+    btnPrev.addEventListener("click", () => { pause(); stepPrev(); });
+    btnPlay.addEventListener("click", () => {
+      if (isPlaying) pause();
+      else play();
+    });
+    btnReset.addEventListener("click", resetSimulation);
+
+    presetSelect.addEventListener("change", (e) => {
+      currentPresetKey = e.target.value;
+      resetSimulation();
+    });
+
+    pivotRuleSelect.addEventListener("change", (e) => {
+      currentRule = e.target.value;
+      resetSimulation();
+    });
+
+    speedRange.addEventListener("input", (e) => {
+      playSpeed = parseInt(e.target.value, 10);
+      speedVal.textContent = (playSpeed / 1000).toFixed(1) + "s";
+      if (isPlaying) {
+        pause();
+        play();
+      }
+    });
+
+    // Handle Window Resize for Canvas
+    window.addEventListener("resize", () => {
+      if (simulationSteps.length > 0) {
+        renderPolytopeGeometry(PRESETS[currentPresetKey], simulationSteps[currentStepIndex]);
+      }
+    });
+
+    // Initialize
+    resetSimulation();
+  </script>
+</body>
+</html>

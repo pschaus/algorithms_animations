@@ -933,15 +933,15 @@
       </p>
       <div class="hero-stats">
         <div class="stat-box">
-          <span class="stat-number" id="statAvailableCount">11</span>
+          <span class="stat-number" id="statAvailableCount">18</span>
           <span class="stat-label">Live Visualizers</span>
         </div>
         <div class="stat-box">
-          <span class="stat-number" id="statTotalCount">11</span>
+          <span class="stat-number" id="statTotalCount">18</span>
           <span class="stat-label">Interactive Algorithms</span>
         </div>
         <div class="stat-box">
-          <span class="stat-number">6</span>
+          <span class="stat-number">7</span>
           <span class="stat-label">Course Modules</span>
         </div>
         <div class="stat-box">
@@ -961,7 +961,7 @@
 
         <div class="view-toggle-wrap">
           <button class="view-toggle-btn active" id="btnToggleAll" data-view="all">All Topics</button>
-          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">11</span>)</button>
+          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">18</span>)</button>
         </div>
 
         <div class="layout-toggle-wrap">
@@ -1034,8 +1034,42 @@
         properties: ["Dynamic Connectivity", "Nearly Linear Time", "Path Compression"],
         features: ["Forest tree graph", "Component coloring", "Access cost counter", "3 variants comparison"]
       },
+      {
+        id: "binary-search",
+        title: "Binary Search",
+        category: "part1",
+        categoryName: "Part 1: Data Structures",
+        file: "binary_search.html",
+        status: "available",
+        description: "Optimal logarithmic search in sorted arrays. Halves the search interval at each step in O(log n). Features 3-way comparisons, interval shrinking, integer overflow avoidance (low + (high-low)/2), and Java's -(low+1) insertion point encoding on search misses.",
+        complexities: {
+          best: "O(1)",
+          avg: "O(log n)",
+          worst: "O(log n)",
+          space: "O(1)"
+        },
+        properties: ["Logarithmic Guarantee", "Sorted Array Prerequisite", "Insertion Point Encoding", "No Overflow mid"],
+        features: ["Interactive target picker", "Interval elimination shading", "Insertion point decoding", "Hit & miss presets"]
+      },
 
       /* ================= PART 2: SORTING ================= */
+      {
+        id: "insertion-sort",
+        title: "Insertion Sort",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "insertion_sort.html",
+        status: "available",
+        description: "Adaptive in-place comparison sort. Inserts each element into its correct position within the sorted prefix by shifting greater elements to the right. Demonstrates loop invariants, shift-by-shift slot opening, inversion counting, and O(n) performance on nearly sorted inputs.",
+        complexities: {
+          best: "O(n)",
+          avg: "O(n²)",
+          worst: "O(n²)",
+          space: "O(1)"
+        },
+        properties: ["Stable", "Comparative", "Adaptive", "In-Place", "Inversion-Proportional"],
+        features: ["Key extraction & hole shifting", "Inversion counter", "Adaptive O(n) detection", "Stability duplicate key tracer"]
+      },
       {
         id: "counting-sort",
         title: "Counting Sort",
@@ -1052,6 +1086,23 @@
         },
         properties: ["Stable", "Non-comparative", "Linear Time", "Out-of-place"],
         features: ["Step-by-step", "Phase pill tracker", "Stability proof", "Custom input", "Sound effects"]
+      },
+      {
+        id: "merge-sort",
+        title: "Merge Sort (Array)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "merge_sort.html",
+        status: "available",
+        description: "Divide-and-conquer sorting for arrays in guaranteed O(n log n). Compares two fundamental implementations: naive recursive splitting into newly allocated left/right subarrays vs. Sedgewick's textbook single shared auxiliary array (aux[]) with two-pointer merging and stability analysis.",
+        complexities: {
+          best: "O(n log n)",
+          avg: "O(n log n)",
+          worst: "O(n log n)",
+          space: "O(n)"
+        },
+        properties: ["Stable", "Comparative", "Divide & Conquer", "Shared aux[] Buffer", "Memory Allocation Trade-offs"],
+        features: ["Dual-version switcher", "Shared aux[] vs Split subarrays", "Garbage collection & heap allocation counters", "Recursion call tree & stack", "Stability duplicate key tracer"]
       },
       {
         id: "merge-sort-linked-list",
@@ -1103,6 +1154,23 @@
         },
         properties: ["Stable", "Non-comparative", "Linear Time", "Out-of-place"],
         features: ["Multi-pass digit stepper", "Key-indexed counting breakdown", "Stability visualization", "Auxiliary array distribution"]
+      },
+      {
+        id: "sorting-complexity",
+        title: "Sorting Complexity: O(N²) vs O(N log N)",
+        category: "part2",
+        categoryName: "Part 2: Sorting",
+        file: "sorting_complexity.html",
+        status: "available",
+        description: "Head-to-head empirical benchmark and asymptotic scaling laboratory. Pitches Insertion Sort O(N²) against Merge Sort O(N log N) in a live synchronized race, paired with mathematical growth curves, operation ratio trackers, and real-world CPU clock time projections (milliseconds vs years).",
+        complexities: {
+          best: "Empirical",
+          avg: "Benchmark",
+          worst: "Asymptotic",
+          space: "Dual Race"
+        },
+        properties: ["Empirical Race", "Asymptotic Analysis", "Quadratic vs Linearithmic", "Real-World CPU Projections"],
+        features: ["Side-by-side live parallel race", "Bar chart visualization", "Theoretical growth curves SVG", "Wall-clock scaling table (ms to years)"]
       },
 
       /* ================= PART 3: SEARCH TREES ================= */
@@ -1213,6 +1281,59 @@
         },
         properties: ["Greedy Algorithm", "Cut Property", "Union-Find & MinPQ"],
         features: ["Sorted edges priority stream", "Union-Find cycle detection", "Connected component coloring", "Cut property proof"]
+      },
+
+      /* ================= PART 7: LINEAR PROGRAMMING & OPTIMIZATION ================= */
+      {
+        id: "simplex",
+        title: "Simplex Algorithm (Linear Programming)",
+        category: "part7",
+        categoryName: "Part 7: Linear Programming & Optimization",
+        file: "simplex.html",
+        status: "available",
+        description: "Solves linear programs by traversing adjacent extreme points (vertices) along the boundary of the feasible polytope. Features standard simplex tableau, Gauss-Jordan pivot row operations, Bland's anti-cycling rule vs Dantzig's rule, and dual shadow prices.",
+        complexities: {
+          best: "O(m · n)",
+          avg: "O(m · n) pivots",
+          worst: "Exponential (Klee-Minty)",
+          space: "O(m · n)"
+        },
+        properties: ["Polyhedral Theory", "Simplex Tableau", "Gauss-Jordan Pivoting", "Bland's Anti-cycling Rule", "Duality & Shadow Prices"],
+        features: ["Synchronized 2D polytope canvas", "Iso-profit contour ∇Z", "Simplex tableau matrix", "Bland vs Dantzig rules", "The Brewery Problem preset"]
+      },
+      {
+        id: "ford-fulkerson",
+        title: "Ford-Fulkerson Max-Flow & Min-Cut",
+        category: "part7",
+        categoryName: "Part 7: Linear Programming & Optimization",
+        file: "ford_fulkerson.html",
+        status: "available",
+        description: "Finds the maximum flow through a capacitated network by iteratively augmenting flow along paths in the residual graph G_f. Compares Edmonds-Karp BFS, DFS, and Capacity Scaling, and certifies global optimality via the Max-Flow Min-Cut Theorem.",
+        complexities: {
+          best: "O(E)",
+          avg: "O(V · E²)",
+          worst: "O(V · E²)",
+          space: "O(V + E)"
+        },
+        properties: ["Augmenting Paths", "Residual Network", "Max-Flow Min-Cut Duality", "Edmonds-Karp BFS", "Capacity Scaling"],
+        features: ["Interactive flow pipes", "Residual graph G_f toggle", "Flow conservation audit", "Min-cut (A,B) partition", "Pathological diamond test"]
+      },
+      {
+        id: "min-cost-flow",
+        title: "Minimum-Cost Flow (Successive Shortest Path)",
+        category: "part7",
+        categoryName: "Part 7: Linear Programming & Optimization",
+        file: "min_cost_flow.html",
+        status: "available",
+        description: "Routes a required target flow volume B from source to sink at minimum total shipping cost. Visualizes the Successive Shortest Path (SSP) algorithm using Bellman-Ford on residual cost refund arcs, and node potentials π.",
+        complexities: {
+          best: "O(E log V)",
+          avg: "O(B · V · E)",
+          worst: "O(B · V · E)",
+          space: "O(V + E)"
+        },
+        properties: ["Network Optimization", "Residual Cost Refunds", "Successive Shortest Path", "Moore-Bellman-Ford", "Node Potentials"],
+        features: ["Dual flow & residual graph", "Negative cost backward refund arcs", "Edge cost audit table", "Node potentials π tracking", "Figure 7.10 network preset"]
       }
     ];
 
@@ -1224,7 +1345,8 @@
       { id: "part3", label: "Part 3: Search Trees" },
       { id: "part4", label: "Part 4: Hash & Strings" },
       { id: "part5", label: "Part 5: Priority Queues" },
-      { id: "part6", label: "Part 6: Graphs" }
+      { id: "part6", label: "Part 6: Graphs" },
+      { id: "part7", label: "Part 7: Linear Programming & Optimization" }
     ];
 
     // State
