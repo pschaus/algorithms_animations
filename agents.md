@@ -92,7 +92,7 @@ Open `index.html` and locate the `ALGORITHMS` registry array in the `<script>` t
   id: "merge-sort-linked-list",              // Unique slug
   title: "Merge Sort (Singly Linked List)",  // Standard English title
   category: "part2",                         // Course category ID (see Category Mapping below)
-  categoryName: "Part 2: Sorting",           // Full category display name
+  categoryName: "Sorting",                   // Full section display name
   file: "merge_sort_linked_list.html",       // Relative filename
   status: "available",                       // "available" for working visualizers
   description: "Top-down divide-and-conquer sorting for singly linked lists. Uses slow/fast pointers to find the midpoint in O(n), splits without extra memory, sorts recursively, and merges sorted lists in-place with O(1) auxiliary heap space.",
@@ -108,7 +108,7 @@ Open `index.html` and locate the `ALGORITHMS` registry array in the `<script>` t
 ```
 
 > **Automated Dynamic UI:** Once `ALGORITHMS` is updated, `index.html` automatically:
-> - Renders the algorithm card with the glowing emerald "● Live Visualizer" badge and active "Launch Visualizer ➔" CTA button.
+> - Renders the algorithm card with the active "Launch Visualizer ➔" CTA button.
 > - Adds the entry to the top header "⚡ Algorithms Menu" dropdown.
 > - Updates the category filter pill counts.
 > - Updates the hero banner statistics counters (`statAvailableCount`, `statTotalCount`).
@@ -124,19 +124,19 @@ Open `index.html` and locate the `ALGORITHMS` registry array in the `<script>` t
 
 ---
 
-## 3. Course Category Mapping (LINFO1121)
+## 3. Course Section Mapping (LINFO1121)
 
-When assigning `category` and `categoryName`, use the following standard course parts:
+When assigning `category` and `categoryName`, use the following standard course sections:
 
 | Category ID | Display Name (`categoryName`) | Typical Algorithms & Data Structures |
 | :--- | :--- | :--- |
-| `part1` | `Part 1: Data Structures` | Dynamic Arrays, Stacks, Queues, Linked Lists, Union-Find (WQUPC) |
-| `part2` | `Part 2: Sorting` | Counting Sort, Merge Sort (Linked List), Selection, Insertion, Shellsort, Heap Sort, Radix Sort (LSD/MSD) |
-| `part3` | `Part 3: Search Trees` | Binary Search Trees (BST), 2-3 Trees, Left-Leaning Red-Black BST (LLRB), B-Trees |
-| `part4` | `Part 4: Hash & Strings` | Hash Tables (Separate Chaining, Linear Probing), Tries, TST, Substring Search (KMP, Boyer-Moore, Rabin-Karp) |
-| `part5` | `Part 5: Priority Queues` | Binary Heaps (Min/Max), Huffman Compression, LZW Compression |
-| `part6` | `Part 6: Graphs` | DFS, BFS, Topological Sort, Strongly Connected Components, MST (Prim, Kruskal), Shortest Paths (Dijkstra, Bellman-Ford) |
-| `part7` | `Part 7: Linear Programming & Optimization` | Simplex Algorithm (Tableau & 2D Geometry), Bland's Rule, Duality & Shadow Prices, Max-Flow (Ford-Fulkerson, Edmonds-Karp), Minimum-Cost Flow (Successive Shortest Path) |
+| `part1` | `Data Structures` | Dynamic Arrays, Stacks, Queues, Linked Lists, Union-Find (WQUPC) |
+| `part2` | `Sorting` | Counting Sort, Merge Sort (Linked List), Selection, Insertion, Shellsort, Heap Sort, Radix Sort (LSD/MSD) |
+| `part3` | `Search Trees` | Binary Search Trees (BST), 2-3 Trees, Left-Leaning Red-Black BST (LLRB), B-Trees |
+| `part4` | `Hash & Strings` | Hash Tables (Separate Chaining, Linear Probing), Tries, TST, Substring Search (KMP, Boyer-Moore, Rabin-Karp) |
+| `part5` | `Priority Queues` | Binary Heaps (Min/Max), Huffman Compression, LZW Compression |
+| `part6` | `Graphs` | DFS, BFS, Topological Sort, Strongly Connected Components, MST (Prim, Kruskal), Shortest Paths (Dijkstra, Bellman-Ford) |
+| `part7` | `Linear Programming & Optimization` | Simplex Algorithm (Tableau & 2D Geometry), Bland's Rule, Duality & Shadow Prices, Max-Flow (Ford-Fulkerson, Edmonds-Karp), Minimum-Cost Flow (Successive Shortest Path) |
 
 ---
 
@@ -190,10 +190,10 @@ Before reporting completion on any task that creates or modifies an algorithm vi
   - [ ] `file` path is correct and relative (e.g. `"merge_sort_linked_list.html"`)
   - [ ] Time and space complexities are accurately documented
   - [ ] English title, description, and properties are present
-  - [ ] Category ID corresponds to the correct LINFO1121 course part
+  - [ ] Category ID corresponds to the correct LINFO1121 course section
 - [ ] Opened and tested in browser:
   - [ ] Clicking "Launch Visualizer" from `index.html` opens the visualizer.
   - [ ] Clicking "← Index" returns to `index.html`.
   - [ ] Category filter pills count and display the new visualizer correctly.
   - [ ] Searching for the algorithm title in the search input matches the card.
-  - [ ] Top header "⚡ Algorithms Menu" dropdown lists the visualizer with a green "Live" badge.
+  - [ ] Top header "⚡ Algorithms Menu" dropdown lists the visualizer.

@@ -442,6 +442,20 @@
       color: #fff;
     }
 
+    .node-tag.tag-a {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #a7f3d0;
+      font-weight: 700;
+    }
+
+    .node-tag.tag-b {
+      background: #0c4a6e;
+      border-color: #38bdf8;
+      color: #bae6fd;
+      font-weight: 700;
+    }
+
     /* History Table */
     .history-table-container {
       overflow-y: auto;
@@ -534,10 +548,14 @@
         <label for="presetSelect">Network:</label>
         <select id="presetSelect">
           <option value="standard6">Classic 6-Node Network (6 nodes, 9 arcs)</option>
-          <option value="sedgewick">Sedgewick tinyFN (Classic 6 nodes, 8 arcs)</option>
+          <option value="sedgewick">Sedgewick tinyFN (Classic 6 nodes, 9 arcs)</option>
           <option value="diamond">Pathological Diamond (DFS vs Edmonds-Karp)</option>
           <option value="matching">Bipartite Maximum Matching (Workers → Jobs)</option>
           <option value="bridge">Bridge Cut Network (2 components with choke)</option>
+          <option value="refund">Flow Redirection & Refund (Backward Arcs ↶)</option>
+          <option value="project">Project Selection & Closure (Profits vs Tool Costs)</option>
+          <option value="grid">Multi-Stage Transport Grid (8 nodes, 13 arcs)</option>
+          <option value="supersource">Multi-Source Multi-Sink (Supersource Reduction)</option>
         </select>
       </div>
 
@@ -601,7 +619,14 @@
       <div class="card" style="padding: 0.75rem;">
         <div class="card-header-line" style="margin-bottom: 0.4rem;">
           <span id="viewportTitle">Flow Network G: [flow / capacity]</span>
-          <span id="cutStatusText" style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700;">In Progress</span>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <div id="cutLayoutToggleGroup" style="display: none; align-items: center; gap: 0.25rem;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Layout:</span>
+              <button class="view-toggle-btn active" id="btnLayoutOriginal" style="padding: 0.18rem 0.55rem; font-size: 0.72rem;">Network Graph</button>
+              <button class="view-toggle-btn" id="btnLayoutSplit" style="padding: 0.18rem 0.55rem; font-size: 0.72rem;">Partition Split (A | B)</button>
+            </div>
+            <span id="cutStatusText" style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 700;">In Progress</span>
+          </div>
         </div>
 
         <div class="graph-viewport">
@@ -610,7 +635,7 @@
           </svg>
 
           <!-- Graph Legend -->
-          <div class="graph-legend">
+          <div class="graph-legend" id="graphLegendContainer">
             <div class="legend-row">
               <div class="legend-pill" style="background: #10b981;"></div>
               <span>Source Node <em>s</em></span>
@@ -903,6 +928,119 @@
           { x: 560, y: 350, label: "4" },
           { x: 750, y: 240, label: "5 (t)" }
         ]
+      },
+      refund: {
+        title: "Flow Redirection & Refund (Residual Cancellation)",
+        V: 6,
+        s: 0,
+        t: 5,
+        edges: [
+          { u: 0, v: 1, c: 10 },
+          { u: 0, v: 2, c: 10 },
+          { u: 1, v: 2, c: 10 },
+          { u: 1, v: 3, c: 8 },
+          { u: 2, v: 4, c: 8 },
+          { u: 3, v: 4, c: 4 },
+          { u: 3, v: 5, c: 10 },
+          { u: 4, v: 5, c: 10 }
+        ],
+        positions: [
+          { x: 90,  y: 240, label: "0 (s)" },
+          { x: 280, y: 120, label: "1" },
+          { x: 280, y: 360, label: "2" },
+          { x: 550, y: 120, label: "3" },
+          { x: 550, y: 360, label: "4" },
+          { x: 750, y: 240, label: "5 (t)" }
+        ]
+      },
+      project: {
+        title: "Project Selection & Closure (Profits vs Tool Costs)",
+        V: 8,
+        s: 0,
+        t: 7,
+        edges: [
+          { u: 0, v: 1, c: 14 },
+          { u: 0, v: 2, c: 8 },
+          { u: 0, v: 3, c: 18 },
+          { u: 1, v: 4, c: 50 },
+          { u: 2, v: 4, c: 50 },
+          { u: 2, v: 5, c: 50 },
+          { u: 3, v: 6, c: 50 },
+          { u: 4, v: 7, c: 10 },
+          { u: 5, v: 7, c: 16 },
+          { u: 6, v: 7, c: 8 }
+        ],
+        positions: [
+          { x: 80,  y: 240, label: "s" },
+          { x: 280, y: 120, label: "P₁" },
+          { x: 280, y: 240, label: "P₂" },
+          { x: 280, y: 360, label: "P₃" },
+          { x: 560, y: 120, label: "T₁" },
+          { x: 560, y: 240, label: "T₂" },
+          { x: 560, y: 360, label: "T₃" },
+          { x: 760, y: 240, label: "t" }
+        ]
+      },
+      grid: {
+        title: "Multi-Stage Transport Grid (3-Tier Layered Mesh)",
+        V: 8,
+        s: 0,
+        t: 7,
+        edges: [
+          { u: 0, v: 1, c: 15 },
+          { u: 0, v: 2, c: 15 },
+          { u: 1, v: 2, c: 4 },
+          { u: 1, v: 3, c: 9 },
+          { u: 1, v: 4, c: 5 },
+          { u: 2, v: 4, c: 8 },
+          { u: 3, v: 4, c: 3 },
+          { u: 3, v: 5, c: 10 },
+          { u: 3, v: 6, c: 4 },
+          { u: 4, v: 6, c: 7 },
+          { u: 5, v: 6, c: 2 },
+          { u: 5, v: 7, c: 12 },
+          { u: 6, v: 7, c: 14 }
+        ],
+        positions: [
+          { x: 80,  y: 240, label: "0 (s)" },
+          { x: 260, y: 140, label: "1" },
+          { x: 260, y: 340, label: "2" },
+          { x: 440, y: 140, label: "3" },
+          { x: 440, y: 340, label: "4" },
+          { x: 620, y: 140, label: "5" },
+          { x: 620, y: 340, label: "6" },
+          { x: 770, y: 240, label: "7 (t)" }
+        ]
+      },
+      supersource: {
+        title: "Multi-Source Multi-Sink (Supersource Reduction)",
+        V: 8,
+        s: 0,
+        t: 7,
+        edges: [
+          { u: 0, v: 1, c: 14 },
+          { u: 0, v: 2, c: 11 },
+          { u: 1, v: 3, c: 9 },
+          { u: 1, v: 4, c: 7 },
+          { u: 2, v: 3, c: 4 },
+          { u: 2, v: 4, c: 8 },
+          { u: 3, v: 4, c: 2 },
+          { u: 3, v: 5, c: 10 },
+          { u: 4, v: 6, c: 12 },
+          { u: 5, v: 6, c: 3 },
+          { u: 5, v: 7, c: 12 },
+          { u: 6, v: 7, c: 10 }
+        ],
+        positions: [
+          { x: 70,  y: 240, label: "s" },
+          { x: 220, y: 140, label: "S₁" },
+          { x: 220, y: 340, label: "S₂" },
+          { x: 430, y: 140, label: "D₁" },
+          { x: 430, y: 340, label: "D₂" },
+          { x: 630, y: 140, label: "T₁" },
+          { x: 630, y: 340, label: "T₂" },
+          { x: 780, y: 240, label: "t" }
+        ]
       }
     };
 
@@ -912,6 +1050,7 @@
     let currentNetworkKey = "standard6";
     let currentStrategy = "bfs"; // "bfs", "dfs", "scaling"
     let currentViewMode = "flow"; // "flow", "residual", "dual"
+    let currentCutLayout = "original"; // "original" or "split"
     let simulationSteps = [];
     let currentStepIndex = 0;
     let isPlaying = false;
@@ -930,6 +1069,10 @@
     const btnViewFlow = document.getElementById("btnViewFlow");
     const btnViewResidual = document.getElementById("btnViewResidual");
     const btnViewDual = document.getElementById("btnViewDual");
+    const cutLayoutToggleGroup = document.getElementById("cutLayoutToggleGroup");
+    const btnLayoutOriginal = document.getElementById("btnLayoutOriginal");
+    const btnLayoutSplit = document.getElementById("btnLayoutSplit");
+    const graphLegendContainer = document.getElementById("graphLegendContainer");
     const phaseBadge = document.getElementById("phaseBadge");
     const stepCounter = document.getElementById("stepCounter");
     const stepExplanation = document.getElementById("stepExplanation");
@@ -1264,6 +1407,7 @@
       if (step.isOptimal) {
         cutStatusText.textContent = "● Max-Flow Min-Cut Certified!";
         cutStatusText.style.color = "var(--accent-emerald)";
+        if (cutLayoutToggleGroup) cutLayoutToggleGroup.style.display = "inline-flex";
 
         // Compute cut capacity
         let cutCap = 0;
@@ -1280,17 +1424,72 @@
         metricMinCut.textContent = cutCap.toFixed(1);
         minCutExplText.innerHTML = `<strong>Strong Duality Confirmed!</strong> Maximum flow <em>v(f) = ${step.flowValue.toFixed(1)}</em> equals Minimum Cut capacity <em>cap(A, B) = ${cutCap.toFixed(1)}</em>.`;
 
-        nodesSetA.innerHTML = step.setA.map(v => `<span class="node-tag">${net.positions[v].label}</span>`).join("");
-        nodesSetB.innerHTML = step.setB.map(v => `<span class="node-tag">${net.positions[v].label}</span>`).join("");
+        nodesSetA.innerHTML = step.setA.map(v => `<span class="node-tag tag-a">${net.positions[v].label}</span>`).join("");
+        nodesSetB.innerHTML = step.setB.map(v => `<span class="node-tag tag-b">${net.positions[v].label}</span>`).join("");
         cutArcsText.textContent = crossingArcs.join(", ") || "None";
+
+        if (graphLegendContainer) {
+          graphLegendContainer.innerHTML = `
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #064e3b; border: 2px dashed #10b981;"></div>
+              <span>Cut Set A (Source Partition, s ∈ A)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #0c4a6e; border: 2px dashed #38bdf8;"></div>
+              <span>Cut Set B (Sink Partition, t ∈ B)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f43f5e;"></div>
+              <span>✂️ Min-Cut Crossing Arcs (A → B, Saturated)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #64748b; border: 1px dashed #64748b;"></div>
+              <span>Backward Arcs (B → A, Cap not in Cut)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #334869; opacity: 0.5;"></div>
+              <span>Internal Arcs (Within A or B)</span>
+            </div>
+          `;
+        }
       } else {
         cutStatusText.textContent = "○ Searching Augmenting Paths";
         cutStatusText.style.color = "var(--accent-amber)";
+        if (cutLayoutToggleGroup) cutLayoutToggleGroup.style.display = "none";
+        currentCutLayout = "original";
+        if (btnLayoutOriginal) btnLayoutOriginal.classList.add("active");
+        if (btnLayoutSplit) btnLayoutSplit.classList.remove("active");
+
         metricMinCut.textContent = "?";
         minCutExplText.innerHTML = "Currently seeking augmenting paths from source to sink in the residual graph.";
-        nodesSetA.innerHTML = `<span class="node-tag">${net.positions[net.s].label}</span>`;
-        nodesSetB.innerHTML = `<span class="node-tag">${net.positions[net.t].label}</span>`;
+        nodesSetA.innerHTML = `<span class="node-tag tag-a">${net.positions[net.s].label}</span>`;
+        nodesSetB.innerHTML = `<span class="node-tag tag-b">${net.positions[net.t].label}</span>`;
         cutArcsText.textContent = "Calculated upon algorithm termination";
+
+        if (graphLegendContainer) {
+          graphLegendContainer.innerHTML = `
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #10b981;"></div>
+              <span>Source Node <em>s</em></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f43f5e;"></div>
+              <span>Sink Node <em>t</em></span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #38bdf8;"></div>
+              <span>Augmenting Path / Active Flow</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #f59e0b;"></div>
+              <span>Bottleneck Arc (δ) / Saturated (f = c)</span>
+            </div>
+            <div class="legend-row">
+              <div class="legend-pill" style="background: #c084fc; border: 1px dashed #c084fc;"></div>
+              <span>Backward Residual Arc (G<sub>f</sub> Flow Refund)</span>
+            </div>
+          `;
+        }
       }
 
       // Update History Table
@@ -1372,6 +1571,38 @@
       conservationTbody.innerHTML = html;
     }
 
+    // Calculate Bipartite Split Positions for Min-Cut Partition View (A | B)
+    function computeSplitPositions(net, step) {
+      const splitPos = {};
+      const setASorted = [...step.setA].sort((a, b) => {
+        if (a === net.s) return -1;
+        if (b === net.s) return 1;
+        return a - b;
+      });
+      const setBSorted = [...step.setB].sort((a, b) => {
+        if (a === net.t) return 1;
+        if (b === net.t) return -1;
+        return a - b;
+      });
+
+      const countA = setASorted.length;
+      const countB = setBSorted.length;
+      const yStart = 135;
+      const yEnd = 405;
+
+      setASorted.forEach((v, idx) => {
+        const y = countA === 1 ? 260 : yStart + idx * ((yEnd - yStart) / (countA - 1));
+        splitPos[v] = { x: 180, y: Math.round(y), label: net.positions[v].label };
+      });
+
+      setBSorted.forEach((v, idx) => {
+        const y = countB === 1 ? 260 : yStart + idx * ((yEnd - yStart) / (countB - 1));
+        splitPos[v] = { x: 670, y: Math.round(y), label: net.positions[v].label };
+      });
+
+      return { splitPos, setASorted, setBSorted };
+    }
+
     // Render Directed Graph SVG
     function renderGraphSvg(net, step) {
       const activePathEdges = new Set();
@@ -1383,6 +1614,18 @@
 
       const bottleFrom = step.bottleneckEdge ? step.bottleneckEdge.from : null;
       const bottleTo = step.bottleneckEdge ? step.bottleneckEdge.to : null;
+
+      const isSplitLayout = step.isOptimal && currentCutLayout === "split" && step.setA && step.setA.length > 0;
+      let posMap = net.positions;
+      let setASorted = [];
+      let setBSorted = [];
+
+      if (isSplitLayout) {
+        const splitData = computeSplitPositions(net, step);
+        posMap = splitData.splitPos;
+        setASorted = splitData.setASorted;
+        setBSorted = splitData.setBSorted;
+      }
 
       let svgHtml = `
         <defs>
@@ -1405,97 +1648,233 @@
         </defs>
       `;
 
-      // Draw Cut Background Partition when optimal
+      // Cut Set Representation at Termination (No overlapping bounding boxes)
       if (step.isOptimal && step.setA && step.setA.length > 0) {
-        const posA = step.setA.map(v => net.positions[v]);
-        const posB = step.setB.map(v => net.positions[v]);
+        const setASet = new Set(step.setA);
+        const crossingArcs = [];
+        let cutCap = 0;
+        net.edges.forEach(e => {
+          if (setASet.has(e.u) && !setASet.has(e.v)) {
+            cutCap += e.c;
+            crossingArcs.push(`${net.positions[e.u].label.split(' ')[0]}→${net.positions[e.v].label.split(' ')[0]}`);
+          }
+        });
 
-        const minXA = Math.min(...posA.map(p => p.x)) - 40;
-        const maxXA = Math.max(...posA.map(p => p.x)) + 40;
-        const minYA = Math.min(...posA.map(p => p.y)) - 40;
-        const maxYA = Math.max(...posA.map(p => p.y)) + 40;
+        const nodesAStr = step.setA.map(v => net.positions[v].label.split(' ')[0]).join(", ");
+        const nodesBStr = step.setB.map(v => net.positions[v].label.split(' ')[0]).join(", ");
+        const arcsShort = crossingArcs.join(", ") || "None";
 
-        const minXB = Math.min(...posB.map(p => p.x)) - 40;
-        const maxXB = Math.max(...posB.map(p => p.x)) + 40;
-        const minYB = Math.min(...posB.map(p => p.y)) - 40;
-        const maxYB = Math.max(...posB.map(p => p.y)) + 40;
+        if (isSplitLayout) {
+          // Bipartite Partition Split View (A | B): Two completely disjoint columns and a central cut barrier
+          svgHtml += `
+            <!-- Split Partition View (A | B) Layout -->
+            <g class="split-cut-layout">
+              <!-- Column A Container -->
+              <rect x="40" y="55" width="280" height="400" rx="14"
+                    fill="rgba(16, 185, 129, 0.06)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4" />
+              <text x="180" y="78" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle">Cut Set A (Source Partition • s ∈ A)</text>
+              <text x="180" y="93" fill="#6ee7b7" font-size="9.5" text-anchor="middle">Reachable from source s in residual network G_f</text>
 
-        svgHtml += `
-          <!-- Cut Set A Envelope -->
-          <rect x="${minXA}" y="${minYA}" width="${maxXA - minXA}" height="${maxYA - minYA}" rx="20"
-                fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.3)" stroke-width="1.5" stroke-dasharray="6,4" />
-          <text x="${minXA + 10}" y="${minYA + 18}" fill="#10b981" font-size="11" font-weight="bold">Cut Set A (Source Partition)</text>
+              <!-- Central Min-Cut Dividing Boundary Line -->
+              <line x1="425" y1="55" x2="425" y2="455" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="6,4" />
+              <g transform="translate(425, 240)">
+                <rect x="-85" y="-13" width="170" height="26" rx="13" fill="#4c0519" stroke="#f43f5e" stroke-width="1.5" />
+                <text x="0" y="4" fill="#fecdd3" font-size="10" font-weight="bold" text-anchor="middle">✂️ MIN-CUT BOUNDARY</text>
+              </g>
+              <g transform="translate(425, 270)">
+                <rect x="-65" y="-10" width="130" height="20" rx="4" fill="#0f172a" stroke="#24344d" stroke-width="1" />
+                <text x="0" y="3.5" fill="#f8fafc" font-size="9" font-family="monospace" text-anchor="middle">Cap(A, B) = ${cutCap.toFixed(1)}</text>
+              </g>
 
-          <!-- Cut Set B Envelope -->
-          <rect x="${minXB}" y="${minYB}" width="${maxXB - minXB}" height="${maxYB - minYB}" rx="20"
-                fill="rgba(56, 189, 248, 0.08)" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5" stroke-dasharray="6,4" />
-          <text x="${minXB + 10}" y="${minYB + 18}" fill="#38bdf8" font-size="11" font-weight="bold">Cut Set B (Sink Partition)</text>
-        `;
+              <!-- Column B Container -->
+              <rect x="530" y="55" width="280" height="400" rx="14"
+                    fill="rgba(56, 189, 248, 0.06)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6,4" />
+              <text x="670" y="78" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">Cut Set B (Sink Partition • t ∈ B)</text>
+              <text x="670" y="93" fill="#93c5fd" font-size="9.5" text-anchor="middle">Unreachable from source s in residual network G_f</text>
+            </g>
+          `;
+        } else {
+          // Network Graph View: Clean In-Canvas Min-Cut Partition Summary Banner (No overlapping rectangles!)
+          svgHtml += `
+            <g class="min-cut-hud-banner" transform="translate(10, 8)">
+              <rect x="0" y="0" width="830" height="36" rx="8" fill="#0f172a" stroke="#24344d" stroke-width="1.2" opacity="0.95" />
+              <rect x="8" y="6" width="220" height="24" rx="5" fill="#064e3b" stroke="#10b981" stroke-width="1" />
+              <text x="16" y="22" fill="#a7f3d0" font-size="10.5" font-weight="bold">Cut Set A (Source): {${nodesAStr}}</text>
+
+              <rect x="236" y="6" width="358" height="24" rx="5" fill="#4c0519" stroke="#f43f5e" stroke-width="1" />
+              <text x="415" y="22" fill="#fecdd3" font-size="10.5" font-weight="bold" text-anchor="middle">✂️ Cut Arcs (A→B): ${arcsShort} | Cap = ${cutCap.toFixed(1)} = Max Flow ✓</text>
+
+              <rect x="602" y="6" width="220" height="24" rx="5" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1" />
+              <text x="610" y="22" fill="#bae6fd" font-size="10.5" font-weight="bold">Cut Set B (Sink): {${nodesBStr}}</text>
+            </g>
+          `;
+        }
       }
 
       // Draw Edges
       step.edges.forEach(e => {
-        const p1 = net.positions[e.u];
-        const p2 = net.positions[e.v];
+        const p1 = posMap[e.u];
+        const p2 = posMap[e.v];
         const isSaturated = Math.abs(e.c - e.f) < 1e-6 && e.f > 0;
         const isForwardActive = activePathEdges.has(`${e.u}->${e.v}`);
         const isBackwardActive = activePathEdges.has(`${e.v}->${e.u}`);
         const isBottleneck = (bottleFrom === e.u && bottleTo === e.v) || (bottleFrom === e.v && bottleTo === e.u);
 
-        // Check if edge crosses the optimal min-cut (u in A, v in B)
-        const isCutCrossing = step.isOptimal && step.setA.includes(e.u) && step.setB.includes(e.v);
+        const inA_u = step.isOptimal && step.setA.includes(e.u);
+        const inA_v = step.isOptimal && step.setA.includes(e.v);
+        const inB_u = step.isOptimal && step.setB.includes(e.u);
+        const inB_v = step.isOptimal && step.setB.includes(e.v);
 
-        // Calculate control point for curved arcs if reverse edge exists
-        const hasReverse = step.edges.some(other => other.u === e.v && other.v === e.u);
-        const curveOffset = hasReverse ? 26 : 0;
+        // Check if edge crosses the optimal min-cut (u in A, v in B)
+        const isCutCrossing = step.isOptimal && inA_u && inB_v;
+        const isBackwardCrossing = step.isOptimal && inB_u && inA_v;
+
         const arrowLen = 9.5;
         const nodeRadius = 20;
 
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        const nx = -dy / dist;
-        const ny = dx / dist;
-
-        const mx = (p1.x + p2.x) / 2 + nx * curveOffset;
-        const my = (p1.y + p2.y) / 2 + ny * curveOffset;
-
-        // Path trimmed mathematically so arrow tip lands precisely on node circle
         let dPath = "";
-        if (curveOffset !== 0) {
-          const d1x = mx - p1.x;
-          const d1y = my - p1.y;
-          const dist1 = Math.hypot(d1x, d1y) || 1;
-          const sx = p1.x + (d1x / dist1) * nodeRadius;
-          const sy = p1.y + (d1y / dist1) * nodeRadius;
+        let mx = (p1.x + p2.x) / 2;
+        let my = (p1.y + p2.y) / 2;
+        let nx = 0;
+        let ny = 0;
+        let curveOffset = 0;
 
-          const d2x = p2.x - mx;
-          const d2y = p2.y - my;
-          const dist2 = Math.hypot(d2x, d2y) || 1;
-          const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
-          const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+        if (isSplitLayout) {
+          if (inA_u && inA_v) {
+            // Internal A: curve left
+            const idx1 = setASorted.indexOf(e.u);
+            const idx2 = setASorted.indexOf(e.v);
+            const span = Math.abs(idx1 - idx2);
+            mx = 180 - 45 - 18 * span;
+            my = (p1.y + p2.y) / 2;
 
-          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+            const d1x = mx - p1.x;
+            const d1y = my - p1.y;
+            const dist1 = Math.hypot(d1x, d1y) || 1;
+            const sx = p1.x + (d1x / dist1) * nodeRadius;
+            const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+            const d2x = p2.x - mx;
+            const d2y = p2.y - my;
+            const dist2 = Math.hypot(d2x, d2y) || 1;
+            const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+            const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          } else if (inB_u && inB_v) {
+            // Internal B: curve right
+            const idx1 = setBSorted.indexOf(e.u);
+            const idx2 = setBSorted.indexOf(e.v);
+            const span = Math.abs(idx1 - idx2);
+            mx = 670 + 45 + 18 * span;
+            my = (p1.y + p2.y) / 2;
+
+            const d1x = mx - p1.x;
+            const d1y = my - p1.y;
+            const dist1 = Math.hypot(d1x, d1y) || 1;
+            const sx = p1.x + (d1x / dist1) * nodeRadius;
+            const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+            const d2x = p2.x - mx;
+            const d2y = p2.y - my;
+            const dist2 = Math.hypot(d2x, d2y) || 1;
+            const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+            const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          } else if (inA_u && inB_v) {
+            // Crossing A -> B (straight across the cut boundary)
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            const ux = dx / dist;
+            const uy = dy / dist;
+            nx = -uy;
+            ny = ux;
+            const sx = p1.x + ux * nodeRadius;
+            const sy = p1.y + uy * nodeRadius;
+            const ex = p2.x - ux * (nodeRadius + arrowLen);
+            const ey = p2.y - uy * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          } else {
+            // Backward B -> A
+            mx = 425;
+            my = Math.max(p1.y, p2.y) + 40;
+            const d1x = mx - p1.x;
+            const d1y = my - p1.y;
+            const dist1 = Math.hypot(d1x, d1y) || 1;
+            const sx = p1.x + (d1x / dist1) * nodeRadius;
+            const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+            const d2x = p2.x - mx;
+            const d2y = p2.y - my;
+            const dist2 = Math.hypot(d2x, d2y) || 1;
+            const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+            const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          }
         } else {
-          const ux = dx / dist;
-          const uy = dy / dist;
-          const sx = p1.x + ux * nodeRadius;
-          const sy = p1.y + uy * nodeRadius;
-          const ex = p2.x - ux * (nodeRadius + arrowLen);
-          const ey = p2.y - uy * (nodeRadius + arrowLen);
+          // Original Graph Layout
+          const hasReverse = step.edges.some(other => other.u === e.v && other.v === e.u);
+          curveOffset = hasReverse ? 26 : 0;
 
-          dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          nx = -dy / dist;
+          ny = dx / dist;
+
+          mx = (p1.x + p2.x) / 2 + nx * curveOffset;
+          my = (p1.y + p2.y) / 2 + ny * curveOffset;
+
+          if (curveOffset !== 0) {
+            const d1x = mx - p1.x;
+            const d1y = my - p1.y;
+            const dist1 = Math.hypot(d1x, d1y) || 1;
+            const sx = p1.x + (d1x / dist1) * nodeRadius;
+            const sy = p1.y + (d1y / dist1) * nodeRadius;
+
+            const d2x = p2.x - mx;
+            const d2y = p2.y - my;
+            const dist2 = Math.hypot(d2x, d2y) || 1;
+            const ex = p2.x - (d2x / dist2) * (nodeRadius + arrowLen);
+            const ey = p2.y - (d2y / dist2) * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          } else {
+            const ux = dx / dist;
+            const uy = dy / dist;
+            const sx = p1.x + ux * nodeRadius;
+            const sy = p1.y + uy * nodeRadius;
+            const ex = p2.x - ux * (nodeRadius + arrowLen);
+            const ey = p2.y - uy * (nodeRadius + arrowLen);
+
+            dPath = `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          }
         }
 
-        // Color & marker logic - Consistent 2.5px base, 3.5px for active/bottleneck
+        // Color & marker logic
         let strokeColor = "#334869";
         let markerId = "arrow-gray";
         let strokeWidth = 2.5;
+        let strokeDash = "";
 
         if (isCutCrossing) {
           strokeColor = "#f43f5e";
           markerId = "arrow-cut";
-          strokeWidth = 3.5;
+          strokeWidth = 3.8;
+        } else if (isBackwardCrossing) {
+          strokeColor = "#64748b";
+          markerId = "arrow-gray";
+          strokeWidth = 2;
+          strokeDash = 'stroke-dasharray="4,3"';
+        } else if (step.isOptimal) {
+          // Internal edges when optimal: dimmed
+          strokeColor = "#334869";
+          markerId = "arrow-gray";
+          strokeWidth = 2;
         } else if (isBottleneck) {
           strokeColor = "#f59e0b";
           markerId = "arrow-amber";
@@ -1512,25 +1891,66 @@
 
         // Draw Edge Pipe / Flow
         if (currentViewMode === "flow" || currentViewMode === "dual") {
+          const edgeOpacity = (step.isOptimal && !isCutCrossing && !isBackwardCrossing) ? 'opacity="0.45"' : '';
           svgHtml += `
-            <path d="${dPath}" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" marker-end="url(#${markerId})" />
+            <path d="${dPath}" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}" ${strokeDash} ${edgeOpacity} marker-end="url(#${markerId})" />
           `;
 
-          // Label: flow / cap
-          const labelX = (curveOffset !== 0) ? mx : (p1.x + p2.x) / 2 + nx * 14;
-          const labelY = (curveOffset !== 0) ? my : (p1.y + p2.y) / 2 + ny * 14;
+          // Label placement
+          let labelX = mx;
+          let labelY = my;
+          if (!isSplitLayout) {
+            labelX = (curveOffset !== 0) ? mx : (p1.x + p2.x) / 2 + nx * 14;
+            labelY = (curveOffset !== 0) ? my : (p1.y + p2.y) / 2 + ny * 14;
+          }
 
-          const labelBgColor = isBottleneck ? "#f59e0b" : (isSaturated ? "#d97706" : "#0f172a");
-          const labelTextColor = isBottleneck || isSaturated ? "#000" : "#f8fafc";
+          if (isCutCrossing) {
+            // Perpendicular cut slit tick line
+            const slitLen = 14;
+            const sx1 = labelX - nx * slitLen;
+            const sy1 = labelY - ny * slitLen;
+            const sx2 = labelX + nx * slitLen;
+            const sy2 = labelY + ny * slitLen;
 
-          svgHtml += `
-            <g transform="translate(${labelX}, ${labelY})">
-              <rect x="-24" y="-10" width="48" height="20" rx="4" fill="${labelBgColor}" stroke="${strokeColor}" stroke-width="1.2" opacity="0.95" />
-              <text x="0" y="4" fill="${labelTextColor}" font-size="10" font-family="monospace" font-weight="bold" text-anchor="middle">
-                ${e.f}/${e.c}
-              </text>
-            </g>
-          `;
+            svgHtml += `
+              <line x1="${sx1.toFixed(1)}" y1="${sy1.toFixed(1)}" x2="${sx2.toFixed(1)}" y2="${sy2.toFixed(1)}" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="3,2" />
+              <g transform="translate(${labelX}, ${labelY})">
+                <rect x="-30" y="-11" width="60" height="22" rx="4" fill="#4c0519" stroke="#f43f5e" stroke-width="1.5" />
+                <text x="0" y="4" fill="#fecdd3" font-size="10" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  ✂️ ${e.f}/${e.c}
+                </text>
+              </g>
+            `;
+          } else if (isBackwardCrossing) {
+            svgHtml += `
+              <g transform="translate(${labelX}, ${labelY})">
+                <rect x="-34" y="-10" width="68" height="20" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="1.2" />
+                <text x="0" y="4" fill="#94a3b8" font-size="9" font-family="monospace" text-anchor="middle">
+                  ${e.f}/${e.c} (B→A)
+                </text>
+              </g>
+            `;
+          } else if (step.isOptimal) {
+            svgHtml += `
+              <g transform="translate(${labelX}, ${labelY})" opacity="0.65">
+                <rect x="-24" y="-10" width="48" height="20" rx="4" fill="#0f172a" stroke="#24344d" stroke-width="1" />
+                <text x="0" y="4" fill="#64748b" font-size="9.5" font-family="monospace" text-anchor="middle">
+                  ${e.f}/${e.c}
+                </text>
+              </g>
+            `;
+          } else {
+            const labelBgColor = isBottleneck ? "#f59e0b" : (isSaturated ? "#d97706" : "#0f172a");
+            const labelTextColor = isBottleneck || isSaturated ? "#000" : "#f8fafc";
+            svgHtml += `
+              <g transform="translate(${labelX}, ${labelY})">
+                <rect x="-24" y="-10" width="48" height="20" rx="4" fill="${labelBgColor}" stroke="${strokeColor}" stroke-width="1.2" opacity="0.95" />
+                <text x="0" y="4" fill="${labelTextColor}" font-size="10" font-family="monospace" font-weight="bold" text-anchor="middle">
+                  ${e.f}/${e.c}
+                </text>
+              </g>
+            `;
+          }
         }
 
         // In Residual Mode or Dual View, also render residual arcs
@@ -1538,7 +1958,6 @@
           const resFwd = e.c - e.f;
           const resBwd = e.f;
 
-          // Forward residual arc (if resFwd > 0)
           if (resFwd > 0 && currentViewMode === "residual") {
             svgHtml += `
               <path d="${dPath}" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-blue)" />
@@ -1551,7 +1970,6 @@
             `;
           }
 
-          // Backward residual arc (if resBwd > 0: flow refund!)
           if (resBwd > 0) {
             const bwdMx = (p1.x + p2.x) / 2 - nx * (curveOffset !== 0 ? curveOffset : 24);
             const bwdMy = (p1.y + p2.y) / 2 - ny * (curveOffset !== 0 ? curveOffset : 24);
@@ -1585,39 +2003,94 @@
 
       // Draw Vertices
       for (let v = 0; v < net.V; v++) {
-        const pos = net.positions[v];
+        const pos = posMap[v];
         const isSource = v === net.s;
         const isSink = v === net.t;
-        const isCutA = step.isOptimal && step.setA.includes(v);
+        const isSetA = step.isOptimal && step.setA && step.setA.includes(v);
+        const isSetB = step.isOptimal && step.setB && step.setB.includes(v);
 
         let fillCol = "#1e293b";
         let strokeCol = "#38bdf8";
+        let strokeW = 2.5;
         let radius = 20;
 
+        if (step.isOptimal) {
+          if (isSource) {
+            fillCol = "#064e3b";
+            strokeCol = "#10b981";
+            strokeW = 3;
+          } else if (isSetA) {
+            fillCol = "#0f2f26";
+            strokeCol = "#10b981";
+            strokeW = 2.5;
+          } else if (isSink) {
+            fillCol = "#4c0519";
+            strokeCol = "#f43f5e";
+            strokeW = 3;
+          } else if (isSetB) {
+            fillCol = "#082f49";
+            strokeCol = "#38bdf8";
+            strokeW = 2.5;
+          }
+        } else {
+          if (isSource) {
+            fillCol = "#064e3b";
+            strokeCol = "#10b981";
+          } else if (isSink) {
+            fillCol = "#4c0519";
+            strokeCol = "#f43f5e";
+          }
+        }
+
+        // Halo ring when optimal
+        let haloHtml = "";
+        if (step.isOptimal) {
+          if (isSetA) {
+            haloHtml = `<circle cx="0" cy="0" r="28" fill="rgba(16, 185, 129, 0.14)" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2" />`;
+          } else if (isSetB) {
+            haloHtml = `<circle cx="0" cy="0" r="28" fill="rgba(56, 189, 248, 0.14)" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2" />`;
+          }
+        }
+
+        // Top tag for s / t
+        let topTag = "";
         if (isSource) {
-          fillCol = "#064e3b";
-          strokeCol = "#10b981";
-          radius = 20;
+          topTag = `<text x="0" y="-27" fill="#10b981" font-size="10" font-weight="800" text-anchor="middle">${step.isOptimal ? "SOURCE (s ∈ A)" : "SOURCE (s)"}</text>`;
         } else if (isSink) {
-          fillCol = "#4c0519";
-          strokeCol = "#f43f5e";
-          radius = 20;
-        } else if (isCutA) {
-          fillCol = "#0f2f26";
-          strokeCol = "#10b981";
+          topTag = `<text x="0" y="-27" fill="#f43f5e" font-size="10" font-weight="800" text-anchor="middle">${step.isOptimal ? "SINK (t ∈ B)" : "SINK (t)"}</text>`;
+        }
+
+        // Bottom badge capsule when optimal
+        let bottomTag = "";
+        if (step.isOptimal) {
+          if (isSetA) {
+            bottomTag = `
+              <g transform="translate(0, 24)">
+                <rect x="-22" y="0" width="44" height="15" rx="7.5" fill="#064e3b" stroke="#10b981" stroke-width="1.2" />
+                <text x="0" y="10.5" fill="#a7f3d0" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Set A</text>
+              </g>
+            `;
+          } else if (isSetB) {
+            bottomTag = `
+              <g transform="translate(0, 24)">
+                <rect x="-22" y="0" width="44" height="15" rx="7.5" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.2" />
+                <text x="0" y="10.5" fill="#bae6fd" font-size="8.5" font-family="monospace" font-weight="bold" text-anchor="middle">Set B</text>
+              </g>
+            `;
+          }
         }
 
         svgHtml += `
           <g transform="translate(${pos.x}, ${pos.y})">
+            ${haloHtml}
             <!-- Node Circle -->
-            <circle cx="0" cy="0" r="${radius}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="2.5" />
+            <circle cx="0" cy="0" r="${radius}" fill="${fillCol}" stroke="${strokeCol}" stroke-width="${strokeW}" />
             <!-- Node Label -->
             <text x="0" y="4" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle">
               ${pos.label.split(' ')[0]}
             </text>
-            <!-- Badge for s / t -->
-            ${isSource ? `<text x="0" y="-26" fill="#10b981" font-size="11" font-weight="800" text-anchor="middle">SOURCE (s)</text>` : ''}
-            ${isSink ? `<text x="0" y="-26" fill="#f43f5e" font-size="11" font-weight="800" text-anchor="middle">SINK (t)</text>` : ''}
+            ${topTag}
+            ${bottomTag}
           </g>
         `;
       }
@@ -1678,6 +2151,10 @@
     function resetSimulation() {
       pause();
       currentStepIndex = 0;
+      currentCutLayout = "original";
+      if (btnLayoutOriginal) btnLayoutOriginal.classList.add("active");
+      if (btnLayoutSplit) btnLayoutSplit.classList.remove("active");
+      if (cutLayoutToggleGroup) cutLayoutToggleGroup.style.display = "none";
       const net = NETWORKS[currentNetworkKey];
       simulationSteps = buildMaxFlowSimulation(net, currentStrategy);
       renderStep(simulationSteps[0]);
@@ -1743,6 +2220,23 @@
       btnViewDual.classList.add("active");
       viewportTitle.textContent = "Dual Overlay: Flow G with Residual Arcs";
       renderStep(simulationSteps[currentStepIndex]);
+    });
+
+    // Layout Toggles (for optimal min-cut step)
+    btnLayoutOriginal.addEventListener("click", () => {
+      currentCutLayout = "original";
+      btnLayoutOriginal.classList.add("active");
+      btnLayoutSplit.classList.remove("active");
+      const net = NETWORKS[currentNetworkKey];
+      renderGraphSvg(net, simulationSteps[currentStepIndex]);
+    });
+
+    btnLayoutSplit.addEventListener("click", () => {
+      currentCutLayout = "split";
+      btnLayoutOriginal.classList.remove("active");
+      btnLayoutSplit.classList.add("active");
+      const net = NETWORKS[currentNetworkKey];
+      renderGraphSvg(net, simulationSteps[currentStepIndex]);
     });
 
     // Init

@@ -186,23 +186,15 @@
       color: var(--accent-blue);
     }
 
-    .dropdown-item .badge-status {
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-
-    .badge-status.available {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-
-    .badge-status.planned {
-      background: rgba(148, 163, 184, 0.1);
+    .dropdown-item .dropdown-item-arrow {
       color: var(--text-dim);
+      font-size: 0.75rem;
+      transition: transform 0.15s, color 0.15s;
+    }
+
+    .dropdown-item:hover .dropdown-item-arrow {
+      color: var(--accent-blue);
+      transform: translateX(2px);
     }
 
     .nav-link-btn {
@@ -482,8 +474,8 @@
 
     .algo-list-row {
       display: grid;
-      grid-template-columns: 130px 1.4fr 2fr 160px 110px;
-      gap: 1rem;
+      grid-template-columns: 1.3fr 2fr 160px 110px;
+      gap: 1.25rem;
       align-items: center;
       padding: 0.85rem 1.25rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -677,36 +669,6 @@
       border: 1px solid rgba(99, 102, 241, 0.3);
     }
 
-    .card-badge-status {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: 9999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .card-badge-status.available {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-
-    .card-badge-status.available::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 6px #10b981;
-    }
-
-    .card-badge-status.planned {
-      background: rgba(148, 163, 184, 0.1);
-      color: var(--text-dim);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
 
     .card-title {
       font-size: 1.25rem;
@@ -934,7 +896,7 @@
       <div class="hero-stats">
         <div class="stat-box">
           <span class="stat-number" id="statAvailableCount">18</span>
-          <span class="stat-label">Live Visualizers</span>
+          <span class="stat-label">Visualizers</span>
         </div>
         <div class="stat-box">
           <span class="stat-number" id="statTotalCount">18</span>
@@ -980,7 +942,7 @@
     <div class="catalog-section-header">
       <h2>
         <span id="catalogSectionTitle">Algorithm Directory</span>
-        <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-dim);" id="categoryFilterLabel">• All Categories</span>
+        <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-dim);" id="categoryFilterLabel">• All Sections</span>
       </h2>
       <span class="results-count" id="resultsCount">Showing 10 algorithms</span>
     </div>
@@ -1016,12 +978,12 @@
      * Consult agents.md for the full procedure.
      */
     const ALGORITHMS = [
-      /* ================= PART 1: DATA STRUCTURES & UNION-FIND ================= */
+      /* ================= DATA STRUCTURES ================= */
       {
         id: "union-find",
         title: "Union-Find (Disjoint Sets)",
         category: "part1",
-        categoryName: "Part 1: Data Structures",
+        categoryName: "Data Structures",
         file: "union_find.html",
         status: "available",
         description: "Models dynamic connectivity between N elements. Compares Quick-Find O(n), Quick-Union, and Weighted Quick-Union with Path Compression O(α(n)).",
@@ -1038,7 +1000,7 @@
         id: "binary-search",
         title: "Binary Search",
         category: "part1",
-        categoryName: "Part 1: Data Structures",
+        categoryName: "Data Structures",
         file: "binary_search.html",
         status: "available",
         description: "Optimal logarithmic search in sorted arrays. Halves the search interval at each step in O(log n). Features 3-way comparisons, interval shrinking, integer overflow avoidance (low + (high-low)/2), and Java's -(low+1) insertion point encoding on search misses.",
@@ -1052,12 +1014,12 @@
         features: ["Interactive target picker", "Interval elimination shading", "Insertion point decoding", "Hit & miss presets"]
       },
 
-      /* ================= PART 2: SORTING ================= */
+      /* ================= SORTING ================= */
       {
         id: "insertion-sort",
         title: "Insertion Sort",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "insertion_sort.html",
         status: "available",
         description: "Adaptive in-place comparison sort. Inserts each element into its correct position within the sorted prefix by shifting greater elements to the right. Demonstrates loop invariants, shift-by-shift slot opening, inversion counting, and O(n) performance on nearly sorted inputs.",
@@ -1074,7 +1036,7 @@
         id: "counting-sort",
         title: "Counting Sort",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "counting_sort.html",
         status: "available",
         description: "Stable linear-time non-comparative sorting for arrays of integer pairs (a_i, b_i). Computes frequencies, cumulative prefix sums, and places elements from right to left to guarantee stability.",
@@ -1091,7 +1053,7 @@
         id: "merge-sort",
         title: "Merge Sort (Array)",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "merge_sort.html",
         status: "available",
         description: "Divide-and-conquer sorting for arrays in guaranteed O(n log n). Compares two fundamental implementations: naive recursive splitting into newly allocated left/right subarrays vs. Sedgewick's textbook single shared auxiliary array (aux[]) with two-pointer merging and stability analysis.",
@@ -1108,7 +1070,7 @@
         id: "merge-sort-linked-list",
         title: "Merge Sort (Singly Linked List)",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "merge_sort_linked_list.html",
         status: "available",
         description: "Top-down divide-and-conquer sorting for singly linked lists. Uses slow and fast pointers to find the midpoint in O(n), splits the list without extra memory, sorts recursively, and merges sorted lists in-place with O(1) auxiliary heap space.",
@@ -1125,7 +1087,7 @@
         id: "heap-sort",
         title: "Heap Sort",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "heap_sort.html",
         status: "available",
         description: "Transforms the array into a max-heap (bottom-up heapify in O(n)) then repeatedly extracts the root to sort in-place in guaranteed O(n log n).",
@@ -1142,7 +1104,7 @@
         id: "radix-sort",
         title: "Radix Sort (LSD String Sort)",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "radix_sort.html",
         status: "available",
         description: "Sorts fixed-length strings or integers by processing characters from right to left (least significant digit first) using successive passes of stable key-indexed counting.",
@@ -1159,10 +1121,10 @@
         id: "sorting-complexity",
         title: "Sorting Complexity: O(N²) vs O(N log N)",
         category: "part2",
-        categoryName: "Part 2: Sorting",
+        categoryName: "Sorting",
         file: "sorting_complexity.html",
         status: "available",
-        description: "Head-to-head empirical benchmark and asymptotic scaling laboratory. Pitches Insertion Sort O(N²) against Merge Sort O(N log N) in a live synchronized race, paired with mathematical growth curves, operation ratio trackers, and real-world CPU clock time projections (milliseconds vs years).",
+        description: "Head-to-head empirical benchmark and asymptotic scaling laboratory. Pitches Insertion Sort O(N²) against Merge Sort O(N log N) in a real-time synchronized race, paired with mathematical growth curves, operation ratio trackers, and real-world CPU clock time projections (milliseconds vs years).",
         complexities: {
           best: "Empirical",
           avg: "Benchmark",
@@ -1170,15 +1132,15 @@
           space: "Dual Race"
         },
         properties: ["Empirical Race", "Asymptotic Analysis", "Quadratic vs Linearithmic", "Real-World CPU Projections"],
-        features: ["Side-by-side live parallel race", "Bar chart visualization", "Theoretical growth curves SVG", "Wall-clock scaling table (ms to years)"]
+        features: ["Side-by-side real-time race", "Bar chart visualization", "Theoretical growth curves SVG", "Wall-clock scaling table (ms to years)"]
       },
 
-      /* ================= PART 3: SEARCH TREES ================= */
+      /* ================= SEARCH TREES ================= */
       {
         id: "red-black-bst",
         title: "2-3 Search Trees & Left-Leaning Red-Black BST",
         category: "part3",
-        categoryName: "Part 3: Search Trees",
+        categoryName: "Search Trees",
         file: "red_black_bst.html",
         status: "available",
         description: "Parallel synchronized visualizer showing the exact 1-to-1 isometric mapping between 2-3 trees and Left-Leaning Red-Black (LLRB) BSTs. Demonstrates 3-nodes as red links, temporary 4-nodes, splits via flipColors, and fix-up rotations.",
@@ -1192,12 +1154,12 @@
         features: ["2-3 & LLRB Parallel Sync", "Isometric Red Link Mapping", "4-Node Split via flipColors", "Rotate Left & Right"]
       },
 
-      /* ================= PART 4: HASH TABLES & STRINGS ================= */
+      /* ================= HASH & STRINGS ================= */
       {
         id: "hash-tables",
         title: "Hash Tables (Chaining & Linear Probing)",
         category: "part4",
-        categoryName: "Part 4: Hash & Strings",
+        categoryName: "Hash & Strings",
         file: "hash_tables.html",
         status: "available",
         description: "Transforms keys into array indices using hash functions. Compares Separate Chaining vs Linear Probing collision resolution strategies with cluster detection.",
@@ -1214,7 +1176,7 @@
         id: "kmp-search",
         title: "Knuth-Morris-Pratt (KMP) Substring Search",
         category: "part4",
-        categoryName: "Part 4: Hash & Strings",
+        categoryName: "Hash & Strings",
         file: "kmp_search.html",
         status: "available",
         description: "Searches for a pattern of length M in text of length N without backup in text using a Deterministic Finite Automaton (DFA) constructed in O(M · R).",
@@ -1228,12 +1190,12 @@
         features: ["DFA transition matrix view", "Shadow state X tracking", "State machine graph", "No-backup text traversal"]
       },
 
-      /* ================= PART 5: PRIORITY QUEUES ================= */
+      /* ================= PRIORITY QUEUES ================= */
       {
         id: "binary-heap-pq",
         title: "Binary Heap Priority Queue",
         category: "part5",
-        categoryName: "Part 5: Priority Queues",
+        categoryName: "Priority Queues",
         file: "binary_heap_pq.html",
         status: "available",
         description: "Complete binary tree stored implicitly in an array. Supports insert and delMax/delMin in logarithmic time O(log n) via swim and sink operations.",
@@ -1247,12 +1209,12 @@
         features: ["Array <-> Tree sync", "Interactive insert & delMax", "Animated swim & sink", "1-based indexing"]
       },
 
-      /* ================= PART 6: GRAPHS ================= */
+      /* ================= GRAPHS ================= */
       {
         id: "dijkstra-shortest-path",
         title: "Dijkstra's Shortest Path",
         category: "part6",
-        categoryName: "Part 6: Graphs",
+        categoryName: "Graphs",
         file: "dijkstra.html",
         status: "available",
         description: "Finds shortest paths from a source to all other vertices in non-negative edge weighted digraphs using edge relaxation and an index priority queue.",
@@ -1269,7 +1231,7 @@
         id: "kruskal-mst",
         title: "Kruskal's Minimum Spanning Tree (MST)",
         category: "part6",
-        categoryName: "Part 6: Graphs",
+        categoryName: "Graphs",
         file: "kruskal.html",
         status: "available",
         description: "Greedy algorithm that sorts all edges in ascending order of weight and uses Union-Find to accept safe edges and reject cycles, constructing the optimal Minimum Spanning Tree in O(E log E).",
@@ -1283,12 +1245,12 @@
         features: ["Sorted edges priority stream", "Union-Find cycle detection", "Connected component coloring", "Cut property proof"]
       },
 
-      /* ================= PART 7: LINEAR PROGRAMMING & OPTIMIZATION ================= */
+      /* ================= LINEAR PROGRAMMING & OPTIMIZATION ================= */
       {
         id: "simplex",
         title: "Simplex Algorithm (Linear Programming)",
         category: "part7",
-        categoryName: "Part 7: Linear Programming & Optimization",
+        categoryName: "Linear Programming & Optimization",
         file: "simplex.html",
         status: "available",
         description: "Solves linear programs by traversing adjacent extreme points (vertices) along the boundary of the feasible polytope. Features standard simplex tableau, Gauss-Jordan pivot row operations, Bland's anti-cycling rule vs Dantzig's rule, and dual shadow prices.",
@@ -1305,7 +1267,7 @@
         id: "ford-fulkerson",
         title: "Ford-Fulkerson Max-Flow & Min-Cut",
         category: "part7",
-        categoryName: "Part 7: Linear Programming & Optimization",
+        categoryName: "Linear Programming & Optimization",
         file: "ford_fulkerson.html",
         status: "available",
         description: "Finds the maximum flow through a capacitated network by iteratively augmenting flow along paths in the residual graph G_f. Compares Edmonds-Karp BFS, DFS, and Capacity Scaling, and certifies global optimality via the Max-Flow Min-Cut Theorem.",
@@ -1316,13 +1278,13 @@
           space: "O(V + E)"
         },
         properties: ["Augmenting Paths", "Residual Network", "Max-Flow Min-Cut Duality", "Edmonds-Karp BFS", "Capacity Scaling"],
-        features: ["Interactive flow pipes", "Residual graph G_f toggle", "Flow conservation audit", "Min-cut (A,B) partition", "Pathological diamond test"]
+        features: ["9 diverse network presets", "Residual flow refund (backward arcs)", "Project selection min-cut closure", "Bipartite partition split view", "Flow conservation audit"]
       },
       {
         id: "min-cost-flow",
         title: "Minimum-Cost Flow (Successive Shortest Path)",
         category: "part7",
-        categoryName: "Part 7: Linear Programming & Optimization",
+        categoryName: "Linear Programming & Optimization",
         file: "min_cost_flow.html",
         status: "available",
         description: "Routes a required target flow volume B from source to sink at minimum total shipping cost. Visualizes the Successive Shortest Path (SSP) algorithm using Bellman-Ford on residual cost refund arcs, and node potentials π.",
@@ -1339,14 +1301,14 @@
 
     // Categories Configuration (in course sequence)
     const CATEGORIES = [
-      { id: "all", label: "All Categories" },
-      { id: "part1", label: "Part 1: Data Structures" },
-      { id: "part2", label: "Part 2: Sorting" },
-      { id: "part3", label: "Part 3: Search Trees" },
-      { id: "part4", label: "Part 4: Hash & Strings" },
-      { id: "part5", label: "Part 5: Priority Queues" },
-      { id: "part6", label: "Part 6: Graphs" },
-      { id: "part7", label: "Part 7: Linear Programming & Optimization" }
+      { id: "all", label: "All Sections" },
+      { id: "part1", label: "Data Structures" },
+      { id: "part2", label: "Sorting" },
+      { id: "part3", label: "Search Trees" },
+      { id: "part4", label: "Hash & Strings" },
+      { id: "part5", label: "Priority Queues" },
+      { id: "part6", label: "Graphs" },
+      { id: "part7", label: "Linear Programming & Optimization" }
     ];
 
     // State
@@ -1415,7 +1377,7 @@
 
           item.innerHTML = `
             <span>${algo.title}</span>
-            <span class="badge-status ${algo.status}">${algo.status === 'available' ? 'Live' : 'Soon'}</span>
+            <span class="dropdown-item-arrow">➔</span>
           `;
           menuDropdownPanel.appendChild(item);
         });
@@ -1522,13 +1484,12 @@
 
       activeCats.forEach(cat => {
         const catAlgos = list.filter(a => a.category === cat.id);
-        const liveCount = catAlgos.filter(a => a.status === "available").length;
 
         html += `
           <div class="module-group-card">
             <div class="module-group-header">
               <span>${cat.label}</span>
-              <span class="module-group-count">${liveCount} / ${catAlgos.length} Live</span>
+              <span class="module-group-count">${catAlgos.length} ${catAlgos.length === 1 ? 'Algorithm' : 'Algorithms'}</span>
             </div>
             <div class="module-group-body">
         `;
@@ -1538,12 +1499,6 @@
 
           html += `
             <div class="algo-list-row ${algo.status}" id="card-${algo.id}">
-              <div>
-                <span class="card-badge-status ${algo.status}">
-                  ${isAvail ? '● Live' : '⏳ Soon'}
-                </span>
-              </div>
-
               <div class="row-title-area">
                 ${isAvail 
                   ? `<a href="${algo.file}" class="row-title-link">${algo.title}</a>` 
@@ -1603,10 +1558,7 @@
               <article class="card-algorithm ${isAvail ? 'available' : ''}" id="card-${algo.id}">
                 <div>
                   <div class="card-top">
-                    <span class="card-category-tag">${algo.categoryName.split(':')[0]}</span>
-                    <span class="card-badge-status ${algo.status}">
-                      ${isAvail ? '● Live Visualizer' : '⏳ Planned'}
-                    </span>
+                    <span class="card-category-tag">${algo.categoryName}</span>
                   </div>
 
                   <h3 class="card-title">
