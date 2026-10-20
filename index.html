@@ -895,11 +895,11 @@
       </p>
       <div class="hero-stats">
         <div class="stat-box">
-          <span class="stat-number" id="statAvailableCount">18</span>
+          <span class="stat-number" id="statAvailableCount">19</span>
           <span class="stat-label">Visualizers</span>
         </div>
         <div class="stat-box">
-          <span class="stat-number" id="statTotalCount">18</span>
+          <span class="stat-number" id="statTotalCount">19</span>
           <span class="stat-label">Interactive Algorithms</span>
         </div>
         <div class="stat-box">
@@ -923,7 +923,7 @@
 
         <div class="view-toggle-wrap">
           <button class="view-toggle-btn active" id="btnToggleAll" data-view="all">All Topics</button>
-          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">18</span>)</button>
+          <button class="view-toggle-btn" id="btnToggleAvailable" data-view="available">Available Now (<span id="availableBtnCount">19</span>)</button>
         </div>
 
         <div class="layout-toggle-wrap">
@@ -1136,6 +1136,23 @@
       },
 
       /* ================= SEARCH TREES ================= */
+      {
+        id: "array-bst",
+        title: "ArrayBST (BST with ArrayLists)",
+        category: "part3",
+        categoryName: "Search Trees",
+        file: "array_bst.html",
+        status: "available",
+        description: "Binary Search Tree represented without node objects using four parallel ArrayLists (keys, values, idxLeftNode, idxRightNode). Visualizes step-by-step put(key, val) insertions, index-based child links, pre-linking leaf references to keys.size(), and in-place value updates.",
+        complexities: {
+          best: "O(log n)",
+          avg: "O(log n)",
+          worst: "O(n)",
+          space: "O(n)"
+        },
+        properties: ["Parallel ArrayLists", "Index-Encoded Links", "Append-Only Growth", "In-Place Value Update"],
+        features: ["4 synchronized ArrayLists", "Live BST tree view", "Pre-link pending slot visualization", "Two-way hover sync"]
+      },
       {
         id: "red-black-bst",
         title: "2-3 Search Trees & Left-Leaning Red-Black BST",

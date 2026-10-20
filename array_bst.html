@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArrayBST (BST with ArrayLists) Visualizer — LINFO1121</title>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-inner: #0f172a;
+      --bg-code: #070d19;
+      --border-color: #24344d;
+      --border-light: #334869;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+      --accent-cyan: #22d3ee;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn-nav-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--border-color, #24344d);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-nav-index:hover {
+      background: #334155;
+      color: var(--accent-blue, #38bdf8);
+      border-color: var(--accent-blue, #38bdf8);
+    }
+
+    .badge-course {
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-card);
+      padding: 0.28rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 0.8rem;
+    }
+
+    .control-item label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .control-item span.dynamic-val {
+      color: var(--accent-blue);
+      font-weight: 800;
+      min-width: 2.8rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+      width: 90px;
+    }
+
+    select, button, input[type="number"], input[type="text"] {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.38rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    select, button {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      user-select: none;
+    }
+
+    select:hover, button:hover:not(:disabled) {
+      background: #28374d;
+      border-color: #475569;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus, select:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    button.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    button.btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    button.btn-emerald {
+      background: #059669;
+      border-color: #10b981;
+      color: white;
+    }
+
+    button.btn-emerald:hover:not(:disabled) {
+      background: #047857;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Sub-bar: Presets, Interactive Put & Sequence Pills */
+    .top-bar-container {
+      max-width: 1760px;
+      width: 100%;
+      margin: 0.85rem auto 0;
+      padding: 0 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .toolbar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .quick-put-form {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg-card-inner);
+      padding: 0.25rem 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .quick-put-form input[type="number"] {
+      width: 64px;
+      padding: 0.25rem 0.4rem;
+      font-family: monospace;
+      text-align: center;
+    }
+
+    .quick-put-form input[type="text"] {
+      width: 52px;
+      padding: 0.25rem 0.4rem;
+      font-family: monospace;
+      text-align: center;
+    }
+
+    /* Sequence Stepper Pills */
+    .sequence-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.55rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .ops-pills-list {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .op-pill {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 9999px;
+      padding: 0.22rem 0.65rem;
+      font-size: 0.76rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .op-pill:hover {
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
+    .op-pill.done {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    .op-pill.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-blue);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .op-pill .op-idx {
+      font-size: 0.66rem;
+      color: var(--text-dim);
+    }
+
+    .op-pill.active .op-idx {
+      color: var(--accent-blue);
+    }
+
+    .step-counter-badge {
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: var(--bg-card-inner);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    /* Main Grid Layout */
+    .app-main {
+      display: grid;
+      grid-template-columns: 490px 1fr;
+      gap: 1.1rem;
+      padding: 0.85rem 1.25rem 1.5rem;
+      flex: 1;
+      max-width: 1760px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1180px) {
+      .app-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-column, .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.95rem 1.05rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-line {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Code Box */
+    .code-editor-box {
+      background: var(--bg-code);
+      border-radius: 8px;
+      border: 1px solid #1a273b;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.73rem;
+      line-height: 1.44;
+      padding: 0.45rem 0;
+    }
+
+    .code-row {
+      display: flex;
+      padding: 0.09rem 0.5rem;
+      border-left: 3px solid transparent;
+      white-space: pre;
+      transition: background-color 0.15s;
+    }
+
+    .code-row.active {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-left-color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .code-row.active-secondary {
+      background-color: rgba(16, 185, 129, 0.16);
+      border-left-color: var(--accent-emerald);
+    }
+
+    .code-line-num {
+      color: #475569;
+      width: 1.8rem;
+      text-align: right;
+      padding-right: 0.6rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .code-line-content {
+      color: #e2e8f0;
+      flex: 1;
+    }
+
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-keyword { color: #93c5fd; font-weight: bold; }
+    .c-type { color: #86efac; }
+    .c-func { color: #fbbf24; }
+    .c-field { color: #38bdf8; }
+    .c-const { color: #f43f5e; font-weight: bold; }
+
+    /* Step Explanation & Variables */
+    .explanation-banner {
+      background: #091326;
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.7rem 0.95rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      min-height: 64px;
+    }
+
+    .explanation-banner code {
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+      padding: 0.1rem 0.32rem;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.79rem;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.45rem;
+      margin-top: 0.65rem;
+    }
+
+    .variable-cell {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.45rem;
+      text-align: center;
+    }
+
+    .variable-cell .v-name {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .variable-cell .v-val {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      font-family: monospace;
+      margin-top: 0.1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ArrayLists Table Representation */
+    .arrays-wrapper {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .arraylists-table {
+      display: grid;
+      gap: 0.38rem;
+      min-width: max-content;
+    }
+
+    .arraylist-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.22rem 0.35rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .arraylist-row.active-child-list {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    .row-label-col {
+      width: 148px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .row-label-col .row-type-tag {
+      font-size: 0.64rem;
+      font-weight: 600;
+      padding: 0.08rem 0.35rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-dim);
+    }
+
+    .arraylist-row.active-child-list .row-label-col .row-type-tag {
+      background: rgba(245, 158, 11, 0.25);
+      color: #fde68a;
+    }
+
+    .cells-track {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .al-cell {
+      width: 62px;
+      height: 42px;
+      border-radius: 7px;
+      background: #1e293b;
+      border: 2px solid #334869;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #f8fafc;
+      position: relative;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .al-cell.idx-header {
+      height: 30px;
+      background: transparent;
+      border: 1px dashed rgba(148, 163, 184, 0.25);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .al-cell.idx-header.active-i {
+      background: rgba(245, 158, 11, 0.22);
+      border: 2px solid var(--accent-amber);
+      color: #fde68a;
+    }
+
+    .al-cell.idx-header.target-next {
+      background: rgba(192, 132, 252, 0.2);
+      border: 2px solid var(--accent-purple);
+      color: #e9d5ff;
+    }
+
+    .al-cell .cell-sub {
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    .al-cell.none-val {
+      color: #64748b;
+      background: #111a2c;
+      border-color: #1e293b;
+    }
+
+    /* Highlight States for ArrayList Cells */
+    .al-cell.col-active-i {
+      border-color: rgba(245, 158, 11, 0.65);
+      background: #27272a;
+    }
+
+    .al-cell.cell-comparing {
+      background: #b45309 !important;
+      border-color: #fbbf24 !important;
+      color: #fff !important;
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.55);
+      z-index: 2;
+    }
+
+    .al-cell.cell-reading {
+      background: #4f46e5 !important;
+      border-color: #818cf8 !important;
+      color: #fff !important;
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.55);
+      z-index: 2;
+    }
+
+    .al-cell.cell-mutated {
+      background: #065f46 !important;
+      border-color: #34d399 !important;
+      color: #fff !important;
+      transform: translateY(-3px) scale(1.08);
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.7);
+      z-index: 3;
+    }
+
+    .al-cell.cell-replaced {
+      background: #7e22ce !important;
+      border-color: #c084fc !important;
+      color: #fff !important;
+      transform: translateY(-3px) scale(1.08);
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.7);
+      z-index: 3;
+    }
+
+    .al-cell.ghost-slot {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px dashed #334869;
+      color: #475569;
+      font-size: 0.78rem;
+      cursor: default;
+    }
+
+    .al-cell.ghost-slot.ghost-linked {
+      background: rgba(16, 185, 129, 0.12);
+      border: 2px dashed var(--accent-emerald);
+      color: #6ee7b7;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .al-cell.hover-focus {
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+    }
+
+    /* Tree SVG Box */
+    .tree-box {
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.5rem;
+      min-height: 365px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg.bst-svg {
+      width: 100%;
+      height: 365px;
+      display: block;
+    }
+
+    .tree-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.55rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Custom Input Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 13, 25, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.25rem;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-box h3 {
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-box p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .modal-box textarea {
+      width: 100%;
+      height: 90px;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #fff;
+      padding: 0.6rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      margin-bottom: 0.85rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-branding">
+      <a href="index.html" class="btn-nav-index" title="Back to Algorithms Index">
+        <span>←</span>
+        <span>Index</span>
+      </a>
+      <span class="badge-course">LINFO1121</span>
+      <div>
+        <h1>ArrayBST Visualizer</h1>
+        <div class="header-subtitle">Binary Search Tree encoded with 4 parallel ArrayLists (keys, values, idxLeftNode, idxRightNode)</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-item">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="150" max="1800" step="50" value="750">
+        <span class="dynamic-val" id="speedVal">750ms</span>
+      </div>
+
+      <button id="btnPrevPut" title="Jump to Previous put() Operation">⏪ Prev Put</button>
+      <button id="btnPrev" title="Previous Step (←)">⏮ Step</button>
+      <button id="btnPlay" class="btn-primary" title="Play / Pause (Space)">▶ Play</button>
+      <button id="btnNext" title="Next Step (→)">⏭ Step</button>
+      <button id="btnNextPut" title="Jump to Next put() Operation">⏩ Next Put</button>
+      <button id="btnReset" title="Reset to Beginning">↺ Reset</button>
+    </div>
+  </header>
+
+  <!-- Sub-Header Toolbar & Sequence Stepper -->
+  <div class="top-bar-container">
+    <div class="toolbar-card">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Preset Sequence:</span>
+        <select id="presetSelect" aria-label="Preset insertion sequence">
+          <option value="javadoc">Javadoc Example: (12,A), (15,B), (5,C), (8,D), (1,E)</option>
+          <option value="javadoc_update">Javadoc + Value Update (cmp == 0): + (8,X), (12,Z)</option>
+          <option value="balanced">Balanced 7-Node BST: (20,A), (10,B), (30,C), (5,D), (15,E), (25,F), (35,G)</option>
+          <option value="zigzag">Zig-Zag Path: (50,A), (10,B), (40,C), (20,D), (30,E)</option>
+          <option value="ascending">Degenerate Right Chain: (2,A), (4,B), (6,C), (8,D), (10,E)</option>
+        </select>
+        <button id="btnCustomModal" title="Enter a custom sequence of (key, value) pairs">✏️ Custom Sequence</button>
+      </div>
+
+      <div class="toolbar-group">
+        <span class="toolbar-label">Append Operation:</span>
+        <div class="quick-put-form">
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">put(</span>
+          <input type="number" id="inputPutKey" value="7" title="Key (integer)">
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">,</span>
+          <input type="text" id="inputPutVal" value="F" maxlength="4" title="Value (string)">
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">)</span>
+          <button id="btnAppendPut" class="btn-emerald" title="Append this put(key, val) and animate it">+ Put</button>
+        </div>
+        <button id="btnRandomPut" title="Append a random put(key, val) operation">🎲 Random Put</button>
+      </div>
+    </div>
+
+    <div class="sequence-bar">
+      <span class="toolbar-label">Insertion Sequence:</span>
+      <div class="ops-pills-list" id="opsPillsList"></div>
+      <div class="step-counter-badge" id="stepCounterBadge">Step 1 / 1</div>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="app-main">
+    <!-- Left Column: Java Code, Step Explanation, Local Variables & Invariants -->
+    <div class="left-column">
+      <div class="card">
+        <div class="card-header-line">
+          <span>ArrayBST.java — Insertion Implementation</span>
+          <span style="font-size:0.72rem; color:var(--text-muted); text-transform:none;">NONE = -1</span>
+        </div>
+        <div class="code-editor-box" id="codeEditor">
+          <div class="code-row" data-line="1"><span class="code-line-num">1</span><span class="code-line-content"><span class="c-keyword">public class</span> <span class="c-type">ArrayBST</span>&lt;<span class="c-type">Key</span> <span class="c-keyword">extends</span> <span class="c-type">Comparable</span>&lt;<span class="c-type">Key</span>&gt;, <span class="c-type">Value</span>&gt; {</span></div>
+          <div class="code-row" data-line="2"><span class="code-line-num">2</span><span class="code-line-content">    <span class="c-keyword">public</span> <span class="c-type">ArrayList</span>&lt;<span class="c-type">Key</span>&gt; <span class="c-field">keys</span>;</span></div>
+          <div class="code-row" data-line="3"><span class="code-line-num">3</span><span class="code-line-content">    <span class="c-keyword">public</span> <span class="c-type">ArrayList</span>&lt;<span class="c-type">Value</span>&gt; <span class="c-field">values</span>;</span></div>
+          <div class="code-row" data-line="4"><span class="code-line-num">4</span><span class="code-line-content">    <span class="c-keyword">public</span> <span class="c-type">ArrayList</span>&lt;<span class="c-type">Integer</span>&gt; <span class="c-field">idxLeftNode</span>;</span></div>
+          <div class="code-row" data-line="5"><span class="code-line-num">5</span><span class="code-line-content">    <span class="c-keyword">public</span> <span class="c-type">ArrayList</span>&lt;<span class="c-type">Integer</span>&gt; <span class="c-field">idxRightNode</span>;</span></div>
+          <div class="code-row" data-line="6"><span class="code-line-num">6</span><span class="code-line-content">    <span class="c-keyword">final int</span> <span class="c-const">NONE</span> = -1;</span></div>
+          <div class="code-row" data-line="7"><span class="code-line-num">7</span><span class="code-line-content"></span></div>
+          <div class="code-row" data-line="8"><span class="code-line-num">8</span><span class="code-line-content">    <span class="c-keyword">private void</span> <span class="c-func">addNode</span>(<span class="c-type">Key</span> key, <span class="c-type">Value</span> val) {</span></div>
+          <div class="code-row" data-line="9"><span class="code-line-num">9</span><span class="code-line-content">        <span class="c-field">keys</span>.add(key);</span></div>
+          <div class="code-row" data-line="10"><span class="code-line-num">10</span><span class="code-line-content">        <span class="c-field">values</span>.add(val);</span></div>
+          <div class="code-row" data-line="11"><span class="code-line-num">11</span><span class="code-line-content">        <span class="c-field">idxLeftNode</span>.add(<span class="c-const">NONE</span>);</span></div>
+          <div class="code-row" data-line="12"><span class="code-line-num">12</span><span class="code-line-content">        <span class="c-field">idxRightNode</span>.add(<span class="c-const">NONE</span>);</span></div>
+          <div class="code-row" data-line="13"><span class="code-line-num">13</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="14"><span class="code-line-num">14</span><span class="code-line-content"></span></div>
+          <div class="code-row" data-line="15"><span class="code-line-num">15</span><span class="code-line-content">    <span class="c-keyword">public boolean</span> <span class="c-func">put</span>(<span class="c-type">Key</span> key, <span class="c-type">Value</span> val) {</span></div>
+          <div class="code-row" data-line="16"><span class="code-line-num">16</span><span class="code-line-content">        <span class="c-keyword">if</span> (<span class="c-field">values</span>.size() &gt; 0) {</span></div>
+          <div class="code-row" data-line="17"><span class="code-line-num">17</span><span class="code-line-content">            <span class="c-keyword">int</span> i = 0; <span class="c-comment">// start at the root</span></span></div>
+          <div class="code-row" data-line="18"><span class="code-line-num">18</span><span class="code-line-content">            <span class="c-type">ArrayList</span>&lt;<span class="c-type">Integer</span>&gt; idxChild;</span></div>
+          <div class="code-row" data-line="19"><span class="code-line-num">19</span><span class="code-line-content">            <span class="c-keyword">do</span> {</span></div>
+          <div class="code-row" data-line="20"><span class="code-line-num">20</span><span class="code-line-content">                <span class="c-keyword">int</span> cmp = key.compareTo(<span class="c-field">keys</span>.get(i));</span></div>
+          <div class="code-row" data-line="21"><span class="code-line-num">21</span><span class="code-line-content">                <span class="c-keyword">if</span> (cmp == 0) {</span></div>
+          <div class="code-row" data-line="22"><span class="code-line-num">22</span><span class="code-line-content">                    <span class="c-field">values</span>.set(i, val);</span></div>
+          <div class="code-row" data-line="23"><span class="code-line-num">23</span><span class="code-line-content">                    <span class="c-keyword">return false</span>;</span></div>
+          <div class="code-row" data-line="24"><span class="code-line-num">24</span><span class="code-line-content">                } <span class="c-keyword">else</span> {</span></div>
+          <div class="code-row" data-line="25"><span class="code-line-num">25</span><span class="code-line-content">                    idxChild = cmp &lt; 0 ? <span class="c-field">idxLeftNode</span> : <span class="c-field">idxRightNode</span>;</span></div>
+          <div class="code-row" data-line="26"><span class="code-line-num">26</span><span class="code-line-content">                    <span class="c-keyword">int</span> next = idxChild.get(i);</span></div>
+          <div class="code-row" data-line="27"><span class="code-line-num">27</span><span class="code-line-content">                    <span class="c-keyword">if</span> (next == <span class="c-const">NONE</span>) idxChild.set(i, <span class="c-field">keys</span>.size());</span></div>
+          <div class="code-row" data-line="28"><span class="code-line-num">28</span><span class="code-line-content">                    i = next;</span></div>
+          <div class="code-row" data-line="29"><span class="code-line-num">29</span><span class="code-line-content">                }</span></div>
+          <div class="code-row" data-line="30"><span class="code-line-num">30</span><span class="code-line-content">            } <span class="c-keyword">while</span> (i != <span class="c-const">NONE</span>);</span></div>
+          <div class="code-row" data-line="31"><span class="code-line-num">31</span><span class="code-line-content">        }</span></div>
+          <div class="code-row" data-line="32"><span class="code-line-num">32</span><span class="code-line-content">        <span class="c-func">addNode</span>(key, val);</span></div>
+          <div class="code-row" data-line="33"><span class="code-line-num">33</span><span class="code-line-content">        <span class="c-keyword">return true</span>;</span></div>
+          <div class="code-row" data-line="34"><span class="code-line-num">34</span><span class="code-line-content">    }</span></div>
+          <div class="code-row" data-line="35"><span class="code-line-num">35</span><span class="code-line-content">}</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Step Execution &amp; Local Variables</span>
+          <span id="currentOpBadge" style="font-family:monospace; font-size:0.76rem; color:var(--accent-amber);">put(12, "A")</span>
+        </div>
+        <div class="explanation-banner" id="stepExplanation">
+          Click Play or Next Step to trace how ArrayBST inserts (key, value) pairs into parallel ArrayLists.
+        </div>
+        <div class="variables-grid">
+          <div class="variable-cell">
+            <div class="v-name">put(key, val)</div>
+            <div class="v-val" id="varKeyVal">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">keys.size()</div>
+            <div class="v-val" id="varSize">0</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">i (node idx)</div>
+            <div class="v-val" id="varI">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">keys.get(i)</div>
+            <div class="v-val" id="varKeyI">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">cmp</div>
+            <div class="v-val" id="varCmp">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">idxChild</div>
+            <div class="v-val" id="varIdxChild">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">next</div>
+            <div class="v-val" id="varNext">—</div>
+          </div>
+          <div class="variable-cell">
+            <div class="v-name">return</div>
+            <div class="v-val" id="varReturn">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header-line">
+          <span>Data Structure Invariants</span>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.52;">
+          <p><strong style="color:var(--accent-blue);">1. Equal Parallel Sizes:</strong> After every <code>put</code>, <code>keys</code>, <code>values</code>, <code>idxLeftNode</code>, and <code>idxRightNode</code> have the exact same size $N$. The $i$-th inserted distinct key always resides at index $i$.</p>
+          <p style="margin-top:0.35rem;"><strong style="color:var(--accent-emerald);">2. Pre-Linking Leaf Reference:</strong> When reaching <code>next == NONE (-1)</code> at node $i$, <code>idxChild.set(i, keys.size())</code> stores the future child index $N$ <em>before</em> <code>addNode(key, val)</code> appends the new node at index $N$.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: 4 Parallel ArrayLists & BST Tree View -->
+    <div class="right-column">
+      <!-- Internal ArrayLists Card -->
+      <div class="card">
+        <div class="card-header-line">
+          <span>Internal ArrayLists State (Hover a column to highlight its node in the tree)</span>
+          <span id="arraySizeLabel" style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">size = 0</span>
+        </div>
+        <div class="arrays-wrapper">
+          <div class="arraylists-table" id="arrayListsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Binary Search Tree SVG Card -->
+      <div class="card" style="flex:1; display:flex; flex-direction:column;">
+        <div class="card-header-line">
+          <span>Binary Search Tree View (Encoded by idxLeftNode &amp; idxRightNode)</span>
+          <span style="font-size:0.74rem; color:var(--text-muted); text-transform:none;">Root is always at index <code style="color:var(--accent-blue);">i = 0</code></span>
+        </div>
+        <div class="tree-box" style="flex:1;">
+          <svg class="bst-svg" id="bstSvg" viewBox="0 0 820 365"></svg>
+        </div>
+        <div class="tree-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Current Node <code>i</code></span>
+          <span class="legend-item"><span class="legend-dot" style="background:#38bdf8;"></span> Left Link (<code>idxLeftNode[i]</code>)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#a855f7;"></span> Right Link (<code>idxRightNode[i]</code>)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Newly Added / Linked Slot (<code>keys.size()</code>)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#c084fc;"></span> Replaced Value (<code>cmp == 0</code>)</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Custom Sequence Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <h3>Custom Put Sequence</h3>
+      <p>Enter comma-separated <code>key:value</code> pairs (or integer keys alone, which will auto-assign letters A, B, C...):</p>
+      <textarea id="customSeqInput" placeholder="12:A, 15:B, 5:C, 8:D, 1:E">12:A, 15:B, 5:C, 8:D, 1:E</textarea>
+      <div class="modal-actions">
+        <button id="btnCancelModal">Cancel</button>
+        <button id="btnApplyModal" class="btn-primary">Load Sequence</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Preset Sequences
+    const PRESETS = {
+      javadoc: [
+        { key: 12, val: "A" },
+        { key: 15, val: "B" },
+        { key: 5,  val: "C" },
+        { key: 8,  val: "D" },
+        { key: 1,  val: "E" }
+      ],
+      javadoc_update: [
+        { key: 12, val: "A" },
+        { key: 15, val: "B" },
+        { key: 5,  val: "C" },
+        { key: 8,  val: "D" },
+        { key: 1,  val: "E" },
+        { key: 8,  val: "X" },
+        { key: 12, val: "Z" }
+      ],
+      balanced: [
+        { key: 20, val: "A" },
+        { key: 10, val: "B" },
+        { key: 30, val: "C" },
+        { key: 5,  val: "D" },
+        { key: 15, val: "E" },
+        { key: 25, val: "F" },
+        { key: 35, val: "G" }
+      ],
+      zigzag: [
+        { key: 50, val: "A" },
+        { key: 10, val: "B" },
+        { key: 40, val: "C" },
+        { key: 20, val: "D" },
+        { key: 30, val: "E" }
+      ],
+      ascending: [
+        { key: 2,  val: "A" },
+        { key: 4,  val: "B" },
+        { key: 6,  val: "C" },
+        { key: 8,  val: "D" },
+        { key: 10, val: "E" }
+      ]
+    };
+
+    const NONE = -1;
+
+    // State
+    let operations = [...PRESETS.javadoc.map(o => ({ ...o }))];
+    let steps = [];
+    let opStartIndices = []; // step index where each put() begins
+    let currentStepIdx = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let playSpeed = 750;
+    let hoveredNodeIdx = null;
+
+    // Build all simulation steps for the sequence of put(key, val) operations
+    function buildSimulation(opsList) {
+      const simSteps = [];
+      const opStarts = [];
+
+      const keys = [];
+      const values = [];
+      const idxLeftNode = [];
+      const idxRightNode = [];
+
+      function pushStep(state) {
+        simSteps.push({
+          keys: [...keys],
+          values: [...values],
+          idxLeftNode: [...idxLeftNode],
+          idxRightNode: [...idxRightNode],
+          opIndex: state.opIndex,
+          opKey: state.opKey,
+          opVal: state.opVal,
+          lines: state.lines || [],
+          secondaryLines: state.secondaryLines || [],
+          explanation: state.explanation || "",
+          i: state.i !== undefined ? state.i : null,
+          cmp: state.cmp !== undefined ? state.cmp : null,
+          idxChildName: state.idxChildName || null, // "idxLeftNode" | "idxRightNode"
+          next: state.next !== undefined ? state.next : null,
+          returnVal: state.returnVal !== undefined ? state.returnVal : null,
+          comparingIdx: state.comparingIdx !== undefined ? state.comparingIdx : null,
+          readingChildIdx: state.readingChildIdx !== undefined ? state.readingChildIdx : null,
+          mutatedChildIdx: state.mutatedChildIdx !== undefined ? state.mutatedChildIdx : null,
+          addedNodeIdx: state.addedNodeIdx !== undefined ? state.addedNodeIdx : null,
+          replacedNodeIdx: state.replacedNodeIdx !== undefined ? state.replacedNodeIdx : null,
+          pendingLink: state.pendingLink || null, // { parentIdx, dir: 'left'|'right', targetIdx }
+          pathNodes: state.pathNodes ? [...state.pathNodes] : []
+        });
+      }
+
+      // Initial empty state before first operation
+      pushStep({
+        opIndex: 0,
+        opKey: opsList.length ? opsList[0].key : null,
+        opVal: opsList.length ? opsList[0].val : null,
+        lines: [2, 3, 4, 5, 6],
+        explanation: `Initialized empty <code>ArrayBST</code>: <code>keys</code>, <code>values</code>, <code>idxLeftNode</code>, and <code>idxRightNode</code> are empty <code>ArrayList</code>s (size = 0, <code>NONE = -1</code>).`
+      });
+
+      opsList.forEach((op, opIdx) => {
+        opStarts.push(simSteps.length);
+        const key = op.key;
+        const val = op.val;
+        const visitedPath = [];
+
+        // Step 1: Enter put(key, val) & check if (values.size() > 0)
+        if (values.length === 0) {
+          pushStep({
+            opIndex: opIdx,
+            opKey: key,
+            opVal: val,
+            lines: [15, 16],
+            explanation: `Call <code>put(${key}, "${val}")</code>. Check <code>values.size() &gt; 0</code>: size is <code>0</code> (tree is empty), so we skip the traversal loop and go directly to <code>addNode(${key}, "${val}")</code>.`
+          });
+        } else {
+          pushStep({
+            opIndex: opIdx,
+            opKey: key,
+            opVal: val,
+            lines: [15, 16, 17],
+            i: 0,
+            pathNodes: [0],
+            explanation: `Call <code>put(${key}, "${val}")</code>. Since <code>values.size() = ${values.length} &gt; 0</code>, start traversal at root index <code>i = 0</code> (root key = <code>${keys[0]}</code>). If inserted, the new node will have index <code>keys.size() = ${keys.length}</code>.`
+          });
+
+          let i = 0;
+          let replaced = false;
+
+          do {
+            if (!visitedPath.includes(i)) visitedPath.push(i);
+            const keyAtI = keys[i];
+            const cmp = key === keyAtI ? 0 : (key < keyAtI ? -1 : 1);
+            const cmpStr = cmp === 0 ? "0 (equal)" : (cmp < 0 ? "-1 (< 0)" : "+1 (> 0)");
+
+            // Compare step
+            pushStep({
+              opIndex: opIdx,
+              opKey: key,
+              opVal: val,
+              lines: [20, 21],
+              i: i,
+              cmp: cmpStr,
+              comparingIdx: i,
+              pathNodes: [...visitedPath],
+              explanation: `At node index <code>i = ${i}</code>: compare <code>key = ${key}</code> with <code>keys.get(${i}) = ${keyAtI}</code> &rarr; <code>cmp = ${cmpStr}</code>.`
+            });
+
+            if (cmp === 0) {
+              const oldVal = values[i];
+              values[i] = val;
+              pushStep({
+                opIndex: opIdx,
+                opKey: key,
+                opVal: val,
+                lines: [22, 23],
+                i: i,
+                cmp: cmpStr,
+                returnVal: "false",
+                replacedNodeIdx: i,
+                pathNodes: [...visitedPath],
+                explanation: `<code>cmp == 0</code>: Key <code>${key}</code> is already at index <code>i = ${i}</code>! Execute <code>values.set(${i}, "${val}")</code> (replacing <code>"${oldVal}"</code> with <code>"${val}"</code>) and <code>return false</code>.`
+              });
+              replaced = true;
+              break;
+            } else {
+              const isLeft = cmp < 0;
+              const childListName = isLeft ? "idxLeftNode" : "idxRightNode";
+              const childArr = isLeft ? idxLeftNode : idxRightNode;
+              const next = childArr[i];
+              const dirWord = isLeft ? "left" : "right";
+
+              // Select idxChild and read next = idxChild.get(i)
+              pushStep({
+                opIndex: opIdx,
+                opKey: key,
+                opVal: val,
+                lines: [25, 26],
+                i: i,
+                cmp: cmpStr,
+                idxChildName: childListName,
+                next: next,
+                readingChildIdx: i,
+                pathNodes: [...visitedPath],
+                explanation: `Since <code>${key} ${isLeft ? "&lt;" : "&gt;"} ${keyAtI}</code>, select <code>idxChild = ${childListName}</code> and read <code>next = ${childListName}.get(${i}) = ${next === NONE ? "-1 (NONE)" : next}</code>.`
+              });
+
+              if (next === NONE) {
+                const newIdx = keys.length;
+                childArr[i] = newIdx;
+                pushStep({
+                  opIndex: opIdx,
+                  opKey: key,
+                  opVal: val,
+                  lines: [27, 28, 30],
+                  i: NONE,
+                  cmp: cmpStr,
+                  idxChildName: childListName,
+                  next: NONE,
+                  mutatedChildIdx: i,
+                  pendingLink: { parentIdx: i, dir: dirWord, targetIdx: newIdx },
+                  pathNodes: [...visitedPath],
+                  explanation: `Leaf link reached (<code>next == NONE</code>)! Execute <code>${childListName}.set(${i}, ${newIdx})</code> to link node <code>#${i}</code>'s ${dirWord} child to future index <code>keys.size() = ${newIdx}</code>. Then <code>i = next = -1</code> terminates the <code>do-while</code> loop.`
+                });
+                i = next;
+              } else {
+                const prevI = i;
+                i = next;
+                visitedPath.push(i);
+                pushStep({
+                  opIndex: opIdx,
+                  opKey: key,
+                  opVal: val,
+                  lines: [27, 28, 30],
+                  i: i,
+                  cmp: cmpStr,
+                  idxChildName: childListName,
+                  next: next,
+                  pathNodes: [...visitedPath],
+                  explanation: `<code>next = ${next} != NONE</code>: follow the ${dirWord} link from node <code>#${prevI}</code> to child node <code>i = ${next}</code> (key = <code>${keys[next]}</code>) and continue loop.`
+                });
+              }
+            }
+          } while (i !== NONE);
+
+          if (replaced) {
+            return;
+          }
+        }
+
+        // addNode(key, val) and return true
+        const newIdx = keys.length;
+        keys.push(key);
+        values.push(val);
+        idxLeftNode.push(NONE);
+        idxRightNode.push(NONE);
+        if (!visitedPath.includes(newIdx)) visitedPath.push(newIdx);
+
+        pushStep({
+          opIndex: opIdx,
+          opKey: key,
+          opVal: val,
+          lines: [32, 33],
+          secondaryLines: [8, 9, 10, 11, 12],
+          i: NONE,
+          returnVal: "true",
+          addedNodeIdx: newIdx,
+          pathNodes: [...visitedPath],
+          explanation: `Execute <code>addNode(${key}, "${val}")</code>: append <code>${key}</code> to <code>keys</code>, <code>"${val}"</code> to <code>values</code>, and <code>-1</code> to <code>idxLeftNode</code> &amp; <code>idxRightNode</code> at index <code>${newIdx}</code>. Return <code>true</code>!`
+        });
+      });
+
+      return { simSteps, opStarts };
+    }
+
+    // Render Operation Pills Bar
+    function renderOperationPills() {
+      const container = document.getElementById("opsPillsList");
+      const step = steps[currentStepIdx];
+      let html = "";
+
+      operations.forEach((op, idx) => {
+        let statusClass = "";
+        if (currentStepIdx === 0) {
+          statusClass = "";
+        } else if (idx < step.opIndex) {
+          statusClass = "done";
+        } else if (idx === step.opIndex) {
+          statusClass = "active";
+        }
+        const icon = idx < step.opIndex && currentStepIdx > 0 ? "✓ " : "";
+        html += `
+          <button class="op-pill ${statusClass}" onclick="jumpToOperation(${idx})" title="Jump to put(${op.key}, '${op.val}')">
+            <span class="op-idx">#${idx + 1}</span>
+            <span>${icon}put(${op.key}, "${op.val}")</span>
+          </button>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Render the 4 Parallel ArrayLists
+    function renderArrayLists(step) {
+      const container = document.getElementById("arrayListsContainer");
+      const n = step.keys.length;
+      document.getElementById("arraySizeLabel").textContent = `size = ${n} | next new index = ${n}`;
+
+      // Show columns 0..n-1 plus ghost slot n
+      const totalCols = n + 1;
+
+      function getColHighlight(idx) {
+        if (hoveredNodeIdx === idx) return "hover-focus";
+        if (step.i === idx) return "col-active-i";
+        return "";
+      }
+
+      // Row 0: Index header row
+      let idxRowHtml = `
+        <div class="arraylist-row">
+          <div class="row-label-col" style="color:var(--text-muted);">
+            <span>Index <code>i</code></span>
+            <span class="row-type-tag">0..${Math.max(0, n - 1)}</span>
+          </div>
+          <div class="cells-track">
+      `;
+      for (let c = 0; c < n; c++) {
+        const isCurrentI = step.i === c;
+        const isNextTarget = step.next === c && step.next !== NONE;
+        const extraCls = isCurrentI ? "active-i" : (isNextTarget ? "target-next" : "");
+        const badge = c === 0 ? "root" : (isCurrentI ? "i" : "");
+        idxRowHtml += `
+          <div class="al-cell idx-header ${extraCls}"
+               onmouseenter="setHoverNode(${c})"
+               onmouseleave="setHoverNode(null)">
+            <span>${c}</span>
+            ${badge ? `<span class="cell-sub" style="color:inherit;">${badge}</span>` : ""}
+          </div>
+        `;
+      }
+      // Ghost slot header for keys.size()
+      const isGhostLinked = Boolean(step.pendingLink && step.pendingLink.targetIdx === n);
+      idxRowHtml += `
+          <div class="al-cell idx-header ${isGhostLinked ? 'active-i' : ''}" title="keys.size() = ${n} (Next insertion slot)">
+            <span>${n}</span>
+            <span class="cell-sub" style="color:var(--accent-emerald);">size()</span>
+          </div>
+        </div>
+      </div>`;
+
+      // Helper to build each of the 4 ArrayList rows
+      function buildDataRow(fieldName, typeLabel, labelColor, arr, rowType) {
+        const isChildActive = step.idxChildName === fieldName;
+        let rowHtml = `
+          <div class="arraylist-row ${isChildActive ? 'active-child-list' : ''}">
+            <div class="row-label-col" style="color:${labelColor};">
+              <span>${fieldName}</span>
+              <span class="row-type-tag">${isChildActive ? 'idxChild' : typeLabel}</span>
+            </div>
+            <div class="cells-track">
+        `;
+
+        for (let c = 0; c < n; c++) {
+          const val = arr[c];
+          const classes = ["al-cell"];
+          const colHl = getColHighlight(c);
+          if (colHl) classes.push(colHl);
+
+          if ((rowType === "left" || rowType === "right") && val === NONE) {
+            classes.push("none-val");
+          }
+
+          // Specific step cell highlights
+          if (rowType === "keys" && step.comparingIdx === c) {
+            classes.push("cell-comparing");
+          }
+          if (rowType === "values" && step.replacedNodeIdx === c) {
+            classes.push("cell-replaced");
+          }
+          if (step.addedNodeIdx === c) {
+            classes.push("cell-mutated");
+          }
+          if (isChildActive && step.readingChildIdx === c) {
+            classes.push("cell-reading");
+          }
+          if (isChildActive && step.mutatedChildIdx === c) {
+            classes.push("cell-mutated");
+          }
+
+          let subLabel = "";
+          if (rowType === "left" || rowType === "right") {
+            subLabel = val === NONE ? "NONE" : `→ #${val}`;
+          }
+
+          rowHtml += `
+            <div class="${classes.join(' ')}"
+                 onmouseenter="setHoverNode(${c})"
+                 onmouseleave="setHoverNode(null)">
+              <span>${val}</span>
+              ${subLabel ? `<span class="cell-sub" style="color:inherit; opacity:0.85;">${subLabel}</span>` : ""}
+            </div>
+          `;
+        }
+
+        // Pending / Ghost slot at index n
+        let ghostContent = "—";
+        if (step.pendingLink && step.pendingLink.targetIdx === n) {
+          if (rowType === "keys") ghostContent = step.opKey;
+          else if (rowType === "values") ghostContent = step.opVal;
+          else ghostContent = "-1";
+        }
+        rowHtml += `
+            <div class="al-cell ghost-slot ${isGhostLinked ? 'ghost-linked' : ''}" title="Pending slot at index keys.size() = ${n}">
+              <span>${ghostContent}</span>
+              <span class="cell-sub">${isGhostLinked ? 'pending' : 'free'}</span>
+            </div>
+          </div>
+        </div>`;
+
+        return rowHtml;
+      }
+
+      const valuesRow = buildDataRow("values", "Value", "#fbbf24", step.values, "values");
+      const keysRow   = buildDataRow("keys", "Key", "#38bdf8", step.keys, "keys");
+      const leftRow   = buildDataRow("idxLeftNode", "int", "#22d3ee", step.idxLeftNode, "left");
+      const rightRow  = buildDataRow("idxRightNode", "int", "#c084fc", step.idxRightNode, "right");
+
+      container.innerHTML = idxRowHtml + valuesRow + keysRow + leftRow + rightRow;
+    }
+
+    // Compute Tree Layout Coordinates & Render SVG
+    function renderTree(step) {
+      const svg = document.getElementById("bstSvg");
+      const n = step.keys.length;
+
+      if (n === 0 && !step.pendingLink) {
+        svg.innerHTML = `
+          <text x="410" y="175" text-anchor="middle" fill="#64748b" font-size="15" font-family="sans-serif" font-weight="600">
+            Tree is empty (values.size() == 0)
+          </text>
+          <text x="410" y="200" text-anchor="middle" fill="#475569" font-size="12" font-family="monospace">
+            First put(${step.opKey !== null ? step.opKey + ', "' + step.opVal + '"' : 'key, val'}) will create the root at index i = 0
+          </text>
+        `;
+        return;
+      }
+
+      // Build adjacency structure from idxLeftNode and idxRightNode
+      // Note: if step.pendingLink exists, idxLeftNode[parent] or idxRightNode[parent] already equals n!
+      const nodes = [];
+      for (let idx = 0; idx < n; idx++) {
+        nodes.push({
+          idx,
+          key: step.keys[idx],
+          val: step.values[idx],
+          left: step.idxLeftNode[idx] !== NONE && step.idxLeftNode[idx] < n ? step.idxLeftNode[idx] : NONE,
+          right: step.idxRightNode[idx] !== NONE && step.idxRightNode[idx] < n ? step.idxRightNode[idx] : NONE,
+          isPending: false
+        });
+      }
+
+      if (step.pendingLink) {
+        const pIdx = step.pendingLink.targetIdx;
+        nodes.push({
+          idx: pIdx,
+          key: step.opKey,
+          val: step.opVal,
+          left: NONE,
+          right: NONE,
+          isPending: true
+        });
+        if (step.pendingLink.dir === "left") {
+          nodes[step.pendingLink.parentIdx].left = pIdx;
+        } else {
+          nodes[step.pendingLink.parentIdx].right = pIdx;
+        }
+      }
+
+      // Assign depth and binary position + inorder rank to prevent collisions
+      const coords = {};
+      let maxDepth = 0;
+      let inorderCounter = 0;
+      const visited = new Set();
+
+      function dfs(u, depth, rawX, span) {
+        if (u === NONE || u >= nodes.length || visited.has(u)) return;
+        visited.add(u);
+        if (depth > maxDepth) maxDepth = depth;
+
+        const node = nodes[u];
+        dfs(node.left, depth + 1, rawX - span, span * 0.52);
+        const orderRank = inorderCounter++;
+        dfs(node.right, depth + 1, rawX + span, span * 0.52);
+
+        coords[u] = { depth, rawX, orderRank };
+      }
+
+      dfs(0, 0, 410, 175);
+
+      // Compute final (x, y) ensuring no horizontal overlap and centered in [70, 750]
+      const totalVisible = visited.size;
+      const verticalTop = 52;
+      const verticalSpan = Math.min(82, Math.floor(265 / Math.max(1, maxDepth)));
+
+      // Check if any two nodes at same depth are too close in rawX
+      let useBlendedX = maxDepth >= 4;
+      const byDepth = {};
+      visited.forEach(u => {
+        const d = coords[u].depth;
+        if (!byDepth[d]) byDepth[d] = [];
+        byDepth[d].push(coords[u].rawX);
+      });
+      Object.values(byDepth).forEach(arr => {
+        arr.sort((a, b) => a - b);
+        for (let k = 1; k < arr.length; k++) {
+          if (arr[k] - arr[k - 1] < 72) useBlendedX = true;
+        }
+      });
+
+      visited.forEach(u => {
+        const c = coords[u];
+        const inorderX = totalVisible > 1
+          ? 100 + (c.orderRank / (totalVisible - 1)) * 620
+          : 410;
+        c.x = useBlendedX ? (0.35 * c.rawX + 0.65 * inorderX) : c.rawX;
+        c.y = verticalTop + c.depth * verticalSpan;
+      });
+
+      // Center horizontally around 410
+      let minX = Infinity, maxX = -Infinity;
+      visited.forEach(u => {
+        if (coords[u].x < minX) minX = coords[u].x;
+        if (coords[u].x > maxX) maxX = coords[u].x;
+      });
+      const currentCenter = (minX + maxX) / 2;
+      const shiftX = 410 - currentCenter;
+      visited.forEach(u => {
+        coords[u].x = Math.max(60, Math.min(760, coords[u].x + shiftX));
+      });
+
+      let edgesSvg = "";
+      let nodesSvg = "";
+
+      // Draw edges
+      visited.forEach(u => {
+        const node = nodes[u];
+        const p = coords[u];
+
+        ["left", "right"].forEach(dir => {
+          const v = dir === "left" ? node.left : node.right;
+          if (v === NONE || !coords[v]) return;
+          const c = coords[v];
+          const isLeft = dir === "left";
+          const isPendingEdge = nodes[v].isPending;
+          const isActiveTraversal = step.pathNodes.includes(u) && step.pathNodes.includes(v);
+          const isHoveredEdge = hoveredNodeIdx === u || hoveredNodeIdx === v;
+
+          let strokeColor = isLeft ? "#38bdf8" : "#a855f7";
+          let strokeWidth = 2.4;
+          let dashArray = "";
+
+          if (isPendingEdge) {
+            strokeColor = "#10b981";
+            strokeWidth = 3.2;
+            dashArray = "6,4";
+          } else if (isHoveredEdge) {
+            strokeColor = "#22d3ee";
+            strokeWidth = 3.5;
+          } else if (isActiveTraversal) {
+            strokeColor = "#fbbf24";
+            strokeWidth = 3.2;
+          }
+
+          const midX = (p.x + c.x) / 2 + (isLeft ? -12 : 12);
+          const midY = (p.y + c.y) / 2 - 4;
+          const edgeTag = isLeft ? `L:${v}` : `R:${v}`;
+
+          edgesSvg += `
+            <g>
+              <line x1="${p.x}" y1="${p.y}" x2="${c.x}" y2="${c.y}"
+                    stroke="${strokeColor}" stroke-width="${strokeWidth}"
+                    ${dashArray ? `stroke-dasharray="${dashArray}"` : ""}
+                    opacity="${isPendingEdge || isActiveTraversal || isHoveredEdge ? '1' : '0.78'}" />
+              <rect x="${midX - 16}" y="${midY - 9}" width="32" height="15" rx="4"
+                    fill="#0b1120" stroke="${strokeColor}" stroke-width="1" opacity="0.92" />
+              <text x="${midX}" y="${midY + 2}" text-anchor="middle"
+                    fill="${strokeColor}" font-size="9.5" font-family="monospace" font-weight="700">
+                ${edgeTag}
+              </text>
+            </g>
+          `;
+        });
+      });
+
+      // Draw nodes
+      visited.forEach(u => {
+        const node = nodes[u];
+        const pos = coords[u];
+        const isCurrentI = step.i === u;
+        const isAdded = step.addedNodeIdx === u;
+        const isReplaced = step.replacedNodeIdx === u;
+        const isHovered = hoveredNodeIdx === u;
+        const isVisitedOnPath = step.pathNodes.includes(u);
+
+        let fill = "#1e293b";
+        let stroke = "#475569";
+        let strokeW = 2.5;
+        let dash = "";
+
+        if (node.isPending) {
+          fill = "rgba(16, 185, 129, 0.14)";
+          stroke = "#10b981";
+          strokeW = 2.8;
+          dash = "5,3";
+        } else if (isAdded) {
+          fill = "#065f46";
+          stroke = "#34d399";
+          strokeW = 3.5;
+        } else if (isReplaced) {
+          fill = "#6b21a8";
+          stroke = "#c084fc";
+          strokeW = 3.5;
+        } else if (isCurrentI) {
+          fill = "#b45309";
+          stroke = "#fbbf24";
+          strokeW = 3.5;
+        } else if (isHovered) {
+          fill = "#164e63";
+          stroke = "#22d3ee";
+          strokeW = 3.2;
+        } else if (isVisitedOnPath) {
+          fill = "#1e293b";
+          stroke = "#fbbf24";
+          strokeW = 2.5;
+        }
+
+        const rawL = u < n ? step.idxLeftNode[u] : -1;
+        const rawR = u < n ? step.idxRightNode[u] : -1;
+
+        // Floating comparison callout above/beside active node
+        let calloutSvg = "";
+        if (isCurrentI && step.comparingIdx === u && step.cmp) {
+          const cmpShort = step.cmp.startsWith("0")
+            ? `${step.opKey} == ${node.key}`
+            : (step.cmp.startsWith("-") ? `${step.opKey} < ${node.key} (L)` : `${step.opKey} > ${node.key} (R)`);
+          calloutSvg = `
+            <g transform="translate(${pos.x}, ${pos.y - 44})">
+              <rect x="-48" y="-11" width="96" height="19" rx="5" fill="#fbbf24" stroke="#78350f" stroke-width="1"/>
+              <text x="0" y="2" text-anchor="middle" fill="#0f172a" font-size="10.5" font-family="monospace" font-weight="800">
+                ${cmpShort}
+              </text>
+            </g>
+          `;
+        }
+
+        nodesSvg += `
+          <g style="cursor:pointer;"
+             onmouseenter="setHoverNode(${u})"
+             onmouseleave="setHoverNode(null)">
+            ${calloutSvg}
+            <!-- Main Circle -->
+            <circle cx="${pos.x}" cy="${pos.y}" r="26"
+                    fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"
+                    ${dash ? `stroke-dasharray="${dash}"` : ""} />
+            <!-- Key(Val) inside node -->
+            <text x="${pos.x}" y="${pos.y - 3}" text-anchor="middle"
+                  fill="#ffffff" font-family="monospace" font-size="13.5" font-weight="800">
+              ${node.key}(${node.val})
+            </text>
+            <!-- L/R index ports inside bottom of node -->
+            <text x="${pos.x}" y="${pos.y + 12}" text-anchor="middle"
+                  fill="#cbd5e1" font-family="monospace" font-size="8.5" font-weight="600">
+              ${node.isPending ? "new slot" : `${rawL}|${rawR}`}
+            </text>
+            <!-- ArrayList Index Badge (#i) at top-left of node -->
+            <rect x="${pos.x - 36}" y="${pos.y - 29}" width="26" height="15" rx="4"
+                  fill="#0f172a" stroke="${isCurrentI ? '#fbbf24' : '#38bdf8'}" stroke-width="1.2" />
+            <text x="${pos.x - 23}" y="${pos.y - 18.5}" text-anchor="middle"
+                  fill="${isCurrentI ? '#fde68a' : '#7dd3fc'}" font-family="monospace" font-size="9.5" font-weight="800">
+              #${u}
+            </text>
+          </g>
+        `;
+      });
+
+      svg.innerHTML = edgesSvg + nodesSvg;
+    }
+
+    // Render Code Lines, Step Banner & Variable Inspector
+    function renderStepState() {
+      const step = steps[currentStepIdx];
+
+      // Step counter badge
+      document.getElementById("stepCounterBadge").textContent = `Step ${currentStepIdx + 1} / ${steps.length}`;
+
+      // Current operation badge
+      const opBadge = document.getElementById("currentOpBadge");
+      if (step.opKey !== null) {
+        opBadge.textContent = `Op #${step.opIndex + 1}: put(${step.opKey}, "${step.opVal}")`;
+      } else {
+        opBadge.textContent = "Ready";
+      }
+
+      // Highlight code lines
+      document.querySelectorAll("#codeEditor .code-row").forEach(row => {
+        const lineNum = Number(row.dataset.line);
+        row.classList.toggle("active", step.lines.includes(lineNum));
+        row.classList.toggle("active-secondary", step.secondaryLines.includes(lineNum));
+      });
+
+      // Explanation text
+      document.getElementById("stepExplanation").innerHTML = step.explanation;
+
+      // Variables inspector
+      document.getElementById("varKeyVal").textContent = step.opKey !== null ? `(${step.opKey}, "${step.opVal}")` : "—";
+      document.getElementById("varSize").textContent = step.keys.length;
+      document.getElementById("varI").textContent = step.i === null ? "—" : (step.i === NONE ? "-1 (NONE)" : step.i);
+      document.getElementById("varKeyI").textContent = (step.i !== null && step.i !== NONE && step.i < step.keys.length)
+        ? `${step.keys[step.i]} ("${step.values[step.i]}")`
+        : "—";
+      document.getElementById("varCmp").textContent = step.cmp !== null ? step.cmp : "—";
+      document.getElementById("varIdxChild").textContent = step.idxChildName || "—";
+      document.getElementById("varNext").textContent = step.next === null ? "—" : (step.next === NONE ? "-1 (NONE)" : step.next);
+      document.getElementById("varReturn").textContent = step.returnVal !== null ? step.returnVal : "—";
+
+      // Update buttons disabled state
+      document.getElementById("btnPrev").disabled = currentStepIdx <= 0;
+      document.getElementById("btnNext").disabled = currentStepIdx >= steps.length - 1;
+      document.getElementById("btnPrevPut").disabled = currentStepIdx <= 0;
+      document.getElementById("btnNextPut").disabled = opStartIndices.every(idx => idx <= currentStepIdx);
+
+      renderOperationPills();
+      renderArrayLists(step);
+      renderTree(step);
+    }
+
+    function setHoverNode(idx) {
+      hoveredNodeIdx = idx;
+      const step = steps[currentStepIdx];
+      renderArrayLists(step);
+      renderTree(step);
+    }
+
+    // Playback Controls
+    function stopPlaying() {
+      isPlaying = false;
+      if (playTimer) {
+        clearInterval(playTimer);
+        playTimer = null;
+      }
+      document.getElementById("btnPlay").textContent = "▶ Play";
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        stopPlaying();
+        return;
+      }
+      if (currentStepIdx >= steps.length - 1) {
+        currentStepIdx = 0;
+      }
+      isPlaying = true;
+      document.getElementById("btnPlay").textContent = "⏸ Pause";
+      playTimer = setInterval(() => {
+        if (currentStepIdx < steps.length - 1) {
+          currentStepIdx++;
+          renderStepState();
+        } else {
+          stopPlaying();
+        }
+      }, playSpeed);
+    }
+
+    function jumpToOperation(opIdx) {
+      stopPlaying();
+      if (opIdx >= 0 && opIdx < opStartIndices.length) {
+        currentStepIdx = opStartIndices[opIdx];
+        renderStepState();
+      }
+    }
+
+    function loadOperations(newOps, jumpToOpIdx = null) {
+      stopPlaying();
+      operations = newOps.map(o => ({ key: Number(o.key), val: String(o.val) }));
+      const built = buildSimulation(operations);
+      steps = built.simSteps;
+      opStartIndices = built.opStarts;
+
+      if (jumpToOpIdx !== null && jumpToOpIdx < opStartIndices.length) {
+        currentStepIdx = opStartIndices[jumpToOpIdx];
+      } else {
+        currentStepIdx = 0;
+      }
+      renderStepState();
+
+      // Suggest next letter for quick input
+      const nextChar = String.fromCharCode(65 + (operations.length % 26));
+      document.getElementById("inputPutVal").value = nextChar;
+    }
+
+    // Event Listeners
+    document.getElementById("btnPrev").addEventListener("click", () => {
+      stopPlaying();
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        renderStepState();
+      }
+    });
+
+    document.getElementById("btnNext").addEventListener("click", () => {
+      stopPlaying();
+      if (currentStepIdx < steps.length - 1) {
+        currentStepIdx++;
+        renderStepState();
+      }
+    });
+
+    document.getElementById("btnPrevPut").addEventListener("click", () => {
+      stopPlaying();
+      const prevStarts = opStartIndices.filter(idx => idx < currentStepIdx);
+      currentStepIdx = prevStarts.length > 0 ? prevStarts[prevStarts.length - 1] : 0;
+      renderStepState();
+    });
+
+    document.getElementById("btnNextPut").addEventListener("click", () => {
+      stopPlaying();
+      const nextStart = opStartIndices.find(idx => idx > currentStepIdx);
+      if (nextStart !== undefined) {
+        currentStepIdx = nextStart;
+        renderStepState();
+      }
+    });
+
+    document.getElementById("btnPlay").addEventListener("click", togglePlay);
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      stopPlaying();
+      currentStepIdx = 0;
+      renderStepState();
+    });
+
+    document.getElementById("speedSlider").addEventListener("input", (e) => {
+      playSpeed = Number(e.target.value);
+      document.getElementById("speedVal").textContent = `${playSpeed}ms`;
+      if (isPlaying) {
+        stopPlaying();
+        togglePlay();
+      }
+    });
+
+    document.getElementById("presetSelect").addEventListener("change", (e) => {
+      const presetKey = e.target.value;
+      if (PRESETS[presetKey]) {
+        loadOperations(PRESETS[presetKey]);
+      }
+    });
+
+    document.getElementById("btnAppendPut").addEventListener("click", () => {
+      const kInput = document.getElementById("inputPutKey");
+      const vInput = document.getElementById("inputPutVal");
+      const k = parseInt(kInput.value, 10);
+      const v = (vInput.value || "X").trim();
+      if (Number.isNaN(k)) return;
+
+      const updatedOps = [...operations, { key: k, val: v }];
+      loadOperations(updatedOps, updatedOps.length - 1);
+      kInput.value = Math.floor(Math.random() * 25) + 1;
+    });
+
+    document.getElementById("btnRandomPut").addEventListener("click", () => {
+      const rndKey = Math.floor(Math.random() * 30) + 1;
+      const rndVal = String.fromCharCode(65 + (operations.length % 26));
+      const updatedOps = [...operations, { key: rndKey, val: rndVal }];
+      loadOperations(updatedOps, updatedOps.length - 1);
+    });
+
+    // Custom Sequence Modal
+    const customModal = document.getElementById("customModal");
+    document.getElementById("btnCustomModal").addEventListener("click", () => {
+      stopPlaying();
+      document.getElementById("customSeqInput").value = operations.map(o => `${o.key}:${o.val}`).join(", ");
+      customModal.classList.add("open");
+    });
+
+    document.getElementById("btnCancelModal").addEventListener("click", () => {
+      customModal.classList.remove("open");
+    });
+
+    document.getElementById("btnApplyModal").addEventListener("click", () => {
+      const raw = document.getElementById("customSeqInput").value.trim();
+      if (!raw) return;
+      const parts = raw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+      const parsed = [];
+      parts.forEach((p, idx) => {
+        const [kStr, vStr] = p.split(":").map(x => x.trim());
+        const k = parseInt(kStr, 10);
+        if (!Number.isNaN(k)) {
+          const v = vStr || String.fromCharCode(65 + (idx % 26));
+          parsed.push({ key: k, val: v });
+        }
+      });
+      if (parsed.length > 0) {
+        loadOperations(parsed);
+        customModal.classList.remove("open");
+      }
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        document.getElementById("btnNext").click();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        document.getElementById("btnPrev").click();
+      } else if (e.key === " ") {
+        e.preventDefault();
+        togglePlay();
+      }
+    });
+
+    // Initialize with Javadoc preset
+    loadOperations(PRESETS.javadoc);
+  </script>
+</body>
+</html>
